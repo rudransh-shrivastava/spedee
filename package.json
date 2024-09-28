@@ -1,8 +1,7 @@
 {
-  "name": "course-crafter",
+  "name": "spedee",
   "version": "1.0.0",
-  "description": "A platform that helps transform video playlists into fully-featured interactive courses. Add descriptions, transcripts, quizzes, and more to enhance the learning experience. Built with TypeScript, React, Node.js, and MongoDB.",
-  "main": "index.js",
+  "description": "spedee",
   "scripts": {
     "dev": "concurrently \"npm run dev --prefix backend\" \"npm run dev --prefix frontend\"",
     "build": "npm run build --prefix backend && npm run build --prefix frontend",
