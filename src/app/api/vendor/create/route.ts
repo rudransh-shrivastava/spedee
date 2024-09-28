@@ -3,7 +3,7 @@ import { connectDB } from "@/lib/mongodb";
 // import Vendor from "@/models/Vendor";
 // import { VendorType } from "@/models/Vendor";
 // request: NextRequest
-export default async function POST() {
+export async function GET() {
   await connectDB();
 
   // const searchParams = request.nextUrl.searchParams;
@@ -24,4 +24,5 @@ export default async function POST() {
   //   openDays: openDays,
   //   openTime: openTime,
   // };
+  return Response.json({ message: "test " });
 }

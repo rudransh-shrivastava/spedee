@@ -12,6 +12,7 @@ export const authOptions: NextAuthOptions = {
     }),
   ],
   callbacks: {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     async signIn(data: any) {
       console.log(data);
       const account = data.account;

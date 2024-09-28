@@ -1,14 +1,14 @@
 import mongoose, { Document, Model } from "mongoose";
 
-enum Day {
-  MONDAY = "MONDAY",
-  TUESDAY = "TUESDAY",
-  WEDNESDAY = "WEDNESDAY",
-  THURSDAY = "THURSDAY",
-  FRIDAY = "FRIDAY",
-  SATURDAY = "SATURDAY",
-  SUNDAY = "SUNDAY",
-}
+// enum Day {
+//   MONDAY = "MONDAY",
+//   TUESDAY = "TUESDAY",
+//   WEDNESDAY = "WEDNESDAY",
+//   THURSDAY = "THURSDAY",
+//   FRIDAY = "FRIDAY",
+//   SATURDAY = "SATURDAY",
+//   SUNDAY = "SUNDAY",
+// }
 export type VendorType = {
   name: string;
   location: { lat: number; lng: number };

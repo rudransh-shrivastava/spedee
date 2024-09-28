@@ -1,6 +1,11 @@
 import mongoose, { Document, Model } from "mongoose";
 
-interface AttributeInterface extends Document {}
+type AttributeType = {
+  name: string;
+  value: string;
+};
+
+interface AttributeInterface extends AttributeType, Document {}
 
 const AttributeSchema = new mongoose.Schema<AttributeInterface>({});
 

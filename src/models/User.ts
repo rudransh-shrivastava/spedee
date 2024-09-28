@@ -1,9 +1,9 @@
 import mongoose, { Document, Model, Schema } from "mongoose";
 
 interface UserInterface extends Document {
-  email: String;
-  name: String;
-  role: String;
+  email: string;
+  name: string;
+  role: string;
 }
 
 const UserSchema = new Schema<UserInterface>({
