@@ -1,4 +1,5 @@
-import { Navbar } from "@/app/_components/Navbar";
+"use client";
+
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -7,18 +8,33 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { ProductType } from "@/models/Product";
+import axios from "axios";
 import Image from "next/image";
+import Link from "next/link";
+import { useEffect, useState } from "react";
 
 export default function Home() {
   return (
     <div>
-      <Navbar />
       <HomePage />
     </div>
   );
 }
 
 function HomePage() {
+  const [bestSellers, setBestSellers] = useState<ProductType[]>([]);
+
+  useEffect(() => {
+    try {
+      axios.get("/api/products/bestsellers").then((res) => {
+        if (res.status === 200 && res.data && res.data.length > 0) {
+          setBestSellers(res.data);
+        }
+      });
+    } catch (error) {}
+  }, []);
+
   return (
     <div className="mx-auto max-w-screen-xl px-8">
       <div className="py-4">
@@ -50,24 +66,80 @@ function HomePage() {
         </div>
       </div> */}
       <div className="py-4">
-        <ProductCard />
+        {bestSellers.map((product, index) => (
+          <ProductCard key={index} product={product} />
+        ))}
       </div>
     </div>
   );
 }
 
-function ProductCard() {
+function ProductCard({ product }: { product: ProductType }) {
+  const [addedCount, setAddedCount] = useState(0);
   return (
-    <Card className="max-w-[12rem]">
-      <CardHeader className="p-4 pb-2">
-        <Image src="/product-01.avif" alt="Bread" width={200} height={200} />
-        <CardTitle>Modern Sandwich Bread</CardTitle>
-        <CardDescription>400 g</CardDescription>
+    <Card className="group max-w-[16rem]">
+      <CardHeader className="overflow-hidden rounded-lg p-0 pb-2">
+        <div className="relative mx-auto size-[16rem] overflow-hidden rounded-lg rounded-b-none">
+          <div className="absolute h-full w-full animate-pulse bg-secondary-foreground/10"></div>
+          <Image
+            src={product.image}
+            alt={product.title}
+            width={200}
+            height={200}
+            className="absolute block h-full w-full transition-transform group-hover:rotate-1 group-hover:scale-105"
+          />
+        </div>
+        <CardTitle className="px-2 pt-2">
+          <Link
+            href={`/product/${product.productId}`}
+            className="hover:underline"
+          >
+            {product.title}
+          </Link>
+        </CardTitle>
+        <CardDescription className="px-2">
+          {product.description}
+        </CardDescription>
       </CardHeader>
       <CardContent className="p-4 pt-0">
         <div className="flex items-center justify-between">
-          <span className="font-bold">&#8377;38</span>
-          <Button>Add</Button>
+          <div className="flex items-center gap-2">
+            <span className="font-bold">&#8377;{product.salePriceInPaise}</span>
+            <span className="text-sm text-gray-400 line-through">
+              &#8377;{product.priceInPaise}
+            </span>
+          </div>
+          {addedCount > 0 ? (
+            <div className="flex h-9 min-w-16 items-center justify-between rounded-lg bg-primary text-background">
+              <Button
+                className="px-2 text-2xl font-medium leading-none"
+                onClick={() => {
+                  setAddedCount(addedCount - 1);
+                }}
+              >
+                -
+              </Button>
+              {addedCount}
+              <Button
+                className="px-2 text-lg font-medium leading-none"
+                onClick={() => {
+                  setAddedCount(addedCount + 1);
+                }}
+              >
+                +
+              </Button>
+            </div>
+          ) : (
+            <Button
+              variant="outline"
+              className="min-w-16"
+              onClick={() => {
+                setAddedCount(1);
+              }}
+            >
+              Add
+            </Button>
+          )}
         </div>
       </CardContent>
     </Card>
