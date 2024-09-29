@@ -4,6 +4,9 @@ import "./globals.css";
 import { Navbar } from "./_components/Navbar";
 import { Footer } from "./_components/Footer";
 import { cn } from "@/lib/utils";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import SessionProvider from "@/app/_components/SessionProvider";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -21,23 +24,26 @@ export const metadata: Metadata = {
   description: "Spedee",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const session = await getServerSession(authOptions);
   return (
     <html lang="en">
-      <body
-        className={cn(
-          `${geistSans.variable} ${geistMono.variable} antialiased`,
-          "min-h-svh"
-        )}
-      >
-        <Navbar />
-        <div className="mx-auto max-w-screen-xl p-4">{children}</div>
-        <Footer />
-      </body>
+      <SessionProvider session={session}>
+        <body
+          className={cn(
+            `${geistSans.variable} ${geistMono.variable} antialiased`,
+            "min-h-svh"
+          )}
+        >
+          <Navbar />
+          <div className="mx-auto max-w-screen-xl p-4">{children}</div>
+          <Footer />
+        </body>
+      </SessionProvider>
     </html>
   );
 }
