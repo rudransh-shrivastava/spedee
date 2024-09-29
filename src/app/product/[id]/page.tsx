@@ -20,8 +20,10 @@ export default function ProductPage({
           setProduct(() => ({ ...res.data.product, id: id }));
         }
       });
-    } catch (error) {}
-  }, []);
+    } catch (error) {
+      console.log(error);
+    }
+  }, [id]);
 
   useEffect(() => {
     if (product) {

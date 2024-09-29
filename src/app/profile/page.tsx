@@ -9,7 +9,6 @@ import Link from "next/link";
 
 export default function Page() {
   const { data } = useSession();
-  console.log(data?.user.role);
   return data && data.user ? (
     <div>
       <h1 className="text-2xl">Hii {data?.user.name}, How are you today</h1>
@@ -42,11 +41,11 @@ export default function Page() {
           <div className="text-sm">{data.user.email}</div>
         </div>
         <div className="ml-auto flex gap-2">
-          {/* {data.user.role === Role.VENDOR && ( */}
-          <Button asChild>
-            <Link href="/dashboard">Dashboard</Link>
-          </Button>
-          {/* )} */}
+          {data.user.role === Role.VENDOR && (
+            <Button asChild>
+              <Link href="/profile/dashboard">Dashboard</Link>
+            </Button>
+          )}
           <Button
             variant="destructive"
             onClick={(e) => {

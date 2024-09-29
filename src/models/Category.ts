@@ -11,9 +11,9 @@ const CategorySchema = new mongoose.Schema<CategoryInterface>({
     required: true,
   },
   parentCategoryId: {
-    type : String, 
-    default : null
-  }
+    type: String,
+    default: null,
+  },
 });
 
 const Category: Model<CategoryInterface> =

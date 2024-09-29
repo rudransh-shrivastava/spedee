@@ -29,7 +29,6 @@ import { CircleUser } from "lucide-react";
 export function Navbar() {
   const { data } = useSession();
   const [signingIn, setSigningIn] = useState(false);
-  console.log(data);
   return (
     <nav className="sticky top-0 z-50 flex h-20 w-full gap-4 border-b bg-background px-4">
       <Link href="/" className="shrink-0">
