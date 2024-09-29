@@ -25,62 +25,56 @@ export default function ProductPage({
 
   useEffect(() => {
     if (product) {
-      setTimeout(() => {
-        setIsSale(product.priceInPaise > product.salePriceInPaise);
-      }, 1000);
+      setIsSale(product.priceInPaise > product.salePriceInPaise);
     }
   }, [product]);
 
   return (
-    <div className="mx-auto max-w-screen-xl p-4">
-      <div className="grid grid-cols-[25rem,auto]">
-        {product && (
-          <div className="relative size-[25rem] overflow-hidden rounded-lg">
-            <div className="absolute h-full w-full animate-pulse bg-secondary-foreground/10"></div>
-            <Image
-              src={product.image}
-              width={400}
-              height={400}
-              alt={product.title}
-              className="absolute block h-full"
-            />
-          </div>
-        )}
-        <div className="space-y-2 p-4">
-          <h1 className="text-2xl font-medium">{product?.title}</h1>
-          {isSale && (
-            <div className="text-green-500">Special Price in Sale</div>
+    <div className="grid grid-cols-[25rem,auto]">
+      {product && (
+        <div className="relative size-[25rem] overflow-hidden rounded-lg">
+          <div className="absolute h-full w-full animate-pulse bg-secondary-foreground/10"></div>
+          <Image
+            src={product.image}
+            width={400}
+            height={400}
+            alt={product.title}
+            className="absolute block h-full"
+          />
+        </div>
+      )}
+      <div className="space-y-2 p-4">
+        <h1 className="text-2xl font-medium">{product?.title}</h1>
+        {isSale && <div className="text-green-500">Special Price in Sale</div>}
+        <div
+          className={cn(
+            "flex items-end gap-2",
+            isSale ? "grid-cols-[1fr,auto]" : ""
           )}
-          <div
+        >
+          {isSale && (
+            <span className="relative inline-block text-2xl font-bold">
+              &#8377;{product?.salePriceInPaise}
+            </span>
+          )}
+          <span
             className={cn(
-              "flex items-end gap-2",
-              isSale ? "grid-cols-[1fr,auto]" : ""
+              "relative inline-block px-1 text-2xl font-bold text-foreground",
+              isSale ? "text-lg opacity-55" : ""
             )}
           >
             {isSale && (
-              <span className="relative inline-block text-2xl font-bold">
-                &#8377;{product?.salePriceInPaise}
-              </span>
+              <span
+                className={cn(
+                  "absolute left-0 top-[calc(50%-1px)] block h-0.5 w-[0%] bg-current",
+                  isSale ? "w-full" : ""
+                )}
+              ></span>
             )}
-            <span
-              className={cn(
-                "relative inline-block px-1 text-2xl font-bold text-foreground",
-                isSale ? "text-lg opacity-55" : ""
-              )}
-            >
-              {isSale && (
-                <span
-                  className={cn(
-                    "absolute left-0 top-[calc(50%-1px)] block h-0.5 w-[0%] bg-current",
-                    isSale ? "w-full" : ""
-                  )}
-                ></span>
-              )}
-              &#8377;{product?.priceInPaise}
-            </span>
-          </div>
-          {/* <p className="">{product?.description}</p> */}
+            &#8377;{product?.priceInPaise}
+          </span>
         </div>
+        <p className="">{product?.description}</p>
       </div>
     </div>
   );

@@ -14,7 +14,7 @@ import {
 
 export function Navbar() {
   return (
-    <nav className="flex h-20 w-full gap-4 border-b px-4">
+    <nav className="sticky top-0 z-50 flex h-20 w-full gap-4 border-b bg-background px-4">
       <Link href="/" className="shrink-0">
         <div className="py-4">
           <Image src="/spedee-logo.png" alt="Logo" width={48} height={48} />
