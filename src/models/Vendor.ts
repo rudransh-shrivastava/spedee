@@ -1,5 +1,5 @@
 import mongoose, { Document, Model } from "mongoose";
-
+import z from "zod";
 // enum Day {
 //   MONDAY = "MONDAY",
 //   TUESDAY = "TUESDAY",
@@ -9,15 +9,24 @@ import mongoose, { Document, Model } from "mongoose";
 //   SATURDAY = "SATURDAY",
 //   SUNDAY = "SUNDAY",
 // }
-export type VendorType = {
-  name: string;
-  location: { lat: number; lng: number };
-  phoneNo: string;
-  address: string;
-  isOpen: boolean;
-  openDays: string[];
-  openTime: { day: string; openingTime: string; closingTime: string }[];
-};
+
+export const VendorZodSchema = z.object({
+  name: z.string(),
+  location: z.object({ lat: z.number(), lng: z.number() }),
+  phoneNo: z.string(),
+  address: z.string(),
+  isOpen: z.boolean(),
+  openDays: z.array(z.string()),
+  openTime: z.array(
+    z.object({
+      day: z.string(),
+      openingTime: z.string(),
+      closingTime: z.string(),
+    })
+  ),
+});
+
+export type VendorType = z.infer<typeof VendorZodSchema>;
 
 interface VendorInterface extends VendorType, Document {}
 
