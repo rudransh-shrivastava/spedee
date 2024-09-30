@@ -9,7 +9,7 @@ export type ProductType = {
   attributes: Record<string, string[]>;
   image: string;
   otherImages: string[];
-  vendorId: string;
+  vendorEmail: string;
   category: string;
   stock: number;
   bestSeller: boolean;
@@ -25,7 +25,7 @@ const ProductSchema = new mongoose.Schema<ProductInterface>({
   attributes: { type: Object, required: true },
   image: { type: String, required: true },
   otherImages: { type: [String], required: false },
-  vendorId: { type: String, required: true },
+  vendorEmail: { type: String, required: true },
   category: { type: String, required: true },
   stock: { type: Number, required: true },
   bestSeller: { type: Boolean, required: true },

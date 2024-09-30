@@ -16,14 +16,12 @@ export async function GET() {
     attributes: product.attributes,
     image: product.image,
     otherImages: product.otherImages,
-    vendorId: product.vendorId,
+    vendorEmail: product.vendorEmail,
     category: product.category,
     stock: product.stock,
     bestSeller: product.bestSeller,
     bestSellerPriority: product.bestSellerPriority,
   }));
 
-  return new Response(JSON.stringify(products), {
-    headers: { "Content-Type": "application/json" },
-  });
+  return Response.json({ products });
 }

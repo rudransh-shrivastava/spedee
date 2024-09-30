@@ -18,7 +18,7 @@ export default function OrdersTable() {
           attributes: { color: ["red", "blue"], size: ["small", "medium"] },
           image: "",
           otherImages: ["", ""],
-          vendorId: "adsf",
+          vendorEmail: "adsf@gmail.com",
           category: "category",
           stock: 12,
           bestSeller: true,

@@ -12,6 +12,7 @@ import z from "zod";
 
 export const VendorZodSchema = z.object({
   name: z.string(),
+  email: z.string(),
   location: z.object({ lat: z.number(), lng: z.number() }),
   phoneNo: z.string(),
   address: z.string(),
@@ -32,6 +33,7 @@ interface VendorInterface extends VendorType, Document {}
 
 const VendorSchema = new mongoose.Schema<VendorInterface>({
   name: { type: String, required: true },
+  email: { type: String, required: true },
   location: { type: { lat: Number, lng: Number }, required: true },
   phoneNo: { type: String, required: true },
   address: { type: String, required: true },
