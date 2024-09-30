@@ -13,7 +13,11 @@ export type OrderType = {
 export const columns: ColumnDef<OrderType>[] = [
   {
     accessorKey: "id",
-    header: "Id",
+    header: () => <div className="text-center">&#35;</div>,
+    cell: ({ row }) => {
+      const amount = parseFloat(row.getValue("amount"));
+      return <div className="text-center font-medium">{amount}</div>;
+    },
   },
   {
     accessorKey: "status",

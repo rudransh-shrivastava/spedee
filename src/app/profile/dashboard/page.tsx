@@ -27,6 +27,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { PlusIcon } from "lucide-react";
+import OrdersTable from "./components/OrdersTable";
 
 export default function Page() {
   const [bestSellers, setBestSellers] = useState<ProductType[]>([]);
@@ -46,7 +47,7 @@ export default function Page() {
   return (
     <div>
       <h1 className="text-2xl">Dashboard</h1>
-      <Tabs defaultValue="products" className="mt-4">
+      <Tabs defaultValue="orders" className="mt-4">
         <TabsList>
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="products">Products</TabsTrigger>
@@ -93,7 +94,7 @@ export default function Page() {
         <TabsContent value="products">
           <div className="flex min-h-[16rem] flex-wrap gap-4 py-4">
             <Button
-              className="h-auto w-full max-w-[16rem] flex-col gap-2 rounded-xl border bg-card text-card-foreground shadow"
+              className="h-auto min-h-[24rem] w-full max-w-[16rem] flex-col gap-2 rounded-xl border bg-card text-card-foreground shadow"
               variant="ghost"
               asChild
             >
@@ -107,7 +108,9 @@ export default function Page() {
             ))}
           </div>
         </TabsContent>
-        <TabsContent value="orders"></TabsContent>
+        <TabsContent value="orders">
+          <OrdersTable />
+        </TabsContent>
       </Tabs>
     </div>
   );
