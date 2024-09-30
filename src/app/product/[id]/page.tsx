@@ -15,7 +15,7 @@ export default function ProductPage({
   const [isSale, setIsSale] = useState(false);
   useEffect(() => {
     try {
-      axios.get(`/api/product?productId=${id}`).then((res) => {
+      axios.get(`/api/v1/product?productId=${id}`).then((res) => {
         if (res.status === 200 && res.data) {
           setProduct(() => ({ ...res.data.product, id: id }));
         }

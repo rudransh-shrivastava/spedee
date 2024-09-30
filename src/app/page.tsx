@@ -27,7 +27,7 @@ function HomePage() {
 
   useEffect(() => {
     try {
-      axios.get("/api/products/bestsellers").then((res) => {
+      axios.get("/api/v1/products/bestsellers").then((res) => {
         if (res.status === 200 && res.data && res.data.length > 0) {
           setBestSellers(res.data);
         }

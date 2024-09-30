@@ -16,7 +16,7 @@ export default function EditProductPage({
 
   useEffect(() => {
     try {
-      axios.get(`/api/product?productId=${id}`).then((res) => {
+      axios.get(`/api/v1/product?productId=${id}`).then((res) => {
         if (res.status === 200 && res.data && res.data.product) {
           setProduct(res.data.product);
         }
