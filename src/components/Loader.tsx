@@ -1,8 +1,12 @@
+import { cn } from "@/lib/utils";
+
 export default function Loader({ className }: { className?: string }) {
   return (
-    <div className={className}>
+    <div className={cn("size-10", className)}>
       <svg
         className="h-full w-full animate-spin fill-foreground stroke-secondary"
+        width={40}
+        height={40}
         xmlns="http://www.w3.org/2000/svg"
         viewBox="0 0 100 100"
       >

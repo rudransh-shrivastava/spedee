@@ -1,7 +1,7 @@
 import { z, ZodFormattedError } from "zod";
 
 export const ProductSchema = z.object({
-  title: z.string(),
+  title: z.string().min(1),
   description: z.string(),
   priceInPaise: z.number(),
   salePriceInPaise: z.number().optional(),
@@ -16,6 +16,4 @@ export const ProductSchema = z.object({
 });
 
 export type ProductSchemaType = z.infer<typeof ProductSchema>;
-export type ProductSchemaFormattedError = ZodFormattedError<
-  typeof ProductSchema
->;
+export type ProductSchemaFormattedError = ZodFormattedError<ProductSchemaType>;
