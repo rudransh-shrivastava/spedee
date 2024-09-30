@@ -26,6 +26,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { PlusIcon } from "lucide-react";
 
 export default function Page() {
   const [bestSellers, setBestSellers] = useState<ProductType[]>([]);
@@ -90,7 +91,17 @@ export default function Page() {
           </div>
         </TabsContent>
         <TabsContent value="products">
-          <div>
+          <div className="flex min-h-[16rem] flex-wrap gap-4 py-4">
+            <Button
+              className="h-auto w-full max-w-[16rem] flex-col gap-2 rounded-xl border bg-card text-card-foreground shadow"
+              variant="ghost"
+              asChild
+            >
+              <Link href="/profile/dashboard/product/create">
+                <PlusIcon className="size-8" />
+                <span>Add a Product</span>
+              </Link>
+            </Button>
             {bestSellers.map((product, index) => (
               <ProductCard key={index} product={product} />
             ))}
@@ -140,7 +151,7 @@ function ProductCard({ product }: { product: ProductType }) {
       </CardContent>
       <CardFooter className="flex flex-col gap-2 p-2 pt-4">
         <Button className="w-full" asChild>
-          <Link href={`/profile/dashboard/edit-product/${product.productId}`}>
+          <Link href={`/profile/dashboard/product/edit/${product.productId}`}>
             Edit
           </Link>
         </Button>
