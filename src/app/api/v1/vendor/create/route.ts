@@ -2,6 +2,7 @@ import { connectDB } from "@/lib/mongodb";
 
 import Vendor, { VendorZodSchema } from "@/models/Vendor";
 // TODO: protect route, only allow "admin" to create vendor
+// TODO: link vendor to already created user
 export async function POST(req: Request) {
   await connectDB();
 
