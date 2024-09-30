@@ -7,6 +7,7 @@ export default function OrdersTable() {
       id: "728ed52f",
       amount: 100,
       status: "pending",
+      priority: "low",
       products: [
         {
           productId: "1",
@@ -30,12 +31,14 @@ export default function OrdersTable() {
       id: "728ed52f",
       amount: 100,
       status: "pending",
+      priority: "high",
       products: [],
     },
     {
       id: "489e1d42",
       amount: 125,
       status: "processing",
+      priority: "medium",
       products: [],
     },
   ];

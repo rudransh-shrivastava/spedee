@@ -19,6 +19,7 @@ export type OrderType = {
   amount: number;
   status: "pending" | "processing" | "success" | "failed";
   products: ProductType[];
+  priority: "low" | "medium" | "high";
 };
 
 export const columns: ColumnDef<OrderType>[] = [
@@ -34,6 +35,11 @@ export const columns: ColumnDef<OrderType>[] = [
   {
     accessorKey: "status",
     header: "Status",
+  },
+
+  {
+    accessorKey: "priority",
+    header: "Priority",
   },
   {
     accessorKey: "amount",
