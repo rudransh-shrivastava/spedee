@@ -20,7 +20,7 @@ export async function GET() {
 
   const products: ProductType[] = data.map((product) => ({
     productId: product._id as string,
-    title: product.name,
+    name: product.name,
     description: product.description,
     priceInPaise: product.priceInPaise,
     salePriceInPaise: product.salePriceInPaise,
