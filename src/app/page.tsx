@@ -28,14 +28,23 @@ function HomePage() {
   useEffect(() => {
     try {
       axios.get("/api/v1/products/bestsellers").then((res) => {
-        if (res.status === 200 && res.data && res.data.length > 0) {
-          setBestSellers(res.data);
+        console.log(res.data.products);
+        if (
+          res.status === 200 &&
+          res.data.products &&
+          res.data.products.length > 0
+        ) {
+          setBestSellers(res.data.products);
         }
       });
     } catch (error) {
       console.log(error);
     }
   }, []);
+
+  useEffect(() => {
+    console.log(bestSellers);
+  }, [bestSellers]);
 
   return (
     <div className="mx-auto max-w-screen-xl px-8">

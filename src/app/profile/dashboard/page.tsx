@@ -34,9 +34,13 @@ export default function Page() {
 
   useEffect(() => {
     try {
-      axios.get("/api/v1/products/bestsellers").then((res) => {
-        if (res.status === 200 && res.data && res.data.length > 0) {
-          setBestSellers(res.data);
+      axios.get("/api/v1/products").then((res) => {
+        if (
+          res.status === 200 &&
+          res.data.products &&
+          res.data.products.length > 0
+        ) {
+          setBestSellers(res.data.products);
         }
       });
     } catch (error) {
@@ -47,7 +51,7 @@ export default function Page() {
   return (
     <div>
       <h1 className="text-2xl">Dashboard</h1>
-      <Tabs defaultValue="orders" className="mt-4">
+      <Tabs defaultValue="products" className="mt-4">
         <TabsList>
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="products">Products</TabsTrigger>
@@ -118,7 +122,7 @@ export default function Page() {
 
 function ProductCard({ product }: { product: ProductType }) {
   return (
-    <Card className="group max-w-[16rem]">
+    <Card className="group flex max-w-[16rem] flex-col">
       <CardHeader className="overflow-hidden rounded-lg p-0 pb-2">
         <div className="relative mx-auto size-[16rem] overflow-hidden rounded-lg rounded-b-none">
           <div className="absolute h-full w-full animate-pulse bg-secondary-foreground/10"></div>
@@ -152,7 +156,7 @@ function ProductCard({ product }: { product: ProductType }) {
           </div>
         </div>
       </CardContent>
-      <CardFooter className="flex flex-col gap-2 p-2 pt-4">
+      <CardFooter className="mt-auto flex flex-col gap-2 p-2 pt-4">
         <Button className="w-full" asChild>
           <Link href={`/profile/dashboard/product/edit/${product.productId}`}>
             Edit
