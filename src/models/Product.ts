@@ -2,7 +2,7 @@ import mongoose, { Document, Model } from "mongoose";
 
 export type ProductType = {
   productId: string;
-  title: string;
+  name: string;
   description: string;
   priceInPaise: number;
   salePriceInPaise: number;
@@ -18,7 +18,7 @@ export type ProductType = {
 interface ProductInterface extends ProductType, Document {}
 
 const ProductSchema = new mongoose.Schema<ProductInterface>({
-  title: { type: String, required: true },
+  name: { type: String, required: true },
   description: { type: String, required: true },
   priceInPaise: { type: Number, required: true },
   salePriceInPaise: { type: Number, required: false },

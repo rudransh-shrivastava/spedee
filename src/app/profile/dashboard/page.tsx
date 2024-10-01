@@ -124,7 +124,7 @@ function ProductCard({ product }: { product: ProductType }) {
           <div className="absolute h-full w-full animate-pulse bg-secondary-foreground/10"></div>
           <Image
             src={product.image}
-            alt={product.title}
+            alt={product.name}
             width={200}
             height={200}
             className="absolute block h-full w-full transition-transform group-hover:rotate-1 group-hover:scale-105"
@@ -135,7 +135,7 @@ function ProductCard({ product }: { product: ProductType }) {
             href={`/product/${product.productId}`}
             className="hover:underline"
           >
-            {product.title}
+            {product.name}
           </Link>
         </CardTitle>
         <CardDescription className="px-2">

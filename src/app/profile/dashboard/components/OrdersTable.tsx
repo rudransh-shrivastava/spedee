@@ -11,7 +11,7 @@ export default function OrdersTable() {
       products: [
         {
           productId: "1",
-          title: "Product 1",
+          name: "Product 1",
           description: "Product 1 description",
           priceInPaise: 1200,
           salePriceInPaise: 12,

@@ -65,9 +65,9 @@ export function ProductForm({ productProps }: { productProps: ProductType }) {
       <FormGroup>
         <Label>Title</Label>
         <Input
-          value={product.title}
+          value={product.name}
           onChange={(e) => {
-            setProduct((p) => ({ ...p, title: e.target.value }));
+            setProduct((p) => ({ ...p, name: e.target.value }));
           }}
         />
         {productErrors.title && (

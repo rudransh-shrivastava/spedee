@@ -40,13 +40,13 @@ export default function ProductPage({
             src={product.image}
             width={400}
             height={400}
-            alt={product.title}
+            alt={product.name}
             className="absolute block h-full"
           />
         </div>
       )}
       <div className="space-y-2 p-4">
-        <h1 className="text-2xl font-medium">{product?.title}</h1>
+        <h1 className="text-2xl font-medium">{product?.name}</h1>
         {isSale && <div className="text-green-500">Special Price in Sale</div>}
         <div
           className={cn(
