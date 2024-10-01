@@ -1,17 +1,11 @@
 import { connectDB } from "@/lib/mongodb";
 import { NextRequest } from "next/server";
 import { Client } from "@googlemaps/google-maps-services-js";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
 
 export async function POST(req: NextRequest) {
   await connectDB();
   const data = await req.json();
-  const session = await getServerSession(authOptions);
 
-  if (!session) {
-    return Response.json({ message: "Unauthorized" }, { status: 401 });
-  }
   const query = data.query;
   if (!query) {
     return Response.json(
