@@ -18,5 +18,5 @@ export async function POST(req: NextRequest) {
     productId: product.id.toString(),
   };
 
-  return Response.json({ productWithId });
+  return Response.json({ product: productWithId });
 }

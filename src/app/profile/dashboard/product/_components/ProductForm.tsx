@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ProductType } from "@/models/Product";
-import { useCallback, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import {
   ProductSchema,
   ProductSchemaFormattedError,
@@ -11,10 +11,12 @@ import { cn } from "@/lib/utils";
 import { Switch } from "@/components/ui/switch";
 import { PlusIcon, XIcon } from "lucide-react";
 import Loader from "@/components/Loader";
+import axios from "axios";
 
 export function ProductForm({ productProps }: { productProps: ProductType }) {
   const [product, setProduct] = useState<ProductType>({
     ...productProps,
+    vendorEmail: "idk",
     attributes: productProps.attributes || {},
   });
 
@@ -24,6 +26,8 @@ export function ProductForm({ productProps }: { productProps: ProductType }) {
 
   const [submitting, setSubmitting] = useState(false);
   const [newAttribute, setNewAttribute] = useState("");
+  const imageInputRef = useRef<HTMLInputElement | null>(null);
+  const otherImagesInputRef = useRef<HTMLInputElement | null>(null);
 
   const setAttributeValue = useCallback(
     (attribute: string, value: string[]) => {
@@ -50,28 +54,59 @@ export function ProductForm({ productProps }: { productProps: ProductType }) {
           setErrors({ _errors: [] });
           setSubmitting(true);
 
-          const x = new Promise<void>((resolve) => {
-            setTimeout(() => {
-              resolve();
-            }, 1000);
-          });
+          // TODO: convert to the better one(simplify)
+          const formData = new FormData();
+          formData.append("productId", product.productId);
+          formData.append("name", product.name);
+          formData.append("description", product.description);
+          formData.append("priceInPaise", product.priceInPaise.toString());
+          formData.append(
+            "salePriceInPaise",
+            product.salePriceInPaise.toString()
+          );
+          formData.append("attributes", JSON.stringify(product.attributes));
+          // images
+          if (
+            imageInputRef.current?.files &&
+            otherImagesInputRef.current?.files
+          ) {
+            formData.append("image", imageInputRef.current.files[0]);
+            for (let i = 0; i < otherImagesInputRef.current.files.length; i++) {
+              formData.append(
+                "otherImages",
+                otherImagesInputRef.current.files[i]
+              );
+            }
+          }
+          // ^images
+          formData.append("vendorEmail", product.vendorEmail);
+          formData.append("category", product.category);
+          formData.append("stock", product.stock.toString());
+          formData.append("bestSeller", product.bestSeller.toString());
+          formData.append(
+            "bestSellerPriority",
+            product.bestSellerPriority.toString()
+          );
 
-          x.then(() => {
-            setSubmitting(false);
-          });
+          setSubmitting(false);
+
+          axios
+            .post("/api/v1/vendor/update", formData)
+            .then((res) => console.log(res))
+            .catch((err) => console.log("Error occured", err));
         }
       }}
     >
       <FormGroup>
-        <Label>Title</Label>
+        <Label>Name</Label>
         <Input
           value={product.name}
           onChange={(e) => {
             setProduct((p) => ({ ...p, name: e.target.value }));
           }}
         />
-        {productErrors.title && (
-          <div className="col-start-2 text-destructive">Title is required</div>
+        {productErrors.name && (
+          <div className="col-start-2 text-destructive">name is required</div>
         )}
       </FormGroup>
       <FormGroup>
@@ -167,14 +202,14 @@ export function ProductForm({ productProps }: { productProps: ProductType }) {
       </FormGroup>
       <FormGroup>
         <Label>Image</Label>
-        <Input />
+        <Input className="h-20" type="file" accept="image/*" />
         {productErrors.image && (
           <div className="col-start-2 text-destructive">Image is required</div>
         )}
       </FormGroup>
       <FormGroup>
         <Label>Other Images</Label>
-        <Input />
+        <Input className="h-20" type="file" accept="image/*" multiple />
         {productErrors.otherImages && (
           <div className="col-start-2 text-destructive">
             Other Images is required
