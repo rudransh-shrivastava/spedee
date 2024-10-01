@@ -13,7 +13,13 @@ import { PlusIcon, XIcon } from "lucide-react";
 import Loader from "@/components/Loader";
 import axios from "axios";
 
-export function ProductForm({ productProps }: { productProps: ProductType }) {
+export function ProductForm({
+  productProps,
+  submitUrl,
+}: {
+  productProps: ProductType;
+  submitUrl: string;
+}) {
   const [product, setProduct] = useState<ProductType>({
     ...productProps,
     vendorEmail: "idk",
@@ -89,11 +95,12 @@ export function ProductForm({ productProps }: { productProps: ProductType }) {
           );
 
           setSubmitting(false);
-
-          axios
-            .post("/api/v1/vendor/update", formData)
-            .then((res) => console.log(res))
-            .catch((err) => console.log("Error occured", err));
+          if (submitUrl) {
+            axios
+              .post(submitUrl, formData)
+              .then((res) => console.log(res))
+              .catch((err) => console.log("Error occured", err));
+          }
         }
       }}
     >

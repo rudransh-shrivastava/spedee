@@ -37,7 +37,7 @@ export default function EditProductPage({
         <BackButton />
         <h1 className="text-2xl">Edit Product</h1>
       </div>
-      <ProductForm productProps={product} />
+      <ProductForm productProps={product} submitUrl="" />
     </>
   ) : (
     <div className="flex justify-center py-20">
