@@ -1,34 +1,77 @@
+import { cn } from "@/lib/utils";
+import Link from "next/link";
+
 export function Footer() {
   return (
     <footer className="sticky top-full w-full border-t">
-      <div className="mx-auto grid max-w-screen-xl grid-cols-3 p-4 pb-8">
-        <div>
-          <span className="text-lg font-medium">Spedee</span>
-          <div className="mt-2 flex flex-col gap-1">
-            <span>About</span>
-            <span>Blog</span>
-            <span>FAQ</span>
-            <span>Contact</span>
+      <div className="mx-auto grid max-w-screen-xl grid-cols-4 gap-8 p-4 pb-8">
+        <div className="py-10">
+          <h3 className="flex h-12 items-center px-4 text-lg font-bold">
+            Spedee
+          </h3>
+          <div className="flex flex-col">
+            <FooterLink>About</FooterLink>
+            <FooterLink>Blog</FooterLink>
+            <FooterLink>FAQ</FooterLink>
+            <FooterLink>Contact</FooterLink>
           </div>
         </div>
-        <div>
-          <span className="text-lg font-medium">Spedee</span>
-          <div className="mt-2 flex flex-col gap-1">
-            <span>About</span>
-            <span>Blog</span>
-            <span>FAQ</span>
-            <span>Contact</span>
+        <div className="py-10">
+          <h3 className="flex h-12 items-center px-4 text-lg font-bold">
+            Spedee
+          </h3>
+          <div className="flex flex-col">
+            <FooterLink>About</FooterLink>
+            <FooterLink>Blog</FooterLink>
+            <FooterLink>FAQ</FooterLink>
+            <FooterLink>Contact</FooterLink>
           </div>
-        </div>
-        <div>
-          <span className="text-lg font-medium">Social</span>
-          <div className="mt-2 flex flex-col gap-1">
-            <span>Youtube</span>
-            <span>Instagram</span>
-            <span>X</span>
+        </div>{" "}
+        <div className="py-10">
+          <h3 className="flex h-12 items-center px-4 text-lg font-bold">
+            Spedee
+          </h3>
+          <div className="flex flex-col">
+            <FooterLink>About</FooterLink>
+            <FooterLink>Blog</FooterLink>
+            <FooterLink>FAQ</FooterLink>
+            <FooterLink>Contact</FooterLink>
+          </div>
+        </div>{" "}
+        <div className="py-10">
+          <h3 className="flex h-12 items-center px-4 text-lg font-bold">
+            Spedee
+          </h3>
+          <div className="flex flex-col">
+            <FooterLink>About</FooterLink>
+            <FooterLink>Blog</FooterLink>
+            <FooterLink>FAQ</FooterLink>
+            <FooterLink>Contact</FooterLink>
           </div>
         </div>
       </div>
     </footer>
+  );
+}
+
+function FooterLink({
+  className,
+  href,
+  children,
+}: {
+  className?: string;
+  href?: string;
+  children?: React.ReactNode;
+}) {
+  return (
+    <Link
+      href={href || "/"}
+      className={cn(
+        "flex h-10 cursor-pointer items-center rounded-lg px-4 text-secondary-foreground transition-colors hover:bg-secondary hover:text-foreground",
+        className
+      )}
+    >
+      {children}
+    </Link>
   );
 }
