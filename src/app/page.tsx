@@ -13,6 +13,7 @@ import axios from "axios";
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import Cart from "@/app/_components/Cart";
 
 export default function Home() {
   return (
@@ -28,7 +29,6 @@ function HomePage() {
   useEffect(() => {
     try {
       axios.get("/api/v1/products/bestsellers").then((res) => {
-        console.log(res.data.products);
         if (
           res.status === 200 &&
           res.data.products &&
@@ -41,10 +41,6 @@ function HomePage() {
       console.log(error);
     }
   }, []);
-
-  useEffect(() => {
-    console.log(bestSellers);
-  }, [bestSellers]);
 
   return (
     <div className="mx-auto max-w-screen-xl px-8">
@@ -87,6 +83,8 @@ function HomePage() {
 
 function ProductCard({ product }: { product: ProductType }) {
   const [addedCount, setAddedCount] = useState(0);
+  const [loadingAddedCount, setLoadingAddedCount] = useState(false);
+
   return (
     <Card className="group max-w-[16rem]">
       <CardHeader className="overflow-hidden rounded-lg p-0 pb-2">
@@ -123,18 +121,40 @@ function ProductCard({ product }: { product: ProductType }) {
           {addedCount > 0 ? (
             <div className="flex h-9 min-w-16 items-center justify-between rounded-lg bg-primary text-background">
               <Button
+                disabled={loadingAddedCount}
                 className="px-2 text-2xl font-medium leading-none"
                 onClick={() => {
-                  setAddedCount(addedCount - 1);
+                  setLoadingAddedCount(true);
+                  axios
+                    .post("/api/v1/cart/edit", {
+                      productId: product.productId,
+                      quantity: addedCount - 1,
+                    })
+                    .then((res) => {
+                      console.log(res.data);
+                      setAddedCount(addedCount - 1);
+                      setLoadingAddedCount(false);
+                    });
                 }}
               >
                 -
               </Button>
               {addedCount}
               <Button
+                disabled={loadingAddedCount}
                 className="px-2 text-lg font-medium leading-none"
                 onClick={() => {
-                  setAddedCount(addedCount + 1);
+                  setLoadingAddedCount(true);
+                  axios
+                    .post("/api/v1/cart/edit", {
+                      productId: product.productId,
+                      quantity: addedCount + 1,
+                    })
+                    .then((res) => {
+                      console.log(res.data);
+                      setAddedCount(addedCount + 1);
+                      setLoadingAddedCount(false);
+                    });
                 }}
               >
                 +
@@ -142,10 +162,21 @@ function ProductCard({ product }: { product: ProductType }) {
             </div>
           ) : (
             <Button
+              disabled={loadingAddedCount}
               variant="outline"
               className="min-w-16"
               onClick={() => {
-                setAddedCount(1);
+                setLoadingAddedCount(true);
+                axios
+                  .post("/api/v1/cart/edit", {
+                    productId: product.productId,
+                    quantity: 1,
+                  })
+                  .then((res) => {
+                    console.log(res.data);
+                    setAddedCount(1);
+                    setLoadingAddedCount(false);
+                  });
               }}
             >
               Add
