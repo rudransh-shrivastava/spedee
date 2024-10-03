@@ -43,7 +43,12 @@ export default function Page() {
         <div className="ml-auto flex gap-2">
           {data.user.role === Role.VENDOR && (
             <Button asChild>
-              <Link href="/profile/dashboard">Dashboard</Link>
+              <Link href="/profile/dashboard/vendor">Dashboard</Link>
+            </Button>
+          )}
+          {data.user.role === Role.ADMIN && (
+            <Button asChild>
+              <Link href="/profile/dashboard/admin">Dashboard</Link>
             </Button>
           )}
           <Button

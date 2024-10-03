@@ -2,7 +2,7 @@
 
 import Loader from "@/components/Loader";
 import BackButton from "@/components/BackButton";
-import { ProductForm } from "@/app/profile/dashboard/product/_components/ProductForm";
+import { ProductForm } from "@/app/profile/dashboard/vendor/product/_components/ProductForm";
 
 export default function CreateProductPage() {
   const product = {

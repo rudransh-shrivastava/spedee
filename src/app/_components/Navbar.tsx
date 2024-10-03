@@ -73,60 +73,58 @@ export function Navbar() {
       </div>
       <div className="flex shrink-0 items-center justify-center">
         {data && data.user ? (
-          <div>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant="secondary"
-                  size="icon"
-                  className="relative size-9 rounded-full border"
-                >
-                  <CircleUser className="absolute" />
-                  {data.user.image && (
-                    <Image
-                      src={data.user.image}
-                      className="absolute rounded-full"
-                      width={36}
-                      height={36}
-                      alt=""
-                    />
-                  )}
-                  <span className="sr-only">Toggle user menu</span>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuLabel>
-                  <div className="px-2 py-1.5 text-sm font-normal">
-                    <div className="flex flex-col space-y-1">
-                      <p className="text-sm font-medium leading-none">
-                        {data.user.name}
-                      </p>
-                      <p className="text-xs leading-none text-muted-foreground">
-                        {data.user.email}
-                      </p>
-                    </div>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="secondary"
+                size="icon"
+                className="relative size-9 rounded-full border"
+              >
+                <CircleUser className="absolute" />
+                {data.user.image && (
+                  <Image
+                    src={data.user.image}
+                    className="absolute rounded-full"
+                    width={36}
+                    height={36}
+                    alt=""
+                  />
+                )}
+                <span className="sr-only">Toggle user menu</span>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuLabel>
+                <div className="px-2 py-1.5 text-sm font-normal">
+                  <div className="flex flex-col space-y-1">
+                    <p className="text-sm font-medium leading-none">
+                      {data.user.name}
+                    </p>
+                    <p className="text-xs leading-none text-muted-foreground">
+                      {data.user.email}
+                    </p>
                   </div>
-                </DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem asChild className="cursor-pointer">
-                  <Link href="/profile">Profile</Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild className="cursor-pointer">
-                  <Link href="/support">Support</Link>
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem
-                  className="cursor-pointer"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    signOut();
-                  }}
-                >
-                  Logout
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
+                </div>
+              </DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem asChild className="cursor-pointer">
+                <Link href="/profile">Profile</Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild className="cursor-pointer">
+                <Link href="/support">Support</Link>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                className="cursor-pointer"
+                onClick={(e) => {
+                  e.preventDefault();
+                  signOut();
+                }}
+              >
+                Logout
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         ) : (
           <Button
             variant="secondary"

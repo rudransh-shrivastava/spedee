@@ -50,8 +50,8 @@ export default function Page() {
 
   return (
     <div>
-      <h1 className="text-2xl">Dashboard</h1>
-      <Tabs defaultValue="products" className="mt-4">
+      <h1 className="mb-4 text-2xl">Dashboard</h1>
+      <Tabs defaultValue="products">
         <TabsList>
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="products">Products</TabsTrigger>
@@ -102,7 +102,7 @@ export default function Page() {
               variant="ghost"
               asChild
             >
-              <Link href="/profile/dashboard/product/create">
+              <Link href="/profile/dashboard/vendor/product/create">
                 <PlusIcon className="size-8" />
                 <span>Add a Product</span>
               </Link>
@@ -158,7 +158,9 @@ function ProductCard({ product }: { product: ProductType }) {
       </CardContent>
       <CardFooter className="mt-auto flex flex-col gap-2 p-2 pt-4">
         <Button className="w-full" asChild>
-          <Link href={`/profile/dashboard/product/edit/${product.productId}`}>
+          <Link
+            href={`/profile/dashboard/vendor/product/edit/${product.productId}`}
+          >
             Edit
           </Link>
         </Button>

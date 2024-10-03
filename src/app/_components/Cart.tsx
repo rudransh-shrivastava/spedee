@@ -96,6 +96,7 @@ function CartItemCard({ product }: { product: ProductType }) {
         <Button
           className="rounded-l-none px-2 text-lg font-medium leading-none"
           variant="ghost"
+          onClick={() => setAddedCount(addedCount + 1)}
         >
           +
         </Button>
