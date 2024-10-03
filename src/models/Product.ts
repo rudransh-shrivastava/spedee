@@ -1,7 +1,6 @@
 import mongoose, { Document, Model } from "mongoose";
 
 export type ProductType = {
-  productId: string;
   name: string;
   description: string;
   priceInPaise: number;

@@ -17,11 +17,12 @@ export function ProductForm({
   productProps,
   submitUrl,
 }: {
-  productProps: ProductType;
+  productProps: ProductType & { id: string };
   submitUrl: string;
 }) {
-  const [product, setProduct] = useState<ProductType>({
+  const [product, setProduct] = useState<ProductType & { id: string }>({
     ...productProps,
+    id: productProps.id || "",
     vendorEmail: "idk",
     attributes: productProps.attributes || {},
   });
@@ -62,7 +63,7 @@ export function ProductForm({
 
           // TODO: convert to the better one(simplify)
           const formData = new FormData();
-          formData.append("productId", product.productId);
+          formData.append("productId", product.id);
           formData.append("name", product.name);
           formData.append("description", product.description);
           formData.append("priceInPaise", product.priceInPaise.toString());

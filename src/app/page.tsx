@@ -23,7 +23,9 @@ export default function Home() {
 }
 
 function HomePage() {
-  const [bestSellers, setBestSellers] = useState<ProductType[]>([]);
+  const [bestSellers, setBestSellers] = useState<
+    (ProductType & { id: string })[]
+  >([]);
 
   useEffect(() => {
     try {
@@ -80,7 +82,7 @@ function HomePage() {
   );
 }
 
-function ProductCard({ product }: { product: ProductType }) {
+function ProductCard({ product }: { product: ProductType & { id: string } }) {
   const [addedCount, setAddedCount] = useState(0);
   const [loadingAddedCount, setLoadingAddedCount] = useState(false);
 
@@ -98,10 +100,7 @@ function ProductCard({ product }: { product: ProductType }) {
           />
         </div>
         <CardTitle className="px-2 pt-2">
-          <Link
-            href={`/product/${product.productId}`}
-            className="hover:underline"
-          >
+          <Link href={`/product/${product.id}`} className="hover:underline">
             {product.name}
           </Link>
         </CardTitle>
@@ -126,7 +125,7 @@ function ProductCard({ product }: { product: ProductType }) {
                   setLoadingAddedCount(true);
                   axios
                     .post("/api/v1/cart/edit", {
-                      productId: product.productId,
+                      productId: product.id,
                       quantity: addedCount - 1,
                     })
                     .then((res) => {
@@ -146,7 +145,7 @@ function ProductCard({ product }: { product: ProductType }) {
                   setLoadingAddedCount(true);
                   axios
                     .post("/api/v1/cart/edit", {
-                      productId: product.productId,
+                      productId: product.id,
                       quantity: addedCount + 1,
                     })
                     .then((res) => {
@@ -168,7 +167,7 @@ function ProductCard({ product }: { product: ProductType }) {
                 setLoadingAddedCount(true);
                 axios
                   .post("/api/v1/cart/edit", {
-                    productId: product.productId,
+                    productId: product.id,
                     quantity: 1,
                   })
                   .then((res) => {

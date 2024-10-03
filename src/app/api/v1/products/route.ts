@@ -7,21 +7,24 @@ export async function GET() {
 
   const data = await Product.find();
 
-  const products: ProductType[] = data.map((product) => ({
-    productId: product._id as string,
-    name: product.name,
-    description: product.description,
-    priceInPaise: product.priceInPaise,
-    salePriceInPaise: product.salePriceInPaise,
-    attributes: product.attributes,
-    image: product.image,
-    otherImages: product.otherImages,
-    vendorEmail: product.vendorEmail,
-    category: product.category,
-    stock: product.stock,
-    bestSeller: product.bestSeller,
-    bestSellerPriority: product.bestSellerPriority,
-  }));
+  const products: (Omit<ProductType, "vendorEmail"> & { id: string })[] =
+    data.map((product): Omit<ProductType, "vendorEmail"> & { id: string } => ({
+      id: product.id.toString(),
+      name: product.name,
+      description: product.description,
+      priceInPaise: product.priceInPaise,
+      salePriceInPaise: product.salePriceInPaise,
+      attributes: product.attributes,
+      image: product.image,
+      otherImages: product.otherImages,
+      category: product.category,
+      stock: product.stock,
+      bestSeller: product.bestSeller,
+      bestSellerPriority: product.bestSellerPriority,
+    }));
 
   return Response.json({ products });
 }
+/*
+returns products{} from models/Product.ts omits vendorEmail and adds id
+*/

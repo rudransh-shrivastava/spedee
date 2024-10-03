@@ -6,7 +6,7 @@ import { ProductForm } from "@/app/profile/dashboard/vendor/product/_components/
 
 export default function CreateProductPage() {
   const product = {
-    productId: `${Math.random() * 10e10}`,
+    id: `${Math.random() * 10e10}`,
     name: "",
     description: "",
     priceInPaise: 0,

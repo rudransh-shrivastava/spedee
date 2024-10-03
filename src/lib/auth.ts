@@ -2,6 +2,7 @@ import { NextAuthOptions } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import User from "@/models/User";
 import { connectDB } from "./mongodb";
+import Cart from "@/models/Cart";
 
 export const authOptions: NextAuthOptions = {
   secret: process.env.NEXTAUTH_SECRET,
@@ -26,6 +27,10 @@ export const authOptions: NextAuthOptions = {
             name: profile.name,
             role: "customer",
           });
+        }
+        const cart = await Cart.findOne({ email: profile.email });
+        if (!cart) {
+          await Cart.create({ email: profile.email, items: [] });
         }
       }
       return true;

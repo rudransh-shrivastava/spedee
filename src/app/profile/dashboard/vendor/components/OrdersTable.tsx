@@ -10,7 +10,7 @@ export default function OrdersTable() {
       priority: "low",
       products: [
         {
-          productId: "1",
+          id: "1",
           name: "Product 1",
           description: "Product 1 description",
           priceInPaise: 1200,

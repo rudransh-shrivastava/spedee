@@ -14,6 +14,7 @@ export async function GET() {
   ): Array<{
     name: string;
     parentCategoryId: string | undefined;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     children: any[];
   }> => {
     return categories

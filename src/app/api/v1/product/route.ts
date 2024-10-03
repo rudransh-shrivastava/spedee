@@ -1,5 +1,5 @@
 import { connectDB } from "@/lib/mongodb";
-import Product from "@/models/Product";
+import Product, { ProductType } from "@/models/Product";
 import { NextRequest } from "next/server";
 
 export async function POST(req: NextRequest) {
@@ -13,10 +13,23 @@ export async function POST(req: NextRequest) {
     return Response.json({ message: "Product not found" }, { status: 404 });
   }
 
-  const productWithId = {
-    ...product.toObject(),
-    productId: product.id.toString(),
+  const productObject: Omit<ProductType, "vendorEmail"> & { id: string } = {
+    id: product.id.toString(),
+    name: product.name,
+    description: product.description,
+    priceInPaise: product.priceInPaise,
+    salePriceInPaise: product.salePriceInPaise,
+    attributes: product.attributes,
+    image: product.image,
+    otherImages: product.otherImages,
+    category: product.category,
+    stock: product.stock,
+    bestSeller: product.bestSeller,
+    bestSellerPriority: product.bestSellerPriority,
   };
 
-  return Response.json({ product: productWithId });
+  return Response.json({ product: productObject });
 }
+/*
+returns ProductType from models/Product.ts omits vendorEmail and adds id
+*/

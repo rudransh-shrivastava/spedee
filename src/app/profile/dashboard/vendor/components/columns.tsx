@@ -18,7 +18,7 @@ export type OrderType = {
   id: string;
   amount: number;
   status: "pending" | "processing" | "success" | "failed";
-  products: ProductType[];
+  products: ProductType & { id: string };
   priority: "low" | "medium" | "high";
 };
 
