@@ -1,10 +1,13 @@
 "use client";
+import Loader from "@/components/Loader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { cn } from "@/lib/utils";
 import { Cross1Icon } from "@radix-ui/react-icons";
+import axios from "axios";
 import { PlusIcon } from "lucide-react";
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 export default function Page() {
   return (
@@ -32,80 +35,127 @@ type AttributeType = {
 };
 
 function Attributes() {
+  const [saving, setSaving] = useState(false);
+  const [loadingData, setLoadingData] = useState(true);
   const [newAttributeName, setNewAttributeName] = useState("");
-  const [attributes, setAttributes] = useState<AttributeType[]>([
-    {
-      name: "Color",
-      values: ["Red", "Blue", "Green"],
-    },
-    {
-      name: "Size",
-      values: ["Small", "Medium", "Large"],
-    },
-  ]);
+  const [attributes, setAttributes] = useState<AttributeType[]>([]);
+
+  useEffect(() => {
+    axios("/api/v1/attributes")
+      .then((res) => {
+        if (res.status === 200 && res.data) {
+          setAttributes(res.data);
+        }
+      })
+      .catch((err) => console.log(err))
+      .finally(() => setLoadingData(false));
+  }, []);
 
   return (
-    <div>
+    <div className={cn(saving ? "pointer-events-none opacity-50" : "")}>
       <h1 className="mb-4 px-4 text-xl">Attributes</h1>
-      <div className="space-y-2">
-        {attributes.map((attribute, index) => (
-          <Attribute
-            key={index}
-            attribute={attribute}
-            setValues={(values: AttributeType["values"]) => {
-              setAttributes((prev) => {
-                const newAttributes = [...prev];
-                newAttributes[index].values = values;
-                return newAttributes;
-              });
-            }}
-          />
-        ))}
-      </div>
-      <form
-        onSubmit={(e) => {
-          e.preventDefault();
-          if (!newAttributeName) return;
-          setAttributes([
-            ...attributes,
-            { name: newAttributeName, values: [] },
-          ]);
-          setNewAttributeName("");
-        }}
-      >
-        <div className="mt-4 flex max-w-[25rem] gap-[1px]">
-          <Input
-            className="rounded-r-none border-r-0"
-            value={newAttributeName}
-            onChange={(e) => {
-              e.preventDefault();
-              setNewAttributeName(e.target.value);
-            }}
-          />
-          <Button
-            variant="outline"
-            type="submit"
-            className="shrink-0 rounded-l-none"
-            size="icon"
-          >
-            <PlusIcon />
-          </Button>
+      {loadingData && (
+        <div className="flex justify-center py-12">
+          <Loader />
         </div>
-      </form>
+      )}
+      {!loadingData && (
+        <>
+          <div className="space-y-2">
+            {!loadingData && attributes.length === 0 ? (
+              <div className="p-4">No Attributes Found</div>
+            ) : (
+              attributes.map((attribute, index) => (
+                <Attribute
+                  key={index}
+                  attribute={attribute}
+                  index={index}
+                  setAttributes={setAttributes}
+                />
+              ))
+            )}
+          </div>
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              if (!newAttributeName) return;
+              setSaving(true);
+              const newAttribute = { name: newAttributeName, values: [] };
+              setAttributes([...attributes, newAttribute]);
+              setNewAttributeName("");
+              axios
+                .post("/api/v1/attributes/update", newAttribute)
+                .then((res) => {})
+                .catch((err) => console.log(err))
+                .finally(() => setSaving(false));
+            }}
+          >
+            <div className="mt-4 flex max-w-[25rem] gap-[1px]">
+              <Input
+                className="rounded-r-none border-r-0"
+                value={newAttributeName}
+                onChange={(e) => {
+                  e.preventDefault();
+                  setNewAttributeName(e.target.value);
+                }}
+              />
+              <Button
+                variant="outline"
+                type="submit"
+                className="shrink-0 rounded-l-none"
+                size="icon"
+              >
+                <PlusIcon />
+              </Button>
+            </div>
+          </form>
+        </>
+      )}
     </div>
   );
 }
 
 function Attribute({
   attribute,
-  setValues,
+  setAttributes,
+  index,
 }: {
   attribute: AttributeType;
-  setValues: (values: AttributeType["values"]) => void;
+  setAttributes: React.Dispatch<React.SetStateAction<AttributeType[]>>;
+  index: number;
 }) {
+  const [saving, setSaving] = useState(false);
   const [newAttributeValue, setNewAttributeValue] = useState("");
+  const setValues = useCallback(
+    (values: AttributeType["values"], del?: boolean) => {
+      let newAttribute = { ...attribute, values: values };
+      setSaving(true);
+      setAttributes((prev) => {
+        if (del) {
+          // TODO: no api for deleting an attribute
+          const newAttributes = [...prev];
+          newAttributes.splice(index, 1);
+          return newAttributes;
+        }
+        const newAttributes = [...prev];
+        newAttributes[index] = newAttribute;
+        return newAttributes;
+      });
+      axios
+        .post("/api/v1/attributes/update", { ...newAttribute })
+        .then((res) => {})
+        .catch((err) => console.log(err))
+        .finally(() => setSaving(false));
+    },
+    [attribute, index]
+  );
   return (
-    <div className="flex flex-col items-center justify-between gap-4 rounded-lg border border-b-2 p-4 sm:flex-row">
+    <div
+      className={cn(
+        "flex flex-col items-center justify-between gap-4 rounded-lg border border-b-2 p-4 sm:flex-row",
+        saving ? "pointer-events-none opacity-50" : ""
+      )}
+    >
       <div className="w-full">
         <h3 className="text-lg font-medium">{attribute.name}</h3>
         <div className="mt-2 flex flex-wrap gap-2">
@@ -141,6 +191,7 @@ function Attribute({
             if (!newAttributeValue) return;
             setValues([...attribute.values, newAttributeValue]);
             setNewAttributeValue("");
+            // axios.post("/api/v1/attributes/edit")
           }}
         >
           <div className="mt-4 flex max-w-[20rem] gap-[1px]">
