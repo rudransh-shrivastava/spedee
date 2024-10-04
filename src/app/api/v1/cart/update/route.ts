@@ -14,6 +14,7 @@ export async function POST(req: NextRequest) {
   await connectDB();
   const data = await req.json();
   const cartItem = CartItemZodSchema.safeParse(data);
+  console.log(data);
 
   if (!cartItem.success) {
     return Response.json({ message: cartItem.error });

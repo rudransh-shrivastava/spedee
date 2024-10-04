@@ -29,7 +29,6 @@ export async function POST(req: NextRequest) {
     console.log(created);
     return Response.json({ message: "Attribute created" });
   }
-
   await Attribute.updateOne(
     { name: attribute.data.name },
     { values: attribute.data.values }

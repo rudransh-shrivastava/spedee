@@ -219,6 +219,12 @@ function Attribute({
   );
 }
 function Categories() {
+  const [categories, setCategories] = useState<
+    {
+      id: string;
+      name: string;
+    }[]
+  >([]);
   return (
     <div>
       <h1 className="mb-4 text-2xl">Categories</h1>

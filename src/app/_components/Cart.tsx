@@ -7,7 +7,8 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { ProductType } from "@/models/Product";
+import { cn } from "@/lib/utils";
+import Product, { ProductType } from "@/models/Product";
 import axios from "axios";
 import Image from "next/image";
 import { useEffect, useState } from "react";
@@ -41,40 +42,70 @@ export default function Cart() {
 }
 
 function CartContent() {
-  const [cartProducts, setCartProducts] = useState<ProductType[]>([]);
+  const [cartProducts, setCartProducts] = useState<
+    (ProductType & { quantity: number })[]
+  >([]);
+
   useEffect(() => {
     axios
       .get("/api/v1/cart")
       .then((res) => {
-        console.log("cart", res.data);
+        if (res.status === 200 && res.data.items) {
+          setCartProducts(
+            res.data.items.map(
+              (item: { product: ProductType; quantity: number }) => {
+                console.log(item.product);
+                return {
+                  ...item.product,
+                  quantity: item.quantity,
+                };
+              }
+            )
+          );
+        }
       })
       .catch((error) => {
         console.log(error);
       });
-
-    axios.get("/api/v1/products/bestsellers").then((res) => {
-      if (
-        res.status === 200 &&
-        res.data.products &&
-        res.data.products.length > 0
-      ) {
-        setCartProducts(res.data.products);
-      }
-    });
   }, []);
+
   return (
     <div className="flex flex-col py-8">
       {cartProducts.map((product, index) => (
-        <CartItemCard key={index} product={product} />
+        <CartItemCard
+          key={index}
+          product={product}
+          updateProductCount={(productCount: number) => {
+            setCartProducts(
+              cartProducts.map((cartProduct) => {
+                if (cartProduct.productId === product.productId) {
+                  return { ...cartProduct, quantity: productCount };
+                }
+                return cartProduct;
+              })
+            );
+          }}
+        />
       ))}
     </div>
   );
 }
 
-function CartItemCard({ product }: { product: ProductType }) {
-  const [addedCount, setAddedCount] = useState(0);
+function CartItemCard({
+  product,
+  updateProductCount,
+}: {
+  product: ProductType & { quantity: number };
+  updateProductCount: (productCount: number) => void;
+}) {
+  const [isLoading, setIsLoading] = useState(false);
   return (
-    <div className="flex items-center gap-2 rounded-lg border p-2">
+    <div
+      className={cn(
+        "flex items-center gap-2 rounded-lg border p-2",
+        isLoading ? "pointer-events-none opacity-50" : ""
+      )}
+    >
       <div className="size-12 rounded-lg bg-secondary shadow">
         <Image
           src={product.image}
@@ -89,22 +120,53 @@ function CartItemCard({ product }: { product: ProductType }) {
         <Button
           className="rounded-r-none px-2 text-2xl font-medium leading-none"
           variant="ghost"
+          onClick={() => {
+            const newCount = product.quantity - 1;
+            setIsLoading(true);
+            axios
+              .post("/api/v1/cart/update", {
+                productId: product.productId,
+                count: newCount,
+              })
+              .then(() => {
+                updateProductCount(newCount);
+              })
+              .catch((error) => {
+                console.log(error);
+              })
+              .finally(() => {
+                setIsLoading(false);
+              });
+          }}
         >
           -
         </Button>
-        <span className="px-2">{addedCount}</span>
+        <span className="px-2">{product.quantity}</span>
         <Button
           className="rounded-l-none px-2 text-lg font-medium leading-none"
           variant="ghost"
-          onClick={() => setAddedCount(addedCount + 1)}
+          onClick={() => {
+            const newCount = product.quantity + 1;
+            axios
+              .post("/api/v1/cart/update", {
+                productId: product.productId,
+                count: newCount,
+              })
+              .then(() => {
+                updateProductCount(newCount);
+              })
+              .catch((error) => {
+                console.log(error);
+              });
+          }}
         >
           +
         </Button>
       </div>
       <div className="flex flex-col items-center px-2">
-        <span>100</span>
+        <span>{product.priceInPaise * product.quantity}</span>
         <span className="text-sm text-secondary-foreground line-through">
-          200
+          {product.salePriceInPaise * product.quantity}
         </span>
       </div>
     </div>

@@ -1,6 +1,7 @@
 import { authOptions } from "@/lib/auth";
 import { connectDB } from "@/lib/mongodb";
 import Cart from "@/models/Cart";
+import Product from "@/models/Product";
 import { getServerSession } from "next-auth";
 
 export async function GET() {
@@ -12,9 +13,19 @@ export async function GET() {
 
   const userEmail = session.user.email;
 
-  const cart = await Cart.find({
+  const cart = await Cart.findOne({
     userEmail,
   });
-
-  return Response.json(cart);
+  const cartProductsIds = cart?.items;
+  const productsPromises = cartProductsIds?.map(async (item) => {
+    const product = await Product.findById(item.productId);
+    return { product, quantity: item.quantity };
+  });
+  const products = await Promise.all(productsPromises!);
+  const cartData = {
+    id: cart?.id,
+    items: products,
+  };
+  console.log(cartData);
+  return Response.json(cartData);
 }
