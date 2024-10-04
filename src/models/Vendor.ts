@@ -11,6 +11,7 @@ import z from "zod";
 // }
 
 export const VendorZodSchema = z.object({
+  id: z.string(),
   name: z.string(),
   email: z.string(),
   location: z.object({ lat: z.number(), lng: z.number() }),
@@ -29,7 +30,7 @@ export const VendorZodSchema = z.object({
 
 export type VendorType = z.infer<typeof VendorZodSchema>;
 
-interface VendorInterface extends VendorType, Document {}
+interface VendorInterface extends Omit<VendorType, "id">, Document {}
 
 const VendorSchema = new mongoose.Schema<VendorInterface>({
   name: { type: String, required: true },

@@ -1,6 +1,7 @@
 import mongoose, { Document, Model } from "mongoose";
 
 export type ProductType = {
+  id: string;
   name: string;
   description: string;
   priceInPaise: number;
@@ -14,7 +15,7 @@ export type ProductType = {
   bestSeller: boolean;
   bestSellerPriority: number;
 };
-interface ProductInterface extends ProductType, Document {}
+interface ProductInterface extends Omit<ProductType, "id">, Document {}
 
 const ProductSchema = new mongoose.Schema<ProductInterface>({
   name: { type: String, required: true },
