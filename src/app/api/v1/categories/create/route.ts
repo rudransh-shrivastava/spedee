@@ -15,25 +15,24 @@ export async function POST(req: NextRequest) {
   await connectDB();
   const data = await req.json();
   const category = CategoryZodSchema.safeParse(data);
+
   if (!category.success) {
     return Response.json({ message: category.error.errors }, { status: 400 });
   }
-  if (!category.data.isParent && !category.data.parentCategoryId) {
+  const exisingCategory = await Category.findOne({ name: category.data.name });
+  if (exisingCategory) {
     return Response.json(
-      { message: "Parent category id is required" },
+      { message: "Category already exists" },
       { status: 400 }
     );
   }
-  const exisingCategory = await Category.findById(category.data.id);
-  if (exisingCategory) {
-    await Category.updateOne(
-      { _id: category.data.id },
-      {
-        name: category.data.name,
-        parentCategoryId: category.data.parentCategoryId,
-      }
-    );
-    return Response.json({ message: "Category updated successfully" });
-  }
-  return Response.json({ message: "Category not found" }, { status: 404 });
+  const createdCategory = await Category.create({
+    name: category.data.name,
+    isParent: category.data.isParent,
+    parentCategoryId: category.data.parentCategoryId,
+  });
+  return Response.json({
+    message: "Category created successfully",
+    id: createdCategory.id,
+  });
 }

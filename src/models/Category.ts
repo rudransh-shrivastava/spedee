@@ -4,7 +4,8 @@ import { z } from "zod";
 export const CategoryZodSchema = z.object({
   id: z.string(),
   name: z.string(),
-  parentCategoryId: z.string().optional(),
+  isParent: z.boolean(),
+  parentCategoryId: z.string().nullable(),
 });
 
 type CategoryType = z.infer<typeof CategoryZodSchema>;
@@ -16,8 +17,12 @@ const CategorySchema = new mongoose.Schema<CategoryInterface>({
     type: String,
     required: true,
   },
+  isParent: {
+    type: Boolean,
+    required: true,
+  },
   parentCategoryId: {
-    type: String,
+    type: String || null,
     default: null,
   },
 });

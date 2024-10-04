@@ -28,9 +28,9 @@ export const authOptions: NextAuthOptions = {
             role: "customer",
           });
         }
-        const cart = await Cart.findOne({ email: profile.email });
+        const cart = await Cart.findOne({ userEmail: profile.email });
         if (!cart) {
-          await Cart.create({ email: profile.email, items: [] });
+          await Cart.create({ userEmail: profile.email, items: [] });
         }
       }
       return true;

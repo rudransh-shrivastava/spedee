@@ -1,32 +1,26 @@
 import { connectDB } from "@/lib/mongodb";
 import Category from "@/models/Category";
+import { NextResponse } from "next/server";
 
 export async function GET() {
   await connectDB();
-  const categories: Array<{
-    _id: string;
-    name: string;
-    parentCategoryId: string | undefined;
-  }> = await Category.find();
 
-  const buildCategoryTree = (
-    parentId: string | undefined
-  ): Array<{
-    name: string;
-    parentCategoryId: string | undefined;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    children: any[];
-  }> => {
+  const categories = await Category.find().lean();
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const buildCategoryTree: any = (
+    categories: any[],
+    parentId: string | null = null
+  ) => {
     return categories
       .filter((category) => category.parentCategoryId === parentId)
       .map((category) => ({
-        name: category.name,
-        parentCategoryId: category.parentCategoryId,
-        children: buildCategoryTree(category._id),
+        ...category,
+        children: buildCategoryTree(categories, category._id.toString()),
       }));
   };
 
-  const categoryTree = buildCategoryTree(undefined);
+  const categoryTree = buildCategoryTree(categories);
 
-  return Response.json(categoryTree);
+  return NextResponse.json(categoryTree);
 }
