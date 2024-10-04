@@ -86,7 +86,6 @@ export function ProductForm({
             }
           }
           // ^images
-          formData.append("vendorEmail", product.vendorEmail);
           formData.append("category", product.category);
           formData.append("stock", product.stock.toString());
           formData.append("bestSeller", product.bestSeller.toString());
@@ -210,14 +209,25 @@ export function ProductForm({
       </FormGroup>
       <FormGroup>
         <Label>Image</Label>
-        <Input className="h-20" type="file" accept="image/*" />
+        <Input
+          className="h-20"
+          type="file"
+          ref={imageInputRef}
+          accept="image/*"
+        />
         {productErrors.image && (
           <div className="col-start-2 text-destructive">Image is required</div>
         )}
       </FormGroup>
       <FormGroup>
         <Label>Other Images</Label>
-        <Input className="h-20" type="file" accept="image/*" multiple />
+        <Input
+          className="h-20"
+          type="file"
+          ref={otherImagesInputRef}
+          accept="image/*"
+          multiple
+        />
         {productErrors.otherImages && (
           <div className="col-start-2 text-destructive">
             Other Images is required

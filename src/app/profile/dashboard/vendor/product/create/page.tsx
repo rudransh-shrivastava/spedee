@@ -27,7 +27,10 @@ export default function CreateProductPage() {
         <BackButton />
         <h1 className="text-2xl">Add a Product</h1>
       </div>
-      <ProductForm submitUrl="" productProps={product} />
+      <ProductForm
+        submitUrl="/api/v1/vendor/product/create"
+        productProps={product}
+      />
     </>
   ) : (
     <div className="flex justify-center py-20">
