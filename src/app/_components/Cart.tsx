@@ -8,7 +8,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
-import Product, { ProductType } from "@/models/Product";
+import { ProductType } from "@/models/Product";
 import axios from "axios";
 import Image from "next/image";
 import { useEffect, useState } from "react";
@@ -78,7 +78,7 @@ function CartContent() {
           updateProductCount={(productCount: number) => {
             setCartProducts(
               cartProducts.map((cartProduct) => {
-                if (cartProduct.productId === product.productId) {
+                if (cartProduct.id === product.id) {
                   return { ...cartProduct, quantity: productCount };
                 }
                 return cartProduct;
@@ -125,7 +125,7 @@ function CartItemCard({
             setIsLoading(true);
             axios
               .post("/api/v1/cart/update", {
-                productId: product.productId,
+                id: product.id,
                 count: newCount,
               })
               .then(() => {
@@ -149,7 +149,7 @@ function CartItemCard({
             const newCount = product.quantity + 1;
             axios
               .post("/api/v1/cart/update", {
-                productId: product.productId,
+                id: product.id,
                 count: newCount,
               })
               .then(() => {

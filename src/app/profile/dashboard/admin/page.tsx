@@ -85,7 +85,7 @@ function Attributes() {
               setNewAttributeName("");
               axios
                 .post("/api/v1/attributes/update", newAttribute)
-                .then((res) => {})
+                .then(() => {})
                 .catch((err) => console.log(err))
                 .finally(() => setSaving(false));
             }}
@@ -128,7 +128,7 @@ function Attribute({
   const [newAttributeValue, setNewAttributeValue] = useState("");
   const setValues = useCallback(
     (values: AttributeType["values"], del?: boolean) => {
-      let newAttribute = { ...attribute, values: values };
+      const newAttribute = { ...attribute, values: values };
       setSaving(true);
       setAttributes((prev) => {
         if (del) {
@@ -143,11 +143,11 @@ function Attribute({
       });
       axios
         .post("/api/v1/attributes/update", { ...newAttribute })
-        .then((res) => {})
+        .then(() => {})
         .catch((err) => console.log(err))
         .finally(() => setSaving(false));
     },
-    [attribute, index]
+    [attribute, setAttributes, index]
   );
   return (
     <div
@@ -219,12 +219,12 @@ function Attribute({
   );
 }
 function Categories() {
-  const [categories, setCategories] = useState<
-    {
-      id: string;
-      name: string;
-    }[]
-  >([]);
+  // const [categories, setCategories] = useState<
+  //   {
+  //     id: string;
+  //     name: string;
+  //   }[]
+  // >([]);
   return (
     <div>
       <h1 className="mb-4 text-2xl">Categories</h1>
