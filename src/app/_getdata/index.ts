@@ -1,8 +1,8 @@
 "use client";
 
-import { ProductType } from "@/models/Product";
-import { AttributeType } from "@/types";
 import axios from "axios";
+import { ProductType } from "@/models/Product";
+import { AttributeType, CategoryTree } from "@/types";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function getData(url: string): Promise<any> {
@@ -62,6 +62,34 @@ async function deleteAttribute(
   return response.data;
 }
 
+async function getCategories(): Promise<CategoryTree[]> {
+  return await getData("/api/v1/categories");
+}
+
+async function createCategory({
+  id,
+  name,
+  isParent,
+  parentCategoryId,
+}: {
+  id: string;
+  name: string;
+  isParent: boolean;
+  parentCategoryId: string | null;
+}): Promise<{
+  success: boolean;
+  message: string;
+  category: Omit<CategoryTree, "children">;
+}> {
+  const response = await axios.post("/api/v1/categories/create", {
+    id,
+    name,
+    isParent,
+    parentCategoryId,
+  });
+  return response.data;
+}
+
 const queries = {
   getBestSellerProducts,
   updateCart,
@@ -70,6 +98,8 @@ const queries = {
   createAttribute,
   updateAttribute,
   deleteAttribute,
+  getCategories,
+  createCategory,
 };
 
 export default queries;

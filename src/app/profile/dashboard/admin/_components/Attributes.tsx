@@ -132,7 +132,7 @@ export function Attributes() {
           >
             <div className="mt-4 grid max-w-[25rem] grid-cols-[1fr,2.25rem] gap-x-[1px] gap-y-1">
               <Input
-                className="rounded-r-none border-r-0"
+                className="rounded-r-none border-r-0 shadow-none"
                 value={newAttributeName}
                 disabled={createAttributeMutation.status === "pending"}
                 onChange={(e) => {
@@ -143,7 +143,7 @@ export function Attributes() {
               <Button
                 variant="outline"
                 type="submit"
-                className="shrink-0 rounded-l-none"
+                className="shrink-0 rounded-l-none shadow-none"
                 disabled={createAttributeMutation.status === "pending"}
                 size="icon"
               >

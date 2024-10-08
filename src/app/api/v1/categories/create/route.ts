@@ -17,7 +17,10 @@ export async function POST(req: NextRequest) {
   const category = CategoryZodSchema.safeParse(data);
 
   if (!category.success) {
-    return Response.json({ message: category.error.errors }, { status: 400 });
+    return Response.json(
+      { message: category.error.errors, error: true, success: false },
+      { status: 400 }
+    );
   }
   const exisingCategory = await Category.findOne({ name: category.data.name });
   if (exisingCategory) {
@@ -33,6 +36,14 @@ export async function POST(req: NextRequest) {
   });
   return Response.json({
     message: "Category created successfully",
+    success: true,
+    error: false,
     id: createdCategory.id,
+    category: {
+      id: createdCategory._id,
+      name: createdCategory.name,
+      isParent: createdCategory.isParent,
+      parentCategoryId: createdCategory.parentCategoryId,
+    },
   });
 }

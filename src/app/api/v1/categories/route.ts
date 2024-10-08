@@ -16,7 +16,10 @@ export async function GET() {
     return categories
       .filter((category) => category.parentCategoryId === parentId)
       .map((category) => ({
-        ...category,
+        id: category._id.toString(),
+        name: category.name,
+        isParent: category.isParent,
+        parentCategoryId: category.parentCategoryId,
         children: buildCategoryTree(categories, category._id.toString()),
       }));
   };
