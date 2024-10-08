@@ -34,6 +34,7 @@ export function Attributes() {
     queryKey: ["attributes"],
     queryFn: queries.getAttributes,
   });
+  const [error, setError] = useState("");
 
   const createAttributeMutation = useMutation({
     mutationFn: queries.createAttribute,
@@ -109,21 +110,27 @@ export function Attributes() {
           <form
             onSubmit={(e) => {
               e.preventDefault();
-              if (!newAttributeName) return;
-              createAttributeMutation.mutate(newAttributeName, {
-                onSuccess: (data) => {
-                  if (data.success) {
-                    queryClient.setQueryData(
-                      ["attributes"],
-                      [...attributes, data.attribute]
-                    );
-                    setNewAttributeName("");
-                  }
-                },
-              });
+              if (!newAttributeName) {
+                setError("Attribute Name is Required");
+              } else if (attributes?.find((a) => a.name === newAttributeName)) {
+                setError("Attribute with this Name Already Exists");
+              } else {
+                setError("");
+                createAttributeMutation.mutate(newAttributeName, {
+                  onSuccess: (data) => {
+                    if (data.success) {
+                      queryClient.setQueryData(
+                        ["attributes"],
+                        [...attributes, data.attribute]
+                      );
+                      setNewAttributeName("");
+                    }
+                  },
+                });
+              }
             }}
           >
-            <div className="mt-4 flex max-w-[25rem] gap-[1px]">
+            <div className="mt-4 grid max-w-[25rem] grid-cols-[1fr,2.25rem] gap-x-[1px] gap-y-1">
               <Input
                 className="rounded-r-none border-r-0"
                 value={newAttributeName}
@@ -142,6 +149,7 @@ export function Attributes() {
               >
                 <PlusIcon />
               </Button>
+              <div className="col-span-2 text-sm text-destructive">{error}</div>
             </div>
           </form>
         </>
@@ -158,6 +166,7 @@ function Attribute({
   updateAttribute: UpdateAttribute;
 }) {
   const [newAttributeValue, setNewAttributeValue] = useState("");
+  const [error, setError] = useState("");
   return (
     <div
       className={cn(
@@ -197,15 +206,21 @@ function Attribute({
         <form
           onSubmit={(e) => {
             e.preventDefault();
-            if (!newAttributeValue) return;
-            updateAttribute({
-              id: attribute.id,
-              values: [...attribute.values, newAttributeValue],
-            });
-            setNewAttributeValue("");
+            if (!newAttributeValue) {
+              setError("Value is Required");
+            } else if (attribute.values.includes(newAttributeValue)) {
+              setError("Value Already Exists");
+            } else {
+              setError("");
+              updateAttribute({
+                id: attribute.id,
+                values: [...attribute.values, newAttributeValue],
+              });
+              setNewAttributeValue("");
+            }
           }}
         >
-          <div className="mt-4 flex max-w-[20rem] gap-[1px]">
+          <div className="mt-4 grid max-w-[20rem] grid-cols-[1fr,2.25rem] gap-x-[1px] gap-y-1">
             <Input
               className="rounded-r-none border-r-0"
               value={newAttributeValue}
@@ -222,6 +237,7 @@ function Attribute({
             >
               <PlusIcon />
             </Button>
+            <div className="col-span-2 text-sm text-destructive">{error}</div>
           </div>
         </form>
       </div>
@@ -259,10 +275,10 @@ function DeleteAttributeButton({
     >
       <AlertDialogTrigger asChild>
         <Button
-          variant="destructive"
+          variant="outline"
           disabled={status === "pending"}
           className={cn(
-            "relative",
+            "border-destructive text-destructive hover:text-destructive",
             status === "pending" ? "disabled:opacity-100" : ""
           )}
         >
