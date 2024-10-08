@@ -18,7 +18,7 @@ export async function GET() {
 
   const data = await Product.find({ vendorEmail });
 
-  const products: ProductType[] = data.map((product) => ({
+  const products: Omit<ProductType, "vendorEmail">[] = data.map((product) => ({
     id: product._id as string,
     name: product.name,
     description: product.description,
@@ -27,7 +27,6 @@ export async function GET() {
     attributes: product.attributes,
     image: product.image,
     otherImages: product.otherImages,
-    vendorEmail: product.vendorEmail,
     category: product.category,
     stock: product.stock,
     bestSeller: product.bestSeller,
