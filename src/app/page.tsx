@@ -12,8 +12,9 @@ import { ProductType } from "@/models/Product";
 import Image from "next/image";
 import Link from "next/link";
 import queries from "./_getdata";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import Loader from "@/components/Loader";
+import { useState } from "react";
 
 export default function Home() {
   return (
@@ -55,6 +56,7 @@ function BestSellers() {
     queryKey: ["products", "bestSellers"],
     queryFn: queries.getBestSellerProducts,
   });
+
   if (status === "pending") {
     return (
       <div className="flex justify-center py-12">
@@ -62,7 +64,6 @@ function BestSellers() {
       </div>
     );
   }
-
   if (status === "error") {
     <div className="flex justify-center py-12">Something Went Wrong</div>;
   }
@@ -75,7 +76,10 @@ function BestSellers() {
 }
 
 function ProductCard({ product }: { product: ProductType & { id: string } }) {
-  const addedCount = 0;
+  const updateCartMutation = useMutation({
+    mutationFn: queries.updateCart,
+  });
+  const [quantity, setQuantity] = useState(0);
   return (
     <Card className="group max-w-[16rem]">
       <CardHeader className="overflow-hidden rounded-lg p-0 pb-2">
@@ -106,30 +110,66 @@ function ProductCard({ product }: { product: ProductType & { id: string } }) {
               &#8377;{product.priceInPaise}
             </span>
           </div>
-          {addedCount > 0 ? (
+          {quantity > 0 ? (
             <div className="flex h-9 min-w-16 items-center justify-between rounded-lg bg-primary text-background">
               <Button
-                disabled={false}
+                disabled={updateCartMutation.status === "pending"}
                 className="px-2 text-2xl font-medium leading-none"
-                onClick={() => {}}
+                onClick={() => {
+                  updateCartMutation.mutate(
+                    {
+                      productId: product.id,
+                      quantity: quantity - 1,
+                    },
+                    {
+                      onSuccess: () => {
+                        setQuantity((q) => q - 1);
+                      },
+                    }
+                  );
+                }}
               >
                 -
               </Button>
-              {addedCount}
+              {quantity}
               <Button
-                disabled={false}
+                disabled={updateCartMutation.status === "pending"}
                 className="px-2 text-lg font-medium leading-none"
-                onClick={() => {}}
+                onClick={() => {
+                  updateCartMutation.mutate(
+                    {
+                      productId: product.id,
+                      quantity: quantity + 1,
+                    },
+                    {
+                      onSuccess: () => {
+                        setQuantity((q) => q + 1);
+                      },
+                    }
+                  );
+                }}
               >
                 +
               </Button>
             </div>
           ) : (
             <Button
-              disabled={false}
+              disabled={updateCartMutation.status === "pending"}
               variant="outline"
               className="min-w-16"
-              onClick={() => {}}
+              onClick={() => {
+                updateCartMutation.mutate(
+                  {
+                    productId: product.id,
+                    quantity: 1,
+                  },
+                  {
+                    onSuccess: () => {
+                      setQuantity(1);
+                    },
+                  }
+                );
+              }}
             >
               Add
             </Button>

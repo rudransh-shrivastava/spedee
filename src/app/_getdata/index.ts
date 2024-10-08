@@ -14,8 +14,16 @@ export async function getBestSellerProducts(): Promise<ProductType[]> {
   return data.products;
 }
 
+export async function updateCart(data: {
+  productId: string;
+  quantity: number;
+}): Promise<{ success: boolean; error: boolean; message?: string }> {
+  return axios.post("/api/v1/cart/update", { ...data });
+}
+
 const queries = {
   getBestSellerProducts,
+  updateCart,
 };
 
 export default queries;

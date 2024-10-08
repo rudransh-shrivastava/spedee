@@ -17,7 +17,7 @@ export async function POST(req: NextRequest) {
   console.log(data);
 
   if (!cartItem.success) {
-    return Response.json({ message: cartItem.error });
+    return Response.json({ message: cartItem.error, error: true });
   }
   const session = await getServerSession(authOptions);
 
@@ -32,7 +32,7 @@ export async function POST(req: NextRequest) {
       userEmail,
       items: [cartItem.data],
     });
-    return Response.json({ message: "Item added to cart" });
+    return Response.json({ message: "Item added to cart", success: true });
   } else {
     const existingItem = cart.items.find(
       (item: { productId: string }) =>
@@ -46,14 +46,20 @@ export async function POST(req: NextRequest) {
           { userEmail },
           { $pull: { items: { productId: cartItem.data.productId } } }
         );
-        return Response.json({ message: "Item removed from cart" });
+        return Response.json({
+          message: "Item removed from cart",
+          success: true,
+        });
       } else {
         // Update the quantity
         await Cart.findOneAndUpdate(
           { userEmail, "items.productId": cartItem.data.productId },
           { $set: { "items.$.quantity": cartItem.data.quantity } }
         );
-        return Response.json({ message: "Item quantity updated" });
+        return Response.json({
+          message: "Item quantity updated",
+          success: true,
+        });
       }
     } else {
       // Add the item if it doesn't exist
@@ -61,7 +67,7 @@ export async function POST(req: NextRequest) {
         { userEmail },
         { $push: { items: cartItem.data } }
       );
-      return Response.json({ message: "Item added to cart" });
+      return Response.json({ message: "Item added to cart", success: true });
     }
   }
 }
