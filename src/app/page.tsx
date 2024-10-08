@@ -56,30 +56,58 @@ function BestSellers() {
     queryKey: ["products", "bestSellers"],
     queryFn: queries.getBestSellerProducts,
   });
+  // TODO: fix not updating when updating cart
+  const { status: cartQueryStatus, data: cartProducts } = useQuery({
+    queryKey: ["products", "cart"],
+    queryFn: queries.getCart,
+  });
 
-  if (status === "pending") {
+  const productCartQuantity: {
+    [key: string]: number;
+  } = {};
+  if (cartQueryStatus === "success") {
+    cartProducts.forEach((cartProduct) => {
+      productCartQuantity[cartProduct.product.id] = cartProduct.quantity;
+    });
+  }
+
+  if (status === "pending" || cartQueryStatus === "pending") {
     return (
       <div className="flex justify-center py-12">
         <Loader />
       </div>
     );
   }
-  if (status === "error") {
+  if (status === "error" || cartQueryStatus === "error") {
     <div className="flex justify-center py-12">Something Went Wrong</div>;
   }
 
   return bestSellers
     ? bestSellers.map((product, index) => (
-        <ProductCard key={index} product={product} />
+        <ProductCard
+          key={index}
+          productCartQuantity={productCartQuantity}
+          product={product}
+        />
       ))
     : "";
 }
 
-function ProductCard({ product }: { product: ProductType & { id: string } }) {
+function ProductCard({
+  product,
+  productCartQuantity,
+}: {
+  product: ProductType & { id: string };
+  productCartQuantity: {
+    [key: string]: number;
+  };
+}) {
   const updateCartMutation = useMutation({
     mutationFn: queries.updateCart,
   });
-  const [quantity, setQuantity] = useState(0);
+  const [quantity, setQuantity] = useState(
+    productCartQuantity[product.id] || 0
+  );
   return (
     <Card className="group max-w-[16rem]">
       <CardHeader className="overflow-hidden rounded-lg p-0 pb-2">

@@ -13,7 +13,7 @@ import { ProductType } from "@/models/Product";
 import queries from "../_getdata";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import Loader from "@/components/Loader";
-import { useCallback, useEffect } from "react";
+import { useCallback } from "react";
 
 export default function Cart() {
   return (
@@ -57,6 +57,10 @@ function CartContent() {
       ["products", "cart"],
       cartProducts?.map((p) => (p.product.id === id ? { ...p, quantity } : p))
     );
+    queryClient.invalidateQueries({
+      queryKey: ["products", "cart"],
+      exact: true,
+    });
   }, []);
 
   if (status === "pending") {
@@ -94,11 +98,13 @@ function CartItemCard({
   const updateCartMutation = useMutation({
     mutationFn: queries.updateCart,
   });
-  return (
+  return quantity > 0 ? (
     <div
       className={cn(
         "flex items-center gap-2 rounded-lg border p-2",
-        false ? "pointer-events-none opacity-50" : ""
+        updateCartMutation.status === "pending"
+          ? "pointer-events-none opacity-50"
+          : ""
       )}
     >
       <div className="size-12 rounded-lg bg-secondary shadow">
@@ -110,60 +116,64 @@ function CartItemCard({
           className="size-12 rounded-lg"
         />
       </div>
-      <span>{product.name}</span>
-      <div className="ml-auto flex h-9 items-center overflow-hidden rounded-lg border bg-background">
-        <Button
-          className="rounded-r-none px-2 text-2xl font-medium leading-none"
-          variant="ghost"
-          disabled={updateCartMutation.status === "pending"}
-          onClick={() => {
-            updateCartMutation.mutate(
-              {
-                productId: product.id,
-                quantity: quantity - 1,
-              },
-              {
-                onSuccess: (res) => {
-                  if (!res.data.error) {
-                    setProductQuantity(product.id, quantity - 1);
-                  }
+      <span className="text-sm">{product.name}</span>
+      {quantity > 0 && (
+        <div className="ml-auto flex h-9 items-center overflow-hidden rounded-lg border bg-background">
+          <Button
+            className="rounded-r-none px-2 text-2xl font-medium leading-none"
+            variant="ghost"
+            disabled={updateCartMutation.status === "pending"}
+            onClick={() => {
+              updateCartMutation.mutate(
+                {
+                  productId: product.id,
+                  quantity: quantity - 1,
                 },
-              }
-            );
-          }}
-        >
-          -
-        </Button>
-        <span className="px-2">{quantity}</span>
-        <Button
-          className="rounded-l-none px-2 text-lg font-medium leading-none"
-          variant="ghost"
-          disabled={updateCartMutation.status === "pending"}
-          onClick={() => {
-            updateCartMutation.mutate(
-              {
-                productId: product.id,
-                quantity: quantity + 1,
-              },
-              {
-                onSuccess: (res) => {
-                  if (!res.data.error) {
-                    setProductQuantity(product.id, quantity + 1);
-                  }
+                {
+                  onSuccess: (res) => {
+                    if (!res.data.error) {
+                      setProductQuantity(product.id, quantity - 1);
+                    }
+                  },
+                }
+              );
+            }}
+          >
+            -
+          </Button>
+          <span className="px-2">{quantity}</span>
+          <Button
+            className="rounded-l-none px-2 text-lg font-medium leading-none"
+            variant="ghost"
+            disabled={updateCartMutation.status === "pending"}
+            onClick={() => {
+              updateCartMutation.mutate(
+                {
+                  productId: product.id,
+                  quantity: quantity + 1,
                 },
-              }
-            );
-          }}
-        >
-          +
-        </Button>
-      </div>
+                {
+                  onSuccess: (res) => {
+                    if (!res.data.error) {
+                      setProductQuantity(product.id, quantity + 1);
+                    }
+                  },
+                }
+              );
+            }}
+          >
+            +
+          </Button>
+        </div>
+      )}
       <div className="flex flex-col items-center px-2">
-        {/* <span>{product.priceInPaise * quantity}</span>
+        <span>{product.priceInPaise * quantity}</span>
         <span className="text-sm text-secondary-foreground line-through">
           {product.salePriceInPaise * quantity}
-        </span> */}
+        </span>
       </div>
     </div>
+  ) : (
+    ""
   );
 }
