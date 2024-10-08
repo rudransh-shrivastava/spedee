@@ -3,6 +3,8 @@ import { connectDB } from "@/lib/mongodb";
 import { getServerSession } from "next-auth";
 import { zfd } from "zod-form-data";
 import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
+import { deleteFile, uploadFile } from "@/lib/s3";
+import Product from "@/models/Product";
 
 const productSchema = zfd.formData({
   productId: zfd.text(),
@@ -30,37 +32,28 @@ export async function POST(req: Request) {
   await connectDB();
 
   const data = await req.formData();
-  console.log(data);
+
   const product = productSchema.safeParse(data);
   if (!product.success) {
     console.log(product.error);
     return Response.json({ message: "Invalid data" }, { status: 400 });
   }
+
   const client = new S3Client({ region: process.env.AWS_REGION });
 
   const imageFile = data.get("image") as File;
   const otherImagesFiles = data.getAll("otherImages") as File[];
 
-  const uploadFile = async (file: File, key: string) => {
-    const arrayBuffer = await file.arrayBuffer();
-    const buffer = Buffer.from(arrayBuffer);
-    const uploadParams = {
-      Bucket: process.env.AWS_S3_BUCKET_NAME,
-      Key: key,
-      Body: buffer,
-      ContentType: file.type,
-    };
-    const command = new PutObjectCommand(uploadParams);
-    return client.send(command);
-  };
-
   const uploadPromises = [];
+  const newFileNames = [];
+
   if (imageFile) {
     const formattedFileName = `${new Date().toISOString()}-${imageFile.name}`;
     const key =
       "product-images/" +
       formattedFileName.replace(/:/g, "-").replace(/\./g, "-");
     uploadPromises.push(uploadFile(imageFile as File, key));
+    newFileNames.push(key);
   }
   if (otherImagesFiles.length > 0) {
     otherImagesFiles.forEach((file) => {
@@ -69,13 +62,29 @@ export async function POST(req: Request) {
         "product-other-images/" +
         formattedFileName.replace(/:/g, "-").replace(/\./g, "-");
       uploadPromises.push(uploadFile(file as File, key));
+      newFileNames.push(key);
     });
   }
 
   try {
+    // upload files
     const uploadResponses = await Promise.all(uploadPromises);
     console.log(uploadResponses);
-    return Response.json({ message: "Success", data: uploadResponses });
+    // Save product
+    const productData = {
+      ...product.data,
+      image: newFileNames[0],
+      otherImages: newFileNames.slice(1),
+    };
+    await Product.create({
+      ...productData,
+      vendorEmail: session.user.email,
+    });
+    return Response.json({
+      message: "Success",
+      uploadResponses: uploadResponses,
+      productData,
+    });
   } catch (error) {
     console.error(error);
     return Response.json(
@@ -84,6 +93,3 @@ export async function POST(req: Request) {
     );
   }
 }
-// TODO:
-// save the file name in db
-// delete existing saved file names and files from aws
