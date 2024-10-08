@@ -11,6 +11,9 @@ import {
 import { ProductType } from "@/models/Product";
 import Image from "next/image";
 import Link from "next/link";
+import queries from "./_getdata";
+import { useQuery } from "@tanstack/react-query";
+import Loader from "@/components/Loader";
 
 export default function Home() {
   return (
@@ -21,7 +24,6 @@ export default function Home() {
 }
 
 function HomePage() {
-  const bestSellers: ProductType[] = [];
   return (
     <div className="mx-auto max-w-screen-xl px-8">
       <div className="py-4">
@@ -42,12 +44,34 @@ function HomePage() {
         </div>
       </div>
       <div className="py-4">
-        {bestSellers.map((product, index) => (
-          <ProductCard key={index} product={product} />
-        ))}
+        <BestSellers />
       </div>
     </div>
   );
+}
+
+function BestSellers() {
+  const { status, data: bestSellers } = useQuery({
+    queryKey: ["products", "bestSellers"],
+    queryFn: queries.getBestSellerProducts,
+  });
+  if (status === "pending") {
+    return (
+      <div className="flex justify-center py-12">
+        <Loader />
+      </div>
+    );
+  }
+
+  if (status === "error") {
+    <div className="flex justify-center py-12">Something Went Wrong</div>;
+  }
+
+  return bestSellers
+    ? bestSellers.map((product, index) => (
+        <ProductCard key={index} product={product} />
+      ))
+    : "";
 }
 
 function ProductCard({ product }: { product: ProductType & { id: string } }) {

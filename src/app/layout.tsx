@@ -1,12 +1,13 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
-import { Navbar } from "./_components/Navbar";
-import { Footer } from "./_components/Footer";
+import { Navbar } from "@/app/_components/Navbar";
+import { Footer } from "@/app/_components/Footer";
 import { cn } from "@/lib/utils";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import SessionProvider from "@/app/_components/SessionProvider";
+import ReactQueryProvider from "@/app/_components/ReactQueryProvider";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -39,9 +40,11 @@ export default async function RootLayout({
             "min-h-svh"
           )}
         >
-          <Navbar />
-          <div className="mx-auto max-w-screen-xl p-4">{children}</div>
-          <Footer />
+          <ReactQueryProvider>
+            <Navbar />
+            <div className="mx-auto max-w-screen-xl p-4">{children}</div>
+            <Footer />
+          </ReactQueryProvider>
         </body>
       </SessionProvider>
     </html>
