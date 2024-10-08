@@ -1,7 +1,7 @@
 import { authOptions } from "@/lib/auth";
 import { connectDB } from "@/lib/mongodb";
 import Cart from "@/models/Cart";
-import Product from "@/models/Product";
+import Product, { ProductType } from "@/models/Product";
 import { getServerSession } from "next-auth";
 
 export async function GET() {
@@ -19,7 +19,21 @@ export async function GET() {
   const cartProductsIds = cart?.items;
   const productsPromises = cartProductsIds?.map(async (item) => {
     const product = await Product.findById(item.productId);
-    return { product, quantity: item.quantity };
+    const formattedProduct: Omit<ProductType, "vendorEmail"> = {
+      id: product?._id as string,
+      name: product?.name ?? "",
+      description: product?.description ?? "",
+      priceInPaise: product?.priceInPaise ?? -1,
+      salePriceInPaise: product?.salePriceInPaise ?? -1,
+      attributes: product?.attributes ?? {},
+      image: product?.image ?? "",
+      otherImages: product?.otherImages ?? [],
+      category: product?.category ?? "",
+      stock: product?.stock ?? -1,
+      bestSeller: product?.bestSeller ?? false,
+      bestSellerPriority: product?.bestSellerPriority ?? -1,
+    };
+    return { product: formattedProduct, quantity: item.quantity };
   });
   const products = await Promise.all(productsPromises!);
   const cartData = {
