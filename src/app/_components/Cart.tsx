@@ -10,6 +10,10 @@ import {
 } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
 import { ProductType } from "@/models/Product";
+import queries from "../_getdata";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import Loader from "@/components/Loader";
+import { useCallback, useEffect } from "react";
 
 export default function Cart() {
   return (
@@ -33,28 +37,63 @@ export default function Cart() {
           <SheetTitle>Cart</SheetTitle>
           <SheetDescription>Your cart</SheetDescription>
         </SheetHeader>
-        <CartContent />
+        <div className="flex flex-col py-8">
+          <CartContent />
+        </div>
       </SheetContent>
     </Sheet>
   );
 }
 
 function CartContent() {
-  const cartProducts: (ProductType & { quantity: number })[] = [];
-  return (
-    <div className="flex flex-col py-8">
-      {cartProducts.map((product, index) => (
-        <CartItemCard key={index} product={product} />
-      ))}
-    </div>
-  );
+  const queryClient = useQueryClient();
+  const { status, data: cartProducts } = useQuery({
+    queryKey: ["products", "cart"],
+    queryFn: queries.getCart,
+  });
+
+  const setProductQuantity = useCallback((id: string, quantity: number) => {
+    queryClient.setQueryData(
+      ["products", "cart"],
+      cartProducts?.map((p) => (p.product.id === id ? { ...p, quantity } : p))
+    );
+  }, []);
+
+  if (status === "pending") {
+    return (
+      <div className="flex justify-center py-12">
+        <Loader />
+      </div>
+    );
+  }
+  if (status === "error") {
+    <div className="flex justify-center py-12">Something Went Wrong</div>;
+  }
+
+  return cartProducts
+    ? cartProducts.map(({ product, quantity }, index) => (
+        <CartItemCard
+          quantity={quantity}
+          key={index}
+          product={product}
+          setProductQuantity={setProductQuantity}
+        />
+      ))
+    : "";
 }
 
 function CartItemCard({
   product,
+  quantity,
+  setProductQuantity,
 }: {
-  product: ProductType & { quantity: number };
+  product: ProductType;
+  quantity: number;
+  setProductQuantity: (id: string, quantity: number) => void;
 }) {
+  const updateCartMutation = useMutation({
+    mutationFn: queries.updateCart,
+  });
   return (
     <div
       className={cn(
@@ -76,24 +115,54 @@ function CartItemCard({
         <Button
           className="rounded-r-none px-2 text-2xl font-medium leading-none"
           variant="ghost"
-          onClick={() => {}}
+          disabled={updateCartMutation.status === "pending"}
+          onClick={() => {
+            updateCartMutation.mutate(
+              {
+                productId: product.id,
+                quantity: quantity - 1,
+              },
+              {
+                onSuccess: (res) => {
+                  if (!res.data.error) {
+                    setProductQuantity(product.id, quantity - 1);
+                  }
+                },
+              }
+            );
+          }}
         >
           -
         </Button>
-        <span className="px-2">{product.quantity}</span>
+        <span className="px-2">{quantity}</span>
         <Button
           className="rounded-l-none px-2 text-lg font-medium leading-none"
           variant="ghost"
-          onClick={() => {}}
+          disabled={updateCartMutation.status === "pending"}
+          onClick={() => {
+            updateCartMutation.mutate(
+              {
+                productId: product.id,
+                quantity: quantity + 1,
+              },
+              {
+                onSuccess: (res) => {
+                  if (!res.data.error) {
+                    setProductQuantity(product.id, quantity + 1);
+                  }
+                },
+              }
+            );
+          }}
         >
           +
         </Button>
       </div>
       <div className="flex flex-col items-center px-2">
-        <span>{product.priceInPaise * product.quantity}</span>
+        {/* <span>{product.priceInPaise * quantity}</span>
         <span className="text-sm text-secondary-foreground line-through">
-          {product.salePriceInPaise * product.quantity}
-        </span>
+          {product.salePriceInPaise * quantity}
+        </span> */}
       </div>
     </div>
   );
