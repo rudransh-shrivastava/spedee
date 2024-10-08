@@ -19,7 +19,7 @@ export async function GET() {
   const data = await Product.find({ vendorEmail });
 
   const products: ProductType[] = data.map((product) => ({
-    productId: product._id as string,
+    id: product._id as string,
     name: product.name,
     description: product.description,
     priceInPaise: product.priceInPaise,

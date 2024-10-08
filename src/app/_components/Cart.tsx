@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
 import { ProductType } from "@/models/Product";
+
 import axios from "axios";
 import Image from "next/image";
 import { useEffect, useState } from "react";
@@ -126,6 +127,7 @@ function CartItemCard({
             axios
               .post("/api/v1/cart/update", {
                 id: product.id,
+                productId: product.id,
                 count: newCount,
               })
               .then(() => {
@@ -150,6 +152,7 @@ function CartItemCard({
             axios
               .post("/api/v1/cart/update", {
                 id: product.id,
+                productId: product.id,
                 count: newCount,
               })
               .then(() => {

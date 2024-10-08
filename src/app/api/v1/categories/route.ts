@@ -9,6 +9,7 @@ export async function GET() {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const buildCategoryTree: any = (
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     categories: any[],
     parentId: string | null = null
   ) => {
