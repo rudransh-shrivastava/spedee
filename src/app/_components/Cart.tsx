@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -9,10 +10,6 @@ import {
 } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
 import { ProductType } from "@/models/Product";
-
-import axios from "axios";
-import Image from "next/image";
-import { useEffect, useState } from "react";
 
 export default function Cart() {
   return (
@@ -43,50 +40,11 @@ export default function Cart() {
 }
 
 function CartContent() {
-  const [cartProducts, setCartProducts] = useState<
-    (ProductType & { quantity: number })[]
-  >([]);
-
-  useEffect(() => {
-    axios
-      .get("/api/v1/cart")
-      .then((res) => {
-        if (res.status === 200 && res.data.items) {
-          setCartProducts(
-            res.data.items.map(
-              (item: { product: ProductType; quantity: number }) => {
-                console.log(item.product);
-                return {
-                  ...item.product,
-                  quantity: item.quantity,
-                };
-              }
-            )
-          );
-        }
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-  }, []);
-
+  const cartProducts: (ProductType & { quantity: number })[] = [];
   return (
     <div className="flex flex-col py-8">
       {cartProducts.map((product, index) => (
-        <CartItemCard
-          key={index}
-          product={product}
-          updateProductCount={(productCount: number) => {
-            setCartProducts(
-              cartProducts.map((cartProduct) => {
-                if (cartProduct.id === product.id) {
-                  return { ...cartProduct, quantity: productCount };
-                }
-                return cartProduct;
-              })
-            );
-          }}
-        />
+        <CartItemCard key={index} product={product} />
       ))}
     </div>
   );
@@ -94,17 +52,14 @@ function CartContent() {
 
 function CartItemCard({
   product,
-  updateProductCount,
 }: {
   product: ProductType & { quantity: number };
-  updateProductCount: (productCount: number) => void;
 }) {
-  const [isLoading, setIsLoading] = useState(false);
   return (
     <div
       className={cn(
         "flex items-center gap-2 rounded-lg border p-2",
-        isLoading ? "pointer-events-none opacity-50" : ""
+        false ? "pointer-events-none opacity-50" : ""
       )}
     >
       <div className="size-12 rounded-lg bg-secondary shadow">
@@ -121,25 +76,7 @@ function CartItemCard({
         <Button
           className="rounded-r-none px-2 text-2xl font-medium leading-none"
           variant="ghost"
-          onClick={() => {
-            const newCount = product.quantity - 1;
-            setIsLoading(true);
-            axios
-              .post("/api/v1/cart/update", {
-                id: product.id,
-                productId: product.id,
-                count: newCount,
-              })
-              .then(() => {
-                updateProductCount(newCount);
-              })
-              .catch((error) => {
-                console.log(error);
-              })
-              .finally(() => {
-                setIsLoading(false);
-              });
-          }}
+          onClick={() => {}}
         >
           -
         </Button>
@@ -147,21 +84,7 @@ function CartItemCard({
         <Button
           className="rounded-l-none px-2 text-lg font-medium leading-none"
           variant="ghost"
-          onClick={() => {
-            const newCount = product.quantity + 1;
-            axios
-              .post("/api/v1/cart/update", {
-                id: product.id,
-                productId: product.id,
-                count: newCount,
-              })
-              .then(() => {
-                updateProductCount(newCount);
-              })
-              .catch((error) => {
-                console.log(error);
-              });
-          }}
+          onClick={() => {}}
         >
           +
         </Button>

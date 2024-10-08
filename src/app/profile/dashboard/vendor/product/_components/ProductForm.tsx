@@ -11,7 +11,6 @@ import { cn } from "@/lib/utils";
 import { Switch } from "@/components/ui/switch";
 import { PlusIcon, XIcon } from "lucide-react";
 import Loader from "@/components/Loader";
-import axios from "axios";
 
 export function ProductForm({
   productProps,
@@ -96,10 +95,6 @@ export function ProductForm({
 
           setSubmitting(false);
           if (submitUrl) {
-            axios
-              .post(submitUrl, formData)
-              .then((res) => console.log(res))
-              .catch((err) => console.log("Error occured", err));
           }
         }
       }}

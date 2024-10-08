@@ -5,9 +5,8 @@ import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
 import { Cross1Icon } from "@radix-ui/react-icons";
-import axios from "axios";
 import { PlusIcon } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 
 export default function Page() {
   return (
@@ -35,34 +34,21 @@ type AttributeType = {
 };
 
 function Attributes() {
-  const [saving, setSaving] = useState(false);
-  const [loadingData, setLoadingData] = useState(true);
   const [newAttributeName, setNewAttributeName] = useState("");
   const [attributes, setAttributes] = useState<AttributeType[]>([]);
 
-  useEffect(() => {
-    axios("/api/v1/attributes")
-      .then((res) => {
-        if (res.status === 200 && res.data) {
-          setAttributes(res.data);
-        }
-      })
-      .catch((err) => console.log(err))
-      .finally(() => setLoadingData(false));
-  }, []);
-
   return (
-    <div className={cn(saving ? "pointer-events-none opacity-50" : "")}>
+    <div className={cn(false ? "pointer-events-none opacity-50" : "")}>
       <h1 className="mb-4 px-4 text-xl">Attributes</h1>
-      {loadingData && (
+      {false && (
         <div className="flex justify-center py-12">
           <Loader />
         </div>
       )}
-      {!loadingData && (
+      {!false && (
         <>
           <div className="space-y-2">
-            {!loadingData && attributes.length === 0 ? (
+            {!false && attributes.length === 0 ? (
               <div className="p-4">No Attributes Found</div>
             ) : (
               attributes.map((attribute, index) => (
@@ -79,15 +65,6 @@ function Attributes() {
             onSubmit={(e) => {
               e.preventDefault();
               if (!newAttributeName) return;
-              setSaving(true);
-              const newAttribute = { name: newAttributeName, values: [] };
-              setAttributes([...attributes, newAttribute]);
-              setNewAttributeName("");
-              axios
-                .post("/api/v1/attributes/update", newAttribute)
-                .then(() => {})
-                .catch((err) => console.log(err))
-                .finally(() => setSaving(false));
             }}
           >
             <div className="mt-4 flex max-w-[25rem] gap-[1px]">
@@ -124,12 +101,10 @@ function Attribute({
   setAttributes: React.Dispatch<React.SetStateAction<AttributeType[]>>;
   index: number;
 }) {
-  const [saving, setSaving] = useState(false);
   const [newAttributeValue, setNewAttributeValue] = useState("");
   const setValues = useCallback(
     (values: AttributeType["values"], del?: boolean) => {
       const newAttribute = { ...attribute, values: values };
-      setSaving(true);
       setAttributes((prev) => {
         if (del) {
           // TODO: no api for deleting an attribute
@@ -141,11 +116,6 @@ function Attribute({
         newAttributes[index] = newAttribute;
         return newAttributes;
       });
-      axios
-        .post("/api/v1/attributes/update", { ...newAttribute })
-        .then(() => {})
-        .catch((err) => console.log(err))
-        .finally(() => setSaving(false));
     },
     [attribute, setAttributes, index]
   );
@@ -153,7 +123,7 @@ function Attribute({
     <div
       className={cn(
         "flex flex-col items-center justify-between gap-4 rounded-lg border border-b-2 p-4 sm:flex-row",
-        saving ? "pointer-events-none opacity-50" : ""
+        false ? "pointer-events-none opacity-50" : ""
       )}
     >
       <div className="w-full">
@@ -191,7 +161,6 @@ function Attribute({
             if (!newAttributeValue) return;
             setValues([...attribute.values, newAttributeValue]);
             setNewAttributeValue("");
-            // axios.post("/api/v1/attributes/edit")
           }}
         >
           <div className="mt-4 flex max-w-[20rem] gap-[1px]">
@@ -219,12 +188,6 @@ function Attribute({
   );
 }
 function Categories() {
-  // const [categories, setCategories] = useState<
-  //   {
-  //     id: string;
-  //     name: string;
-  //   }[]
-  // >([]);
   return (
     <div>
       <h1 className="mb-4 text-2xl">Categories</h1>

@@ -9,10 +9,8 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { ProductType } from "@/models/Product";
-import axios from "axios";
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useState } from "react";
 
 export default function Home() {
   return (
@@ -23,26 +21,7 @@ export default function Home() {
 }
 
 function HomePage() {
-  const [bestSellers, setBestSellers] = useState<
-    (ProductType & { id: string })[]
-  >([]);
-
-  useEffect(() => {
-    try {
-      axios.get("/api/v1/products/bestsellers").then((res) => {
-        if (
-          res.status === 200 &&
-          res.data.products &&
-          res.data.products.length > 0
-        ) {
-          setBestSellers(res.data.products);
-        }
-      });
-    } catch (error) {
-      console.log(error);
-    }
-  }, []);
-
+  const bestSellers: ProductType[] = [];
   return (
     <div className="mx-auto max-w-screen-xl px-8">
       <div className="py-4">
@@ -62,17 +41,6 @@ function HomePage() {
           </div>
         </div>
       </div>
-      {/* <div className="py-4">
-        <div className="relative flex h-[calc(3.5rem+3.5rem+3.5rem)] flex-col items-center text-4xl font-bold">
-          <div className="absolute h-[3.5rem] py-2">BEST SELLERS</div>
-          <div className="absolute top-[calc(3.5rem)] h-[3.5rem] py-2 opacity-75">
-            BEST SELLERS
-          </div>
-          <div className="absolute top-[calc(3.5rem+3.5rem)] h-[calc(3.5rem)] py-2 opacity-50">
-            BEST SELLERS
-          </div>
-        </div>
-      </div> */}
       <div className="py-4">
         {bestSellers.map((product, index) => (
           <ProductCard key={index} product={product} />
@@ -83,9 +51,7 @@ function HomePage() {
 }
 
 function ProductCard({ product }: { product: ProductType & { id: string } }) {
-  const [addedCount, setAddedCount] = useState(0);
-  const [loadingAddedCount, setLoadingAddedCount] = useState(false);
-
+  const addedCount = 0;
   return (
     <Card className="group max-w-[16rem]">
       <CardHeader className="overflow-hidden rounded-lg p-0 pb-2">
@@ -119,63 +85,27 @@ function ProductCard({ product }: { product: ProductType & { id: string } }) {
           {addedCount > 0 ? (
             <div className="flex h-9 min-w-16 items-center justify-between rounded-lg bg-primary text-background">
               <Button
-                disabled={loadingAddedCount}
+                disabled={false}
                 className="px-2 text-2xl font-medium leading-none"
-                onClick={() => {
-                  setLoadingAddedCount(true);
-                  axios
-                    .post("/api/v1/cart/edit", {
-                      productId: product.id,
-                      quantity: addedCount - 1,
-                    })
-                    .then((res) => {
-                      console.log(res.data);
-                      setAddedCount(addedCount - 1);
-                      setLoadingAddedCount(false);
-                    });
-                }}
+                onClick={() => {}}
               >
                 -
               </Button>
               {addedCount}
               <Button
-                disabled={loadingAddedCount}
+                disabled={false}
                 className="px-2 text-lg font-medium leading-none"
-                onClick={() => {
-                  setLoadingAddedCount(true);
-                  axios
-                    .post("/api/v1/cart/edit", {
-                      productId: product.id,
-                      quantity: addedCount + 1,
-                    })
-                    .then((res) => {
-                      console.log(res.data);
-                      setAddedCount(addedCount + 1);
-                      setLoadingAddedCount(false);
-                    });
-                }}
+                onClick={() => {}}
               >
                 +
               </Button>
             </div>
           ) : (
             <Button
-              disabled={loadingAddedCount}
+              disabled={false}
               variant="outline"
               className="min-w-16"
-              onClick={() => {
-                setLoadingAddedCount(true);
-                axios
-                  .post("/api/v1/cart/edit", {
-                    productId: product.id,
-                    quantity: 1,
-                  })
-                  .then((res) => {
-                    console.log(res.data);
-                    setAddedCount(1);
-                    setLoadingAddedCount(false);
-                  });
-              }}
+              onClick={() => {}}
             >
               Add
             </Button>

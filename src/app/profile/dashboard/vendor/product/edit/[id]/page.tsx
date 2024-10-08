@@ -1,8 +1,6 @@
 "use client";
 
 import { ProductType } from "@/models/Product";
-import { useEffect, useState } from "react";
-import axios from "axios";
 import Loader from "@/components/Loader";
 import BackButton from "@/components/BackButton";
 import { ProductForm } from "@/app/profile/dashboard/vendor/product/_components/ProductForm";
@@ -12,24 +10,9 @@ export default function EditProductPage({
 }: {
   params: { id: string };
 }) {
-  const [product, setProduct] = useState<ProductType | null>(null);
+  const product: ProductType | null = null;
 
-  useEffect(() => {
-    try {
-      axios
-        .post(`/api/v1/product?productId=${id}`)
-        .then((res) => {
-          if (res.status === 200 && res.data && res.data.product) {
-            setProduct(res.data.product);
-          }
-        })
-        .catch((error) => {
-          console.log(error);
-        });
-    } catch (error) {
-      console.log(error);
-    }
-  }, [id]);
+  if (!id) return "No Product Found";
 
   return product ? (
     <>

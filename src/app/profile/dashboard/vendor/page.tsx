@@ -1,9 +1,7 @@
 "use client";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useEffect, useState } from "react";
 import { ProductType } from "@/models/Product";
-import axios from "axios";
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -30,25 +28,7 @@ import { PlusIcon } from "lucide-react";
 import OrdersTable from "./components/OrdersTable";
 
 export default function Page() {
-  const [bestSellers, setBestSellers] = useState<
-    (ProductType & { id: string })[]
-  >([]);
-
-  useEffect(() => {
-    try {
-      axios.get("/api/v1/products").then((res) => {
-        if (
-          res.status === 200 &&
-          res.data.products &&
-          res.data.products.length > 0
-        ) {
-          setBestSellers(res.data.products);
-        }
-      });
-    } catch (error) {
-      console.log(error);
-    }
-  }, []);
+  const bestSellers: ProductType[] = [];
 
   return (
     <div>
