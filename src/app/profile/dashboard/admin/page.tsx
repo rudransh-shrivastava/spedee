@@ -1,4 +1,5 @@
 "use client";
+import queries from "@/app/_getdata";
 import Loader from "@/components/Loader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -7,6 +8,8 @@ import { cn } from "@/lib/utils";
 import { Cross1Icon } from "@radix-ui/react-icons";
 import { PlusIcon } from "lucide-react";
 import { useCallback, useState } from "react";
+import { AttributeType } from "@/types";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 export default function Page() {
   return (
@@ -28,27 +31,36 @@ export default function Page() {
   );
 }
 
-type AttributeType = {
-  name: string;
-  values: string[];
-};
-
 function Attributes() {
+  const queryClient = useQueryClient();
   const [newAttributeName, setNewAttributeName] = useState("");
-  const [attributes, setAttributes] = useState<AttributeType[]>([]);
+  const { status, data: attributes } = useQuery({
+    queryKey: ["attributes"],
+    queryFn: queries.getAttributes,
+  });
+
+  const createAttributeMutation = useMutation({
+    mutationFn: queries.createAttribute,
+  });
+
+  if (status === "pending") {
+    return (
+      <div className="flex justify-center py-12">
+        <Loader />
+      </div>
+    );
+  }
+  if (status === "error") {
+    <div className="flex justify-center py-12">Something Went Wrong</div>;
+  }
 
   return (
-    <div className={cn(false ? "pointer-events-none opacity-50" : "")}>
+    <>
       <h1 className="mb-4 px-4 text-xl">Attributes</h1>
-      {false && (
-        <div className="flex justify-center py-12">
-          <Loader />
-        </div>
-      )}
-      {!false && (
+      {attributes && (
         <>
           <div className="space-y-2">
-            {!false && attributes.length === 0 ? (
+            {attributes.length === 0 ? (
               <div className="p-4">No Attributes Found</div>
             ) : (
               attributes.map((attribute, index) => (
@@ -56,7 +68,7 @@ function Attributes() {
                   key={index}
                   attribute={attribute}
                   index={index}
-                  setAttributes={setAttributes}
+                  setAttributes={() => {}}
                 />
               ))
             )}
@@ -65,12 +77,24 @@ function Attributes() {
             onSubmit={(e) => {
               e.preventDefault();
               if (!newAttributeName) return;
+              createAttributeMutation.mutate(newAttributeName, {
+                onSuccess: (data) => {
+                  if (data.success) {
+                    queryClient.setQueryData(
+                      ["attributes"],
+                      [...attributes, data.attribute]
+                    );
+                    setNewAttributeName("");
+                  }
+                },
+              });
             }}
           >
             <div className="mt-4 flex max-w-[25rem] gap-[1px]">
               <Input
                 className="rounded-r-none border-r-0"
                 value={newAttributeName}
+                disabled={createAttributeMutation.status === "pending"}
                 onChange={(e) => {
                   e.preventDefault();
                   setNewAttributeName(e.target.value);
@@ -80,6 +104,7 @@ function Attributes() {
                 variant="outline"
                 type="submit"
                 className="shrink-0 rounded-l-none"
+                disabled={createAttributeMutation.status === "pending"}
                 size="icon"
               >
                 <PlusIcon />
@@ -88,7 +113,7 @@ function Attributes() {
           </form>
         </>
       )}
-    </div>
+    </>
   );
 }
 

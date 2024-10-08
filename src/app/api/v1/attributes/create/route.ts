@@ -19,9 +19,17 @@ export async function POST(req: NextRequest) {
   if (!attribute.success) {
     return Response.json({ message: attribute.error.errors }, { status: 400 });
   }
-  await Attribute.create({
+  const createdAttribute = await Attribute.create({
     name: attribute.data.name,
     values: attribute.data.values,
   });
-  return Response.json({ message: "Attribute created" });
+  return Response.json({
+    message: "Attribute created",
+    success: true,
+    attribute: {
+      id: createdAttribute._id,
+      name: createdAttribute.name,
+      values: createdAttribute.values,
+    },
+  });
 }
