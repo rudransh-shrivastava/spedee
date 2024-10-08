@@ -44,12 +44,32 @@ async function createAttribute(
   return response.data;
 }
 
+async function updateAttribute(attribute: AttributeType): Promise<{
+  success: boolean;
+  message: string;
+  error: boolean;
+}> {
+  const response = await axios.post("/api/v1/attributes/update", attribute);
+  return response.data;
+}
+
+async function deleteAttribute(
+  attributeId: string
+): Promise<{ success: boolean; message: string }> {
+  const response = await axios.post(
+    "/api/v1/attributes/delete?id=" + attributeId
+  );
+  return response.data;
+}
+
 const queries = {
   getBestSellerProducts,
   updateCart,
   getCart,
   getAttributes,
   createAttribute,
+  updateAttribute,
+  deleteAttribute,
 };
 
 export default queries;

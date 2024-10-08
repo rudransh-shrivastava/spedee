@@ -17,7 +17,10 @@ export async function POST(req: NextRequest) {
 
   const attribute = AttributeZodSchema.safeParse(data);
   if (!attribute.success) {
-    return Response.json({ message: attribute.error.errors }, { status: 400 });
+    return Response.json(
+      { message: attribute.error.errors, error: true, success: false },
+      { status: 400 }
+    );
   }
 
   const existingAttribute = await Attribute.findOne({
@@ -32,5 +35,5 @@ export async function POST(req: NextRequest) {
     { values: attribute.data.values }
   );
 
-  return Response.json({ message: "Attribute updated" });
+  return Response.json({ message: "Attribute updated", success: true });
 }

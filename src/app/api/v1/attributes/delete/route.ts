@@ -16,14 +16,20 @@ export async function POST(req: Request) {
   const attributeId = searchParams.get("id");
   if (!attributeId) {
     return Response.json(
-      { message: "Attribute ID not provided, please specify an 'id'" },
+      {
+        message: "Attribute ID not provided, please specify an 'id'",
+        success: false,
+      },
       { status: 400 }
     );
   }
   const attribute = await Attribute.findById(attributeId);
   if (!attribute) {
-    return Response.json({ message: "Attribute not found" }, { status: 404 });
+    return Response.json(
+      { message: "Attribute not found", success: false },
+      { status: 404 }
+    );
   }
   await Attribute.deleteOne({ _id: attributeId });
-  return Response.json({ message: "Attribute deleted" });
+  return Response.json({ message: "Attribute deleted", success: true });
 }
