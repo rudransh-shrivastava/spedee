@@ -19,18 +19,9 @@ export async function POST(req: NextRequest) {
   if (!attribute.success) {
     return Response.json({ message: attribute.error.errors }, { status: 400 });
   }
-
-  const existingAttribute = await Attribute.findOne({
+  await Attribute.create({
     name: attribute.data.name,
+    values: attribute.data.values,
   });
-
-  if (!existingAttribute) {
-    return Response.json({ message: "Attribute not found" }, { status: 404 });
-  }
-  await Attribute.updateOne(
-    { name: attribute.data.name },
-    { values: attribute.data.values }
-  );
-
-  return Response.json({ message: "Attribute updated" });
+  return Response.json({ message: "Attribute created" });
 }
