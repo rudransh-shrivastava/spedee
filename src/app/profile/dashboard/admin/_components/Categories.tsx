@@ -11,12 +11,24 @@ import {
 import { useCallback, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { PlusIcon } from "lucide-react";
+import { EditIcon, MoreHorizontal, PlusIcon, TrashIcon } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 type AddCategoryToTreeType = (
   tree: CategoryTree[] | null,
   parentId: string | null,
   newCategory: CategoryTree
+) => CategoryTree[];
+
+type deleteCategoryFromTreeType = (
+  tree: CategoryTree[] | null,
+  categoryId: string
 ) => CategoryTree[];
 
 export function Categories() {
@@ -54,6 +66,50 @@ export function Categories() {
     [categories]
   );
 
+  const deleteCategoryFromTree = useCallback(
+    (tree: CategoryTree[] | null, categoryId: string): CategoryTree[] => {
+      let categoryTree = tree;
+      if (!tree && categories) {
+        categoryTree = categories;
+      }
+      if (!categoryTree) return [];
+
+      return categoryTree
+        .map((category) => {
+          if (category.id === categoryId) {
+            return null;
+          }
+          return {
+            ...category,
+            children: deleteCategoryFromTree(category.children, categoryId),
+          };
+        })
+        .filter(Boolean) as CategoryTree[];
+    },
+    [categories]
+  );
+
+  // Rename a category
+  // const renameCategoryInTree = useCallback(
+  //   (tree: CategoryTree[] | null, categoryId: string, newName: string): CategoryTree[] => {
+  //     if (!tree) return [];
+
+  //     return tree.map((category) => {
+  //       if (category.id === categoryId) {
+  //         return {
+  //           ...category,
+  //           name: newName, // Update the category name
+  //         };
+  //       }
+  //       return {
+  //         ...category,
+  //         children: renameCategoryInTree(category.children, categoryId, newName),
+  //       };
+  //     });
+  //   },
+  //   []
+  // );
+
   if (status === "pending") {
     return (
       <div className="flex justify-center py-12">
@@ -71,6 +127,7 @@ export function Categories() {
       <div>
         {categories && (
           <CategoryList
+            deleteCategoryFromTree={deleteCategoryFromTree}
             categories={categories}
             addCategoryToTree={addCategoryToTree}
           />
@@ -83,16 +140,19 @@ export function Categories() {
 function CategoryList({
   categories,
   addCategoryToTree,
+  deleteCategoryFromTree,
 }: {
   categories: CategoryTree[];
   addCategoryToTree: AddCategoryToTreeType;
+  deleteCategoryFromTree: deleteCategoryFromTreeType;
 }) {
   return categories.length > 0 ? (
     <Accordion type="multiple" className="space-y-2">
       <CategoryListItem
-        addCategoryToTree={addCategoryToTree}
         category={categories}
         parentId={null}
+        addCategoryToTree={addCategoryToTree}
+        deleteCategoryFromTree={deleteCategoryFromTree}
       />
     </Accordion>
   ) : (
@@ -104,10 +164,12 @@ function CategoryListItem({
   category,
   parentId,
   addCategoryToTree,
+  deleteCategoryFromTree,
 }: {
   category: CategoryTree[];
   parentId: CategoryTree["parentCategoryId"];
   addCategoryToTree: AddCategoryToTreeType;
+  deleteCategoryFromTree: deleteCategoryFromTreeType;
 }) {
   return (
     <>
@@ -119,13 +181,18 @@ function CategoryListItem({
             key={index}
           >
             <AccordionTrigger className="px-2">
-              {categoryChild.name}
+              <span>{categoryChild.name}</span>
+              <ActionMenu
+                categoryChild={categoryChild}
+                deleteCategoryFromTree={deleteCategoryFromTree}
+              />
             </AccordionTrigger>
-            <AccordionContent className="space-y-2 pb-4 pl-5 pr-1 pt-1">
+            <AccordionContent className="space-y-2 pb-4 pl-5 pr-2 pt-1">
               <CategoryListItem
                 addCategoryToTree={addCategoryToTree}
                 parentId={categoryChild.id}
                 category={categoryChild.children}
+                deleteCategoryFromTree={deleteCategoryFromTree}
               />
             </AccordionContent>
           </AccordionItem>
@@ -139,6 +206,83 @@ function CategoryListItem({
         addCategoryToTree={addCategoryToTree}
       />
     </>
+  );
+}
+
+function ActionMenu({
+  categoryChild,
+  deleteCategoryFromTree,
+}: {
+  categoryChild: CategoryTree;
+  deleteCategoryFromTree: deleteCategoryFromTreeType;
+}) {
+  const queryClient = useQueryClient();
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+
+  const { mutate: deleteCategory, status: deleteCategoryStatus } = useMutation({
+    mutationFn: queries.deleteCategory,
+  });
+
+  return (
+    <DropdownMenu
+      open={dropdownOpen}
+      onOpenChange={(open) => setDropdownOpen(open)}
+    >
+      <DropdownMenuTrigger asChild>
+        <Button
+          onClick={(e) => {
+            e.preventDefault();
+          }}
+          className="ml-auto rounded-full"
+          variant="ghost"
+          size="icon"
+          disabled={deleteCategoryStatus === "pending"}
+          asChild
+        >
+          <div>
+            {deleteCategoryStatus === "pending" ? (
+              <Loader className="size-4" />
+            ) : (
+              <MoreHorizontal className="size-4" />
+            )}
+          </div>
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end">
+        <DropdownMenuLabel>Actions</DropdownMenuLabel>
+        <DropdownMenuItem
+          className="cursor-pointer gap-1"
+          onClick={(e) => {
+            e.preventDefault();
+            deleteCategory(categoryChild.id, {
+              onSuccess: (data) => {
+                console.log(data);
+                if (data.success) {
+                  queryClient.setQueryData(
+                    ["categories"],
+                    deleteCategoryFromTree(null, categoryChild.id)
+                  );
+                }
+              },
+            });
+            setDropdownOpen(false);
+          }}
+        >
+          <TrashIcon className="mb-1 size-4" />
+          <span>Delete</span>
+        </DropdownMenuItem>
+        <DropdownMenuItem
+          className="cursor-pointer gap-1"
+          onClick={(e) => {
+            e.preventDefault();
+          }}
+        >
+          <EditIcon className="size-4 cursor-pointer" />
+          {/* TODO: Implement Rename */}
+          Rename
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }
 

@@ -17,11 +17,19 @@ export async function POST(req: NextRequest) {
   const categoryId = data.id;
   if (!categoryId) {
     return Response.json(
-      { message: "Category id is required, please specify id as id: string" },
+      {
+        message: "Category id is required, please specify id as id: string",
+        error: true,
+        success: false,
+      },
       { status: 400 }
     );
   }
 
   await Category.deleteOne({ _id: categoryId });
-  return Response.json({ message: "Category deleted successfully" });
+  return Response.json({
+    message: "Category deleted successfully",
+    success: true,
+    error: false,
+  });
 }

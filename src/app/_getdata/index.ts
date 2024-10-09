@@ -90,6 +90,15 @@ async function createCategory({
   return response.data;
 }
 
+async function deleteCategory(
+  categoryId: string
+): Promise<{ success: boolean; message: string }> {
+  const response = await axios.post("/api/v1/categories/delete", {
+    id: categoryId,
+  });
+  return response.data;
+}
+
 const queries = {
   getBestSellerProducts,
   updateCart,
@@ -100,6 +109,7 @@ const queries = {
   deleteAttribute,
   getCategories,
   createCategory,
+  deleteCategory,
 };
 
 export default queries;
