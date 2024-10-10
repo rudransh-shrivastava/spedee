@@ -125,13 +125,20 @@ export function Categories() {
     <div>
       <h1 className="mb-4 px-4 text-xl">Categories</h1>
       <div>
-        {categories && (
-          <CategoryList
-            deleteCategoryFromTree={deleteCategoryFromTree}
-            categories={categories}
-            addCategoryToTree={addCategoryToTree}
-          />
-        )}
+        {categories &&
+          (categories.length > 0 ? (
+            <CategoryList
+              deleteCategoryFromTree={deleteCategoryFromTree}
+              categories={categories}
+              addCategoryToTree={addCategoryToTree}
+            />
+          ) : (
+            <CategoryForm
+              category={categories}
+              parentId={null}
+              addCategoryToTree={addCategoryToTree}
+            />
+          ))}
       </div>
     </div>
   );
