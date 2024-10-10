@@ -133,11 +133,14 @@ export function Categories() {
               addCategoryToTree={addCategoryToTree}
             />
           ) : (
-            <CategoryForm
-              category={categories}
-              parentId={null}
-              addCategoryToTree={addCategoryToTree}
-            />
+            <div className="space-y-2">
+              <div className="px-2 py-4">No Categories</div>
+              <CategoryForm
+                category={categories}
+                parentId={null}
+                addCategoryToTree={addCategoryToTree}
+              />
+            </div>
           ))}
       </div>
     </div>
