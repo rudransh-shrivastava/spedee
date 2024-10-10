@@ -37,7 +37,7 @@ export function Navbar() {
           <Image src="/spedee-logo.png" alt="Logo" width={48} height={48} />
         </div>
       </Link>
-      <div className="flex shrink-0 items-center justify-center">
+      <div className="hidden shrink-0 items-center justify-center md:flex">
         <Dialog>
           <DialogTrigger asChild>
             <Button variant="ghost" className="text-sm">
@@ -65,13 +65,13 @@ export function Navbar() {
           </DialogContent>
         </Dialog>
       </div>
-      <div className="flex w-full shrink items-center justify-center">
-        <div className="h-9 w-full rounded-lg bg-secondary"></div>
+      <div className="hidden w-full shrink items-center justify-center md:flex">
+        <div className="h-9 w-full rounded-lg border bg-secondary/20"></div>
       </div>
-      <div className="flex items-center justify-center">
+      <div className="hidden items-center justify-center md:flex">
         <Cart />
       </div>
-      <div className="flex shrink-0 items-center justify-center">
+      <div className="ml-auto flex shrink-0 items-center justify-center md:ml-0">
         {data && data.user ? (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -93,7 +93,7 @@ export function Navbar() {
                 <span className="sr-only">Toggle user menu</span>
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
+            <DropdownMenuContent sideOffset={32} align="end">
               <DropdownMenuLabel>
                 <div className="px-2 py-1.5 text-sm font-normal">
                   <div className="flex flex-col space-y-1">

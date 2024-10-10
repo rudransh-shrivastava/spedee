@@ -42,7 +42,7 @@ export default async function RootLayout({
         >
           <ReactQueryProvider>
             <Navbar />
-            <div className="mx-auto max-w-screen-xl p-4">{children}</div>
+            <div className="mx-auto max-w-screen-xl p-2 md:p-4">{children}</div>
             <Footer />
           </ReactQueryProvider>
         </body>

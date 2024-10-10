@@ -26,17 +26,17 @@ export default function Home() {
 
 function HomePage() {
   return (
-    <div className="mx-auto max-w-screen-xl px-8">
-      <div className="py-4">
+    <div className="mx-auto max-w-screen-xl md:px-8">
+      <div className="">
         <div
-          className="h-[15rem] rounded-lg bg-[#cbff03] py-8"
+          className="h-[15rem] rounded-lg py-8"
           style={{
             backgroundImage:
-              "linear-gradient(200deg, hsl(72, 100%, 50%),hsl(72.1, 100%, 30.2%))",
+              "linear-gradient(225deg, hsl(85, 100%, 50%),hsl(120, 75%, 25%))",
           }}
         >
           <div className="flex h-full flex-col gap-2 px-8">
-            <div className="flex h-full flex-col justify-center gap-4 text-background">
+            <div className="flex h-full flex-col justify-center gap-4 text-background dark:text-foreground">
               <span className="text-4xl">SPEDEE</span>
               <span>Delivery in 15 - 45 minutes</span>
             </div>
@@ -44,7 +44,7 @@ function HomePage() {
           </div>
         </div>
       </div>
-      <div className="py-4">
+      <div className="flex justify-center py-4 sm:justify-start">
         <BestSellers />
       </div>
     </div>
@@ -109,8 +109,8 @@ function ProductCard({
     productCartQuantity[product.id] || 0
   );
   return (
-    <Card className="group max-w-[16rem]">
-      <CardHeader className="overflow-hidden rounded-lg p-0 pb-2">
+    <Card className="group w-full max-w-[16rem]">
+      <CardHeader className="overflow-hidden rounded-lg p-0">
         <div className="relative mx-auto size-[16rem] overflow-hidden rounded-lg rounded-b-none">
           <div className="absolute h-full w-full animate-pulse bg-secondary-foreground/10"></div>
           <Image
@@ -118,7 +118,7 @@ function ProductCard({
             alt={product.name}
             width={200}
             height={200}
-            className="absolute block h-full w-full transition-transform group-hover:rotate-1 group-hover:scale-105"
+            className="absolute block h-full w-full transition-transform"
           />
         </div>
         <CardTitle className="px-2 pt-2">
@@ -131,7 +131,7 @@ function ProductCard({
         </CardDescription>
       </CardHeader>
       <CardContent className="p-4 pt-0">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-wrap items-center justify-between gap-2 py-4">
           <div className="flex items-center gap-2">
             <span className="font-bold">&#8377;{product.salePriceInPaise}</span>
             <span className="text-sm text-gray-400 line-through">
@@ -203,6 +203,9 @@ function ProductCard({
             </Button>
           )}
         </div>
+        <Button variant="secondary" className="w-full">
+          Buy Now
+        </Button>
       </CardContent>
     </Card>
   );

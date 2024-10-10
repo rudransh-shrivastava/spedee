@@ -266,7 +266,6 @@ function ActionMenu({
             e.preventDefault();
             deleteCategory(categoryChild.id, {
               onSuccess: (data) => {
-                console.log(data);
                 if (data.success) {
                   queryClient.setQueryData(
                     ["categories"],
