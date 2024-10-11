@@ -3,6 +3,8 @@
 import Loader from "@/components/Loader";
 import BackButton from "@/components/BackButton";
 import { ProductForm } from "@/app/profile/dashboard/vendor/product/_components/ProductForm";
+import { mutations } from "@/app/_data/mutations";
+import { useMutation } from "@tanstack/react-query";
 
 export default function CreateProductPage() {
   const product = {
@@ -22,6 +24,8 @@ export default function CreateProductPage() {
     bestSellerPriority: 0,
   };
 
+  const createProductMutation = useMutation(mutations.createProduct);
+
   return product ? (
     <>
       <div className="flex items-center gap-2 pb-8 pt-4">
@@ -29,7 +33,8 @@ export default function CreateProductPage() {
         <h1 className="text-2xl">Add a Product</h1>
       </div>
       <ProductForm
-        submitUrl="/api/v1/vendor/product/create"
+        saving={createProductMutation.status === "pending"}
+        onSave={createProductMutation.mutate}
         productProps={product}
       />
     </>

@@ -1,31 +1,10 @@
 import { authOptions } from "@/lib/auth";
 import { connectDB } from "@/lib/mongodb";
 import { getServerSession } from "next-auth";
-import { zfd } from "zod-form-data";
 import { uploadFile } from "@/lib/s3";
 import Product from "@/models/Product";
 
-const productSchema = zfd.formData({
-  productId: zfd.text(),
-  name: zfd.text(),
-  description: zfd.text(),
-  priceInPaise: zfd.numeric(),
-  salePriceInPaise: zfd.numeric(),
-  attributes: zfd.text(),
-  image: zfd.file(),
-  otherImages: zfd.repeatableOfType(zfd.file()),
-  category: zfd.text(),
-  stock: zfd.numeric(),
-  bestSeller: zfd.text(),
-  bestSellerPriority: zfd.numeric(),
-  variants: zfd.repeatableOfType(
-    zfd.formData({
-      attributes: zfd.text(),
-      stock: zfd.numeric(),
-      image: zfd.text().nullable(),
-    })
-  ),
-});
+import { productFormDataSchema as productSchema } from "@/zod-schema/product-zod-schema";
 
 export async function POST(req: Request) {
   const session = await getServerSession(authOptions);

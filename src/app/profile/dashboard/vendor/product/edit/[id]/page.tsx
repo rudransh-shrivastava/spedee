@@ -3,7 +3,7 @@
 import { ProductType } from "@/models/Product";
 import Loader from "@/components/Loader";
 import BackButton from "@/components/BackButton";
-import { ProductForm } from "@/app/profile/dashboard/vendor/product/_components/ProductForm";
+// import { ProductForm } from "@/app/profile/dashboard/vendor/product/_components/ProductForm";
 
 export default function EditProductPage({
   params: { id },
@@ -20,7 +20,7 @@ export default function EditProductPage({
         <BackButton />
         <h1 className="text-2xl">Edit Product</h1>
       </div>
-      <ProductForm productProps={product} submitUrl="" />
+      {/* <ProductForm productProps={product} submitUrl="" /> */}
     </>
   ) : (
     <div className="flex justify-center py-20">

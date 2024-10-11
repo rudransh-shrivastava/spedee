@@ -75,7 +75,13 @@ export function Attributes() {
         }
       }
     },
-    [attributes]
+    [
+      attributes,
+      queryClient,
+      updateAttributeMutation,
+      queryClient,
+      updateAttributeMutation,
+    ]
   );
 
   if (status === "pending") {

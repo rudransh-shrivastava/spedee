@@ -52,16 +52,19 @@ function CartContent() {
     queryFn: queries.getCart,
   });
 
-  const setProductQuantity = useCallback((id: string, quantity: number) => {
-    queryClient.setQueryData(
-      ["products", "cart"],
-      cartProducts?.map((p) => (p.product.id === id ? { ...p, quantity } : p))
-    );
-    queryClient.invalidateQueries({
-      queryKey: ["products", "cart"],
-      exact: true,
-    });
-  }, []);
+  const setProductQuantity = useCallback(
+    (id: string, quantity: number) => {
+      queryClient.setQueryData(
+        ["products", "cart"],
+        cartProducts?.map((p) => (p.product.id === id ? { ...p, quantity } : p))
+      );
+      queryClient.invalidateQueries({
+        queryKey: ["products", "cart"],
+        exact: true,
+      });
+    },
+    [cartProducts, queryClient]
+  );
 
   if (status === "pending") {
     return (

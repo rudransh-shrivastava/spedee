@@ -6,31 +6,31 @@ import { useRef, useState } from "react";
 import {
   ProductSchema,
   ProductSchemaFormattedError,
-} from "@/schema/product-schema";
+} from "@/zod-schema/product-schema";
 import { cn } from "@/lib/utils";
 import { Switch } from "@/components/ui/switch";
-import { PlusIcon, XIcon } from "lucide-react";
 import Loader from "@/components/Loader";
+import { Variants } from "./Variants";
+// import { productFormDataSchema } from "@/zod-schema/product-zod-schema";
 
 export function ProductForm({
   productProps,
-  submitUrl,
+  onSave,
+  saving,
 }: {
   productProps: ProductType & { id: string };
-  submitUrl: string;
+  onSave: (product: FormData) => void;
+  saving: boolean;
 }) {
-  const [product, setProduct] = useState<ProductType & { id: string }>({
+  const [product, setProduct] = useState<ProductType>({
     ...productProps,
     id: productProps.id || "",
     vendorEmail: "idk",
     attributes: productProps.attributes || {},
   });
-
   const [productErrors, setErrors] = useState<ProductSchemaFormattedError>({
     _errors: [],
   });
-
-  const [submitting, setSubmitting] = useState(false);
   const imageInputRef = useRef<HTMLInputElement | null>(null);
   const otherImagesInputRef = useRef<HTMLInputElement | null>(null);
 
@@ -44,7 +44,6 @@ export function ProductForm({
           setErrors(formattedErrors);
         } else {
           setErrors({ _errors: [] });
-          setSubmitting(true);
 
           // TODO: convert to the better one(simplify)
           const formData = new FormData();
@@ -79,9 +78,16 @@ export function ProductForm({
             product.bestSellerPriority.toString()
           );
 
-          setSubmitting(false);
-          if (submitUrl) {
-          }
+          // const validationResult = productFormDataSchema.safeParse(product);
+          // if (!validationResult.success) {
+          //   const formattedErrors = validationResult.error.format();
+          //   setErrors(formattedErrors);
+          // } else {
+          //   setErrors({ _errors: [] });
+          // }
+          // console.log(validationResult.error?.format());
+
+          onSave(formData);
         }
       }}
     >
@@ -110,6 +116,15 @@ export function ProductForm({
             Description is required
           </div>
         )}
+      </FormGroup>
+      <FormGroup>
+        <Label>Variants</Label>
+        <Variants
+          variants={product.variants}
+          setVariants={(variants) => {
+            setProduct((p) => ({ ...p, variants }));
+          }}
+        />
       </FormGroup>
       <FormGroup>
         <Label>Price in Paise</Label>
@@ -237,11 +252,11 @@ export function ProductForm({
       <div className="flex justify-end py-2">
         <Button
           type="submit"
-          disabled={submitting}
-          className={cn(submitting ? "disabled:opacity-100" : "")}
+          disabled={saving}
+          className={cn(saving ? "disabled:opacity-100" : "")}
         >
-          <span className={cn(submitting ? "text-transparent" : "")}>Save</span>
-          {submitting && <Loader className="absolute size-6" />}
+          <span className={cn(saving ? "text-transparent" : "")}>Save</span>
+          {saving && <Loader className="absolute size-6" />}
         </Button>
       </div>
     </form>
