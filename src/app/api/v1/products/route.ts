@@ -21,6 +21,7 @@ export async function GET() {
       stock: product.stock,
       bestSeller: product.bestSeller,
       bestSellerPriority: product.bestSellerPriority,
+      variants: product.variants,
     }));
 
   return Response.json({ products });

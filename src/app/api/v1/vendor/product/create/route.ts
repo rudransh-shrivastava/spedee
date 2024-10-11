@@ -2,8 +2,7 @@ import { authOptions } from "@/lib/auth";
 import { connectDB } from "@/lib/mongodb";
 import { getServerSession } from "next-auth";
 import { zfd } from "zod-form-data";
-import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
-import { deleteFile, uploadFile } from "@/lib/s3";
+import { uploadFile } from "@/lib/s3";
 import Product from "@/models/Product";
 
 const productSchema = zfd.formData({
@@ -19,6 +18,13 @@ const productSchema = zfd.formData({
   stock: zfd.numeric(),
   bestSeller: zfd.text(),
   bestSellerPriority: zfd.numeric(),
+  variants: zfd.repeatableOfType(
+    zfd.formData({
+      attributes: zfd.text(),
+      stock: zfd.numeric(),
+      image: zfd.text().nullable(),
+    })
+  ),
 });
 
 export async function POST(req: Request) {
@@ -38,8 +44,7 @@ export async function POST(req: Request) {
     console.log(product.error);
     return Response.json({ message: "Invalid data" }, { status: 400 });
   }
-
-  const client = new S3Client({ region: process.env.AWS_REGION });
+  const parsedProduct = product.data;
 
   const imageFile = data.get("image") as File;
   const otherImagesFiles = data.getAll("otherImages") as File[];
@@ -65,25 +70,37 @@ export async function POST(req: Request) {
       newFileNames.push(key);
     });
   }
-
+  // Parse the attributes and variants JSON strings
+  const attributes = JSON.parse(parsedProduct.attributes);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const variants = parsedProduct.variants.map((variant: any) => ({
+    ...variant,
+    attributes: JSON.parse(variant.attributes),
+  }));
   try {
     // upload files
     const uploadResponses = await Promise.all(uploadPromises);
     console.log(uploadResponses);
     // Save product
-    const productData = {
-      ...product.data,
-      image: newFileNames[0],
-      otherImages: newFileNames.slice(1),
-    };
-    await Product.create({
-      ...productData,
-      vendorEmail: session.user.email,
+    const newProduct = new Product({
+      name: parsedProduct.name,
+      description: parsedProduct.description,
+      priceInPaise: parsedProduct.priceInPaise,
+      salePriceInPaise: parsedProduct.salePriceInPaise,
+      attributes: attributes,
+      image: parsedProduct.image,
+      otherImages: parsedProduct.otherImages,
+      category: parsedProduct.category,
+      stock: parsedProduct.stock,
+      bestSeller: parsedProduct.bestSeller,
+      bestSellerPriority: parsedProduct.bestSellerPriority,
+      variants: variants,
     });
+    await newProduct.save();
+
     return Response.json({
-      message: "Success",
-      uploadResponses: uploadResponses,
-      productData,
+      message: "Product created successfully",
+      success: true,
     });
   } catch (error) {
     console.error(error);
@@ -93,3 +110,4 @@ export async function POST(req: Request) {
     );
   }
 }
+// TODO: Store variant images
