@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ProductType } from "@/models/Product";
-import { useCallback, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import {
   ProductSchema,
   ProductSchemaFormattedError,
@@ -31,22 +31,8 @@ export function ProductForm({
   });
 
   const [submitting, setSubmitting] = useState(false);
-  const [newAttribute, setNewAttribute] = useState("");
   const imageInputRef = useRef<HTMLInputElement | null>(null);
   const otherImagesInputRef = useRef<HTMLInputElement | null>(null);
-
-  const setAttributeValue = useCallback(
-    (attribute: string, value: string[]) => {
-      setProduct((p) => ({
-        ...p,
-        attributes: {
-          ...p.attributes,
-          [attribute]: value,
-        },
-      }));
-    },
-    []
-  );
 
   return (
     <form
@@ -155,52 +141,6 @@ export function ProductForm({
             }));
           }}
         />
-      </FormGroup>
-      <FormGroup>
-        <Label>Attributes</Label>
-        <div className="grid grid-cols-3 items-center gap-2">
-          {Object.keys(product.attributes).length === 0 && (
-            <div className="col-span-3 py-2">No attribute Values</div>
-          )}
-          {Object.keys(product.attributes).map((attribute) => {
-            return (
-              <Attribute
-                setAttributeValue={setAttributeValue}
-                key={attribute}
-                attribute={attribute}
-                attributes={product.attributes}
-              />
-            );
-          })}
-          <div className="flex gap-[1px]">
-            <Input
-              className="rounded-r-none border-r-0"
-              value={newAttribute}
-              onChange={(e) => {
-                e.preventDefault();
-                setNewAttribute(e.target.value);
-              }}
-            />
-            <Button
-              variant="outline"
-              className="shrink-0 rounded-l-none"
-              size="icon"
-              onClick={(e) => {
-                e.preventDefault();
-                setProduct((p) => ({
-                  ...p,
-                  attributes: {
-                    ...p.attributes,
-                    [newAttribute]: [],
-                  },
-                }));
-                setNewAttribute("");
-              }}
-            >
-              <PlusIcon />
-            </Button>
-          </div>
-        </div>
       </FormGroup>
       <FormGroup>
         <Label>Image</Label>
@@ -313,73 +253,5 @@ function FormGroup({ children }: { children: React.ReactNode }) {
     <div className="grid items-center gap-1 py-2 md:grid-cols-[25ch,1fr] md:gap-x-4">
       {children}
     </div>
-  );
-}
-
-function Attribute({
-  attribute,
-  attributes,
-  setAttributeValue,
-}: {
-  attribute: string;
-  attributes: ProductType["attributes"];
-  setAttributeValue: (attribute: string, value: string[]) => void;
-}) {
-  const [newAttribute, setNewAttribute] = useState("");
-  return (
-    <>
-      <div>{attribute}</div>
-      <div className="col-span-2">
-        <div className="flex flex-wrap gap-2 py-2">
-          {attributes[attribute].length === 0 && <div>No Attributes</div>}
-          {attributes[attribute].map((attributeValue, index) => {
-            return (
-              <div
-                className="flex h-9 items-center overflow-hidden rounded-full bg-secondary pl-4"
-                key={index}
-              >
-                {attributeValue}
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="rounded-full"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    attributes[attribute].splice(index, 1);
-                  }}
-                >
-                  <XIcon className="size-5" />
-                </Button>
-              </div>
-            );
-          })}
-        </div>
-        <div className="flex gap-[1px]">
-          <Input
-            className="rounded-r-none border-r-0"
-            value={newAttribute}
-            onChange={(e) => {
-              e.preventDefault();
-              setNewAttribute(e.target.value);
-            }}
-          />
-          <Button
-            variant="outline"
-            className="shrink-0 rounded-l-none"
-            size="icon"
-            onClick={(e) => {
-              e.preventDefault();
-              setAttributeValue(attribute, [
-                ...attributes[attribute],
-                newAttribute,
-              ]);
-              setNewAttribute("");
-            }}
-          >
-            <PlusIcon />
-          </Button>
-        </div>
-      </div>
-    </>
   );
 }
