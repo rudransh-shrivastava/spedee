@@ -15,7 +15,6 @@ export async function POST(req: NextRequest) {
     return Response.json({ message: "Payment failed" }, { status: 400 });
   }
 }
-
 async function updatePurchaseStatus(transactionId: string, status: string) {
   await Order.updateOne({ transactionId }, { status });
 }
