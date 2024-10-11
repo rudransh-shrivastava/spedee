@@ -32,6 +32,7 @@ export async function GET() {
       stock: product?.stock ?? -1,
       bestSeller: product?.bestSeller ?? false,
       bestSellerPriority: product?.bestSellerPriority ?? -1,
+      variants: product?.variants ?? [],
     };
     return { product: formattedProduct, quantity: item.quantity };
   });
