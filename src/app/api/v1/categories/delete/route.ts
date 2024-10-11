@@ -1,9 +1,10 @@
 import { authOptions } from "@/lib/auth";
 import { connectDB } from "@/lib/mongodb";
 import Category from "@/models/Category";
+import Product from "@/models/Product";
 import { getServerSession } from "next-auth";
 import { NextRequest } from "next/server";
-// TODO: if a category is deleted, also delete its subcategories and find products which have this category, set their categories to null
+
 export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions);
   if (!session) {
@@ -25,10 +26,22 @@ export async function POST(req: NextRequest) {
       { status: 400 }
     );
   }
-
+  const updatePromises = [];
+  updatePromises.push(
+    await Product.updateMany({ category: categoryId }, { category: null })
+  );
+  updatePromises.push(
+    await Category.updateMany(
+      {
+        parentCategoryId: categoryId,
+      },
+      { parentCategoryId: null }
+    )
+  );
+  await Promise.all(updatePromises);
   await Category.deleteOne({ _id: categoryId });
   return Response.json({
-    message: "Category deleted successfully",
+    message: "Category along with sub-categories deleted successfully",
     success: true,
     error: false,
   });

@@ -1,7 +1,7 @@
 import { connectDB } from "@/lib/mongodb";
 import Order from "@/models/Order";
 import { NextRequest } from "next/server";
-
+// TODO: Not secure, anyone call call this api and update the status
 export async function POST(req: NextRequest) {
   await connectDB();
   const { transactionId, status } = await req.json();
