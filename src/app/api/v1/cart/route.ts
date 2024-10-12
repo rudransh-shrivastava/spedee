@@ -1,5 +1,6 @@
 import { authOptions } from "@/lib/auth";
 import { connectDB } from "@/lib/mongodb";
+import { getPublicImageUrl } from "@/lib/s3";
 import Cart from "@/models/Cart";
 import Product, { ProductType } from "@/models/Product";
 import { getServerSession } from "next-auth";
@@ -19,15 +20,19 @@ export async function GET() {
   const cartProductsIds = cart?.items;
   const productsPromises = cartProductsIds?.map(async (item) => {
     const product = await Product.findById(item.productId);
-    const formattedProduct: Omit<ProductType, "vendorEmail"> = {
+    const imageUrl = getPublicImageUrl(product?.image as string);
+    const otherImagesUrls = product?.otherImages.map((image) =>
+      getPublicImageUrl(image)
+    );
+    const formattedProduct: ProductType = {
       id: product?._id as string,
       name: product?.name ?? "",
       description: product?.description ?? "",
       priceInPaise: product?.priceInPaise ?? -1,
       salePriceInPaise: product?.salePriceInPaise ?? -1,
       attributes: product?.attributes ?? {},
-      image: product?.image ?? "",
-      otherImages: product?.otherImages ?? [],
+      image: imageUrl,
+      otherImages: otherImagesUrls ?? [],
       category: product?.category ?? "",
       stock: product?.stock ?? -1,
       bestSeller: product?.bestSeller ?? false,

@@ -27,3 +27,6 @@ export const deleteFile = async (key: string) => {
   const command = new DeleteObjectCommand(deleteParams);
   return client.send(command);
 };
+export const getPublicImageUrl = (key: string) => {
+  return `https://${process.env.S3_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${key}`;
+};
