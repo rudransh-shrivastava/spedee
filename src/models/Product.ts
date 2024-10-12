@@ -15,7 +15,6 @@ export type ProductType = {
   attributes: Record<string, string[]>;
   image: string;
   otherImages: string[];
-  vendorEmail: string;
   category: string;
   stock: number;
   bestSeller: boolean;
@@ -23,7 +22,9 @@ export type ProductType = {
   variants: VariantType[];
 };
 
-interface ProductInterface extends Omit<ProductType, "id">, Document {}
+interface ProductInterface extends Omit<ProductType, "id">, Document {
+  vendorEmail: string;
+}
 
 const VariantSchema = new mongoose.Schema<VariantType>({
   attributes: { type: Map, of: String, required: true },

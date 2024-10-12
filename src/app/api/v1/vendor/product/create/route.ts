@@ -17,12 +17,14 @@ export async function POST(req: Request) {
   await connectDB();
 
   const data = await req.formData();
-
   const product = productSchema.safeParse(data);
   if (!product.success) {
     console.log(product.error);
     return Response.json({ message: "Invalid data" }, { status: 400 });
   }
+  console.log("data recieved in backend", data);
+  console.log("data after parsing in backend: ", product.data);
+  // return Response.json({ message: "Success" });
   const parsedProduct = product.data;
 
   const imageFile = data.get("image") as File;
@@ -61,21 +63,22 @@ export async function POST(req: Request) {
     const uploadResponses = await Promise.all(uploadPromises);
     console.log(uploadResponses);
     // Save product
-    const newProduct = new Product({
+    const newProduct = {
       name: parsedProduct.name,
       description: parsedProduct.description,
       priceInPaise: parsedProduct.priceInPaise,
       salePriceInPaise: parsedProduct.salePriceInPaise,
       attributes: attributes,
-      image: parsedProduct.image,
-      otherImages: parsedProduct.otherImages,
+      image: newFileNames[0],
+      otherImages: newFileNames.slice(1),
+      vendorEmail: session.user.email,
       category: parsedProduct.category,
       stock: parsedProduct.stock,
       bestSeller: parsedProduct.bestSeller,
       bestSellerPriority: parsedProduct.bestSellerPriority,
       variants: variants,
-    });
-    await newProduct.save();
+    };
+    await Product.create(newProduct);
 
     return Response.json({
       message: "Product created successfully",

@@ -16,7 +16,6 @@ export default function CreateProductPage() {
     attributes: {},
     image: "",
     otherImages: [],
-    vendorEmail: "",
     category: "",
     variants: [],
     stock: 0,

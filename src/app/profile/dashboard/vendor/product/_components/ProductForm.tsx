@@ -25,6 +25,7 @@ import {
   CommandShortcut,
 } from "@/components/ui/command";
 import { Category } from "./Category";
+import { productFormDataSchema } from "@/zod-schema/product-zod-schema";
 
 export function ProductForm({
   productProps,
@@ -38,7 +39,6 @@ export function ProductForm({
   const [product, setProduct] = useState<ProductType>({
     ...productProps,
     id: productProps.id || "",
-    vendorEmail: "idk",
     attributes: productProps.attributes || {},
   });
   const [productErrors, setErrors] = useState<ProductSchemaFormattedError>({
@@ -51,57 +51,64 @@ export function ProductForm({
     <form
       onSubmit={(e) => {
         e.preventDefault();
-        const validationResult = ProductSchema.safeParse(product);
+        // const validationResult = ProductSchema.safeParse(product);
+        // if (!validationResult.success) {
+        //   const formattedErrors = validationResult.error.format();
+        //   setErrors(formattedErrors);
+        // } else {
+        // setErrors({ _errors: [] });
+
+        // TODO: convert to the better one(simplify)
+        const formData = new FormData();
+        formData.append("productId", product.id);
+        formData.append("name", product.name);
+        formData.append("description", product.description);
+        formData.append("priceInPaise", product.priceInPaise.toString());
+        formData.append(
+          "salePriceInPaise",
+          product.salePriceInPaise.toString()
+        );
+        formData.append("attributes", JSON.stringify(product.attributes));
+        // images
+        if (
+          imageInputRef.current?.files &&
+          otherImagesInputRef.current?.files
+        ) {
+          formData.append("image", imageInputRef.current.files[0]);
+          for (let i = 0; i < otherImagesInputRef.current.files.length; i++) {
+            formData.append(
+              "otherImages",
+              otherImagesInputRef.current.files[i]
+            );
+          }
+        }
+        // ^images
+        formData.append("category", product.category);
+        formData.append("stock", product.stock.toString());
+        formData.append("bestSeller", product.bestSeller.toString());
+        formData.append(
+          "bestSellerPriority",
+          product.bestSellerPriority.toString()
+        );
+        const validationResult = productFormDataSchema.safeParse(formData);
         if (!validationResult.success) {
           const formattedErrors = validationResult.error.format();
           setErrors(formattedErrors);
         } else {
           setErrors({ _errors: [] });
-
-          // TODO: convert to the better one(simplify)
-          const formData = new FormData();
-          formData.append("productId", product.id);
-          formData.append("name", product.name);
-          formData.append("description", product.description);
-          formData.append("priceInPaise", product.priceInPaise.toString());
-          formData.append(
-            "salePriceInPaise",
-            product.salePriceInPaise.toString()
-          );
-          formData.append("attributes", JSON.stringify(product.attributes));
-          // images
-          if (
-            imageInputRef.current?.files &&
-            otherImagesInputRef.current?.files
-          ) {
-            formData.append("image", imageInputRef.current.files[0]);
-            for (let i = 0; i < otherImagesInputRef.current.files.length; i++) {
-              formData.append(
-                "otherImages",
-                otherImagesInputRef.current.files[i]
-              );
-            }
-          }
-          // ^images
-          formData.append("category", product.category);
-          formData.append("stock", product.stock.toString());
-          formData.append("bestSeller", product.bestSeller.toString());
-          formData.append(
-            "bestSellerPriority",
-            product.bestSellerPriority.toString()
-          );
-
-          // const validationResult = productFormDataSchema.safeParse(product);
-          // if (!validationResult.success) {
-          //   const formattedErrors = validationResult.error.format();
-          //   setErrors(formattedErrors);
-          // } else {
-          //   setErrors({ _errors: [] });
-          // }
-          // console.log(validationResult.error?.format());
-
           onSave(formData);
         }
+        // const validationResult = productFormDataSchema.safeParse(product);
+        // if (!validationResult.success) {
+        //   const formattedErrors = validationResult.error.format();
+        //   setErrors(formattedErrors);
+        // } else {
+        //   setErrors({ _errors: [] });
+        // }
+        // console.log(validationResult.error?.format());
+
+        // onSave(formData);
+        // } i commented this
       }}
     >
       <FormGroup>
