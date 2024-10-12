@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ProductType } from "@/models/Product";
-import { useRef, useState } from "react";
+import { FormEvent, useCallback, useEffect, useRef, useState } from "react";
 import {
   ProductSchema,
   ProductSchemaFormattedError,
@@ -11,21 +11,10 @@ import { cn } from "@/lib/utils";
 import { Switch } from "@/components/ui/switch";
 import Loader from "@/components/Loader";
 import { Variants } from "./Variants";
-// import { productFormDataSchema } from "@/zod-schema/product-zod-schema";
-
-import {
-  Command,
-  CommandDialog,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-  CommandSeparator,
-  CommandShortcut,
-} from "@/components/ui/command";
 import { Category } from "./Category";
 import { productFormDataSchema } from "@/zod-schema/product-zod-schema";
+import { useQuery } from "@tanstack/react-query";
+import queries from "@/app/_getdata";
 
 export function ProductForm({
   productProps,
@@ -36,81 +25,84 @@ export function ProductForm({
   onSave: (product: FormData) => void;
   saving: boolean;
 }) {
+  const { status: attributesStatus, data: attributesServer } = useQuery({
+    queryKey: ["attributes"],
+    queryFn: queries.getAttributes,
+  });
+
   const [product, setProduct] = useState<ProductType>({
     ...productProps,
     id: productProps.id || "",
     attributes: productProps.attributes || {},
   });
+
   const [productErrors, setErrors] = useState<ProductSchemaFormattedError>({
     _errors: [],
   });
+
+  const handleSubmit = useCallback(
+    (e: FormEvent<HTMLFormElement>) => {
+      e.preventDefault();
+      const formData = new FormData();
+      formData.append("productId", product.id);
+      formData.append("name", product.name);
+      formData.append("description", product.description);
+      // formData.append(
+      //   "variants",
+      //   JSON.stringify(
+      //     product.variants.map((v) => ({
+      //       ...v,
+      //       attributes: "",
+      //     }))
+      //   )
+      // );
+      formData.append("priceInPaise", product.priceInPaise.toString());
+      formData.append("salePriceInPaise", product.salePriceInPaise.toString());
+      formData.append("attributes", JSON.stringify(product.attributes));
+      // images
+      if (imageInputRef.current?.files && otherImagesInputRef.current?.files) {
+        formData.append("image", imageInputRef.current.files[0]);
+        for (let i = 0; i < otherImagesInputRef.current.files.length; i++) {
+          formData.append("otherImages", otherImagesInputRef.current.files[i]);
+        }
+      }
+      // ^images
+      formData.append("category", product.category);
+      formData.append("stock", product.stock.toString());
+      formData.append("bestSeller", product.bestSeller.toString());
+      formData.append(
+        "bestSellerPriority",
+        product.bestSellerPriority.toString()
+      );
+      const validationResult = productFormDataSchema.safeParse(formData);
+      if (!validationResult.success) {
+        const formattedErrors = validationResult.error.format();
+        setErrors(formattedErrors);
+      } else {
+        setErrors({ _errors: [] });
+        onSave(formData);
+      }
+    },
+    [product, onSave]
+  );
+
   const imageInputRef = useRef<HTMLInputElement | null>(null);
   const otherImagesInputRef = useRef<HTMLInputElement | null>(null);
 
-  return (
-    <form
-      onSubmit={(e) => {
-        e.preventDefault();
-        // const validationResult = ProductSchema.safeParse(product);
-        // if (!validationResult.success) {
-        //   const formattedErrors = validationResult.error.format();
-        //   setErrors(formattedErrors);
-        // } else {
-        // setErrors({ _errors: [] });
+  if (attributesStatus === "pending") {
+    return (
+      <div className="flex justify-center py-12">
+        <Loader />
+      </div>
+    );
+  }
 
-        // TODO: convert to the better one(simplify)
-        const formData = new FormData();
-        formData.append("productId", product.id);
-        formData.append("name", product.name);
-        formData.append("description", product.description);
-        formData.append("priceInPaise", product.priceInPaise.toString());
-        formData.append(
-          "salePriceInPaise",
-          product.salePriceInPaise.toString()
-        );
-        formData.append("attributes", JSON.stringify(product.attributes));
-        // images
-        if (
-          imageInputRef.current?.files &&
-          otherImagesInputRef.current?.files
-        ) {
-          formData.append("image", imageInputRef.current.files[0]);
-          for (let i = 0; i < otherImagesInputRef.current.files.length; i++) {
-            formData.append(
-              "otherImages",
-              otherImagesInputRef.current.files[i]
-            );
-          }
-        }
-        // ^images
-        formData.append("category", product.category);
-        formData.append("stock", product.stock.toString());
-        formData.append("bestSeller", product.bestSeller.toString());
-        formData.append(
-          "bestSellerPriority",
-          product.bestSellerPriority.toString()
-        );
-        const validationResult = productFormDataSchema.safeParse(formData);
-        if (!validationResult.success) {
-          const formattedErrors = validationResult.error.format();
-          setErrors(formattedErrors);
-        } else {
-          setErrors({ _errors: [] });
-          onSave(formData);
-        }
-        // const validationResult = productFormDataSchema.safeParse(product);
-        // if (!validationResult.success) {
-        //   const formattedErrors = validationResult.error.format();
-        //   setErrors(formattedErrors);
-        // } else {
-        //   setErrors({ _errors: [] });
-        // }
-        // console.log(validationResult.error?.format());
+  if (attributesStatus === "error") {
+    <div className="flex justify-center py-12">Something Went Wrong</div>;
+  }
 
-        // onSave(formData);
-        // } i commented this
-      }}
-    >
+  return attributesServer ? (
+    <form onSubmit={handleSubmit}>
       <FormGroup>
         <Label>Name</Label>
         <Input
@@ -140,6 +132,7 @@ export function ProductForm({
       <FormGroup>
         <Label>Variants</Label>
         <Variants
+          attributesServer={attributesServer}
           variants={product.variants}
           setVariants={(variants) => {
             setProduct((p) => ({ ...p, variants }));
@@ -206,12 +199,6 @@ export function ProductForm({
       </FormGroup>
       <FormGroup>
         <Label>Category</Label>
-        {/* <Input
-          value={product.category}
-          onChange={(e) => {
-            setProduct((p) => ({ ...p, category: e.target.value }));
-          }}
-        /> */}
         <div>
           <Category
             value={product.category}
@@ -291,6 +278,8 @@ export function ProductForm({
         </Button>
       </div>
     </form>
+  ) : (
+    ""
   );
 }
 

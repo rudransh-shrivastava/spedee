@@ -65,6 +65,7 @@ function BestSellers() {
   const productCartQuantity: {
     [key: string]: number;
   } = {};
+
   if (cartQueryStatus === "success") {
     cartProducts.forEach((cartProduct) => {
       productCartQuantity[cartProduct.product.id] = cartProduct.quantity;
