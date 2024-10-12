@@ -13,6 +13,19 @@ import Loader from "@/components/Loader";
 import { Variants } from "./Variants";
 // import { productFormDataSchema } from "@/zod-schema/product-zod-schema";
 
+import {
+  Command,
+  CommandDialog,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+  CommandSeparator,
+  CommandShortcut,
+} from "@/components/ui/command";
+import { Category } from "./Category";
+
 export function ProductForm({
   productProps,
   onSave,
@@ -186,12 +199,23 @@ export function ProductForm({
       </FormGroup>
       <FormGroup>
         <Label>Category</Label>
-        <Input
+        {/* <Input
           value={product.category}
           onChange={(e) => {
             setProduct((p) => ({ ...p, category: e.target.value }));
           }}
-        />
+        /> */}
+        <div>
+          <Category
+            value={product.category}
+            setValue={(category) => {
+              setProduct((p) => ({
+                ...p,
+                category,
+              }));
+            }}
+          />
+        </div>
         {productErrors.category && (
           <div className="col-start-2 text-destructive">
             Category is required
