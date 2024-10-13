@@ -1,3 +1,4 @@
+import { z } from "zod";
 import { zfd } from "zod-form-data";
 
 export const productFormDataSchema = zfd.formData({
@@ -13,11 +14,5 @@ export const productFormDataSchema = zfd.formData({
   stock: zfd.numeric(),
   bestSeller: zfd.text(),
   bestSellerPriority: zfd.numeric(),
-  variants: zfd.repeatableOfType(
-    zfd.formData({
-      attributes: zfd.text(),
-      stock: zfd.numeric(),
-      image: zfd.text().nullable(),
-    })
-  ),
+  variants: zfd.repeatableOfType(zfd.text()),
 });

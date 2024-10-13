@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ProductType } from "@/models/Product";
+import { ProductType, VariantType } from "@/models/Product";
 import { FormEvent, useCallback, useEffect, useRef, useState } from "react";
 import {
   ProductSchema,
@@ -47,18 +47,16 @@ export function ProductForm({
       formData.append("productId", product.id);
       formData.append("name", product.name);
       formData.append("description", product.description);
-      // formData.append(
-      //   "variants",
-      //   JSON.stringify(
-      //     product.variants.map((v) => ({
-      //       ...v,
-      //       attributes: "",
-      //     }))
-      //   )
-      // );
+      const variantsArray = product.variants.map((variant) => ({
+        attributes: JSON.stringify(variant.attributes),
+        stock: variant.stock.toString(),
+        image: variant.image ?? "",
+      }));
+      formData.append("variants", JSON.stringify(variantsArray));
       formData.append("priceInPaise", product.priceInPaise.toString());
       formData.append("salePriceInPaise", product.salePriceInPaise.toString());
       formData.append("attributes", JSON.stringify(product.attributes));
+      console.log(product.attributes);
       // images
       if (imageInputRef.current?.files && otherImagesInputRef.current?.files) {
         formData.append("image", imageInputRef.current.files[0]);
@@ -75,6 +73,7 @@ export function ProductForm({
         product.bestSellerPriority.toString()
       );
       const validationResult = productFormDataSchema.safeParse(formData);
+      console.log(validationResult);
       if (!validationResult.success) {
         const formattedErrors = validationResult.error.format();
         setErrors(formattedErrors);

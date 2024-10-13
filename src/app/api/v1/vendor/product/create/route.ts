@@ -19,13 +19,27 @@ export async function POST(req: Request) {
   const data = await req.formData();
   const product = productSchema.safeParse(data);
   if (!product.success) {
-    console.log(product.error);
     return Response.json({ message: "Invalid data" }, { status: 400 });
   }
   console.log("data recieved in backend", data);
   console.log("data after parsing in backend: ", product.data);
-  // return Response.json({ message: "Success" });
   const parsedProduct = product.data;
+  // Parse the variants field
+  let parsedVariants;
+  try {
+    const variantsString = data.get("variants") as string;
+    if (variantsString) {
+      parsedVariants = JSON.parse(variantsString);
+      parsedVariants.map((variant: any) => {
+        variant.attributes = JSON.parse(variant.attributes);
+      });
+    } else {
+      parsedVariants = [];
+    }
+  } catch (error) {
+    console.error("Failed to parse variants:", error);
+    return Response.json({ message: "Invalid variants data" }, { status: 400 });
+  }
 
   const imageFile = data.get("image") as File;
   const otherImagesFiles = data.getAll("otherImages") as File[];
@@ -51,17 +65,15 @@ export async function POST(req: Request) {
       newFileNames.push(key);
     });
   }
-  // Parse the attributes and variants JSON strings
+  // TODO: Parse when frontend fix
+
   const attributes = JSON.parse(parsedProduct.attributes);
+
+  // const attributes = parsedProduct.attributes;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const variants = parsedProduct.variants.map((variant: any) => ({
-    ...variant,
-    attributes: JSON.parse(variant.attributes),
-  }));
   try {
     // upload files
     const uploadResponses = await Promise.all(uploadPromises);
-    console.log(uploadResponses);
     // Save product
     const newProduct = {
       name: parsedProduct.name,
@@ -76,7 +88,7 @@ export async function POST(req: Request) {
       stock: parsedProduct.stock,
       bestSeller: parsedProduct.bestSeller,
       bestSellerPriority: parsedProduct.bestSellerPriority,
-      variants: variants,
+      variants: parsedVariants,
     };
     await Product.create(newProduct);
 
