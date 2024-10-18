@@ -15,6 +15,11 @@ async function getProduct(id: string): Promise<ProductType> {
   return data.product;
 }
 
+async function getVendorProducts(): Promise<ProductType[]> {
+  const data = await getData("/api/v1/vendor/products");
+  return data.products;
+}
+
 async function getBestSellerProducts(): Promise<ProductType[]> {
   const data = await getData("/api/v1/products/bestsellers");
   return data.products;
@@ -51,6 +56,10 @@ const queries = {
   categories: {
     queryFn: getCategories,
     queryKey: ["categories"],
+  },
+  vendorProducts: {
+    queryFn: getVendorProducts,
+    queryKey: ["products", "vendor"],
   },
   product: (id: string) => ({
     queryFn: () => getProduct(id),

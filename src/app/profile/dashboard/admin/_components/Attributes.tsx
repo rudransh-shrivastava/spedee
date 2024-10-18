@@ -42,7 +42,7 @@ export function Attributes() {
     (attribute: Partial<AttributeType> & { id: string }, del?: boolean) => {
       if (del) {
         queryClient.setQueryData(
-          ["attributes"],
+          queries.attributes.queryKey,
           attributes?.filter((a) => a.id !== attribute.id)
         );
       } else {
@@ -57,7 +57,7 @@ export function Attributes() {
               onSuccess: (data) => {
                 if (data.success) {
                   queryClient.setQueryData(
-                    ["attributes"],
+                    queries.attributes.queryKey,
                     attributes?.map((a) => {
                       return a.id === attribute.id ? { ...a, ...attribute } : a;
                     })
@@ -113,10 +113,10 @@ export function Attributes() {
                 createAttributeMutation.mutate(newAttributeName, {
                   onSuccess: (data) => {
                     if (data.success) {
-                      queryClient.setQueryData(
-                        ["attributes"],
-                        [...attributes, data.attribute]
-                      );
+                      queryClient.setQueryData(queries.attributes.queryKey, [
+                        ...attributes,
+                        data.attribute,
+                      ]);
                       setNewAttributeName("");
                     }
                   },

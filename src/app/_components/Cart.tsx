@@ -17,11 +17,11 @@ export function Cart() {
   const setProductQuantity = useCallback(
     (id: string, quantity: number) => {
       queryClient.setQueryData(
-        ["products", "cart"],
+        queries.cart.queryKey,
         cartProducts?.map((p) => (p.product.id === id ? { ...p, quantity } : p))
       );
       queryClient.invalidateQueries({
-        queryKey: ["products", "cart"],
+        queryKey: queries.cart.queryKey,
         exact: true,
       });
     },

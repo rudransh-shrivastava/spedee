@@ -266,7 +266,7 @@ function ActionMenu({
               onSuccess: (data) => {
                 if (data.success) {
                   queryClient.setQueryData(
-                    ["categories"],
+                    queries.categories.queryKey,
                     deleteCategoryFromTree(null, categoryChild.id)
                   );
                 }
@@ -328,7 +328,7 @@ function CategoryForm({
               onSuccess: (data) => {
                 if (data.success) {
                   queryClient.setQueryData(
-                    ["categories"],
+                    queries.categories.queryKey,
                     addCategoryToTree(null, parentId, {
                       ...data.category,
                       children: [],
