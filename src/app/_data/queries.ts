@@ -10,6 +10,11 @@ export async function getData(url: string): Promise<any> {
   return response.data;
 }
 
+async function getProduct(id: string): Promise<ProductType> {
+  const data = await getData(`/api/v1/product?productId=${id}`);
+  return data.product;
+}
+
 async function getBestSellerProducts(): Promise<ProductType[]> {
   const data = await getData("/api/v1/products/bestsellers");
   return data.products;
@@ -47,6 +52,10 @@ const queries = {
     queryFn: getCategories,
     queryKey: ["categories"],
   },
+  product: (id: string) => ({
+    queryFn: () => getProduct(id),
+    queryKey: ["products", id],
+  }),
 };
 
 export { queries };

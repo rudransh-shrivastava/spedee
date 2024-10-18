@@ -3,7 +3,7 @@ import { getPublicImageUrl } from "@/lib/s3";
 import Product, { ProductType } from "@/models/Product";
 import { NextRequest } from "next/server";
 
-export async function POST(req: NextRequest) {
+export async function GET(req: NextRequest) {
   await connectDB();
   const { searchParams } = new URL(req.url);
   const productId = searchParams.get("productId");
