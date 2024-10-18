@@ -76,7 +76,9 @@ function BestSellers() {
     );
   }
   if (status === "error" || cartQueryStatus === "error") {
-    <div className="flex justify-center py-12">Something Went Wrong</div>;
+    return (
+      <div className="flex justify-center py-12">Something Went Wrong</div>
+    );
   }
 
   return bestSellers
