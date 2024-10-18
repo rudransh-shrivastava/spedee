@@ -1,28 +1,23 @@
 import mongoose, { Document, Model } from "mongoose";
-import z from "zod";
 
-const OrderZodSchema = z.object({
-  id: z.string(),
-  transactionId: z.string(),
-  amount: z.number(),
-  status: z.string(),
-  products: z.array(
-    z.object({
-      productId: z.string(),
-      quantity: z.number(),
-    })
-  ),
-  userEmail: z.string(),
-  shippingAddress: z.object({
-    address: z.string(),
-    city: z.string(),
-    state: z.string(),
-    zip: z.string(),
-  }),
-  paymentMethod: z.string(),
-});
-
-type OrderType = z.infer<typeof OrderZodSchema>;
+type OrderType = {
+  id: string;
+  transactionId: string;
+  amount: number;
+  status: string;
+  products: {
+    productId: string;
+    quantity: number;
+  }[];
+  userEmail: string;
+  shippingAddress: {
+    address: string;
+    city: string;
+    state: string;
+    zip: string;
+  };
+  paymentMethod: string;
+};
 
 interface OrderInterface extends Omit<OrderType, "id">, Document {}
 

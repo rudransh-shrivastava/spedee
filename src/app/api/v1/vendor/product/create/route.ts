@@ -30,6 +30,7 @@ export async function POST(req: Request) {
     const variantsString = data.get("variants") as string;
     if (variantsString) {
       parsedVariants = JSON.parse(variantsString);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       parsedVariants.map((variant: any) => {
         variant.attributes = JSON.parse(variant.attributes);
       });
@@ -73,7 +74,7 @@ export async function POST(req: Request) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   try {
     // upload files
-    const uploadResponses = await Promise.all(uploadPromises);
+    // const uploadResponses = await Promise.all(uploadPromises);
     // Save product
     const newProduct = {
       name: parsedProduct.name,

@@ -3,9 +3,8 @@ import { connectDB } from "@/lib/mongodb";
 import { paymentGateway } from "@/lib/phonepe";
 import Order from "@/models/Order";
 import { getServerSession } from "next-auth";
-import { NextRequest } from "next/server";
 
-export async function POST(req: NextRequest) {
+export async function POST() {
   await connectDB();
   const session = await getServerSession(authOptions);
   if (!session) {
