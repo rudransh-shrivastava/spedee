@@ -1,4 +1,3 @@
-import { z } from "zod";
 import { zfd } from "zod-form-data";
 
 export const productFormDataSchema = zfd.formData({

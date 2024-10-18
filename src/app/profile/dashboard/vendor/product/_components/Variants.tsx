@@ -1,4 +1,3 @@
-import queries from "@/app/_getdata";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -13,7 +12,7 @@ import { VariantType } from "@/models/Product";
 import { AttributeType } from "@/types";
 import { PlusCircledIcon } from "@radix-ui/react-icons";
 import { Checkbox } from "@/components/ui/checkbox";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 
 export function Variants({
   variants,
@@ -47,7 +46,7 @@ export function Variants({
         attb.map((a, i) => (i === index ? { ...a, include: value } : a))
       );
     },
-    [setVariants, variants]
+    [setVariants, variants, attributes]
   );
 
   return (

@@ -1,12 +1,9 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ProductType, VariantType } from "@/models/Product";
-import { FormEvent, useCallback, useEffect, useRef, useState } from "react";
-import {
-  ProductSchema,
-  ProductSchemaFormattedError,
-} from "@/zod-schema/product-schema";
+import { ProductType } from "@/models/Product";
+import { FormEvent, useCallback, useRef, useState } from "react";
+import { ProductSchemaFormattedError } from "@/zod-schema/product-schema";
 import { cn } from "@/lib/utils";
 import { Switch } from "@/components/ui/switch";
 import Loader from "@/components/Loader";
