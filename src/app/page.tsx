@@ -11,10 +11,11 @@ import {
 import { ProductType } from "@/models/Product";
 import Image from "next/image";
 import Link from "next/link";
-import queries from "./_getdata";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import Loader from "@/components/Loader";
 import { useState } from "react";
+import { queries } from "@/app/_data/queries";
+import { mutations } from "@/app/_data/mutations";
 
 export default function Home() {
   return (
@@ -52,15 +53,11 @@ function HomePage() {
 }
 
 function BestSellers() {
-  const { status, data: bestSellers } = useQuery({
-    queryKey: ["products", "bestSellers"],
-    queryFn: queries.getBestSellerProducts,
-  });
+  const { status, data: bestSellers } = useQuery(queries.bestSellerProducts);
   // TODO: fix not updating when updating cart
-  const { status: cartQueryStatus, data: cartProducts } = useQuery({
-    queryKey: ["products", "cart"],
-    queryFn: queries.getCart,
-  });
+  const { status: cartQueryStatus, data: cartProducts } = useQuery(
+    queries.cart
+  );
 
   const productCartQuantity: {
     [key: string]: number;
@@ -103,9 +100,7 @@ function ProductCard({
     [key: string]: number;
   };
 }) {
-  const updateCartMutation = useMutation({
-    mutationFn: queries.updateCart,
-  });
+  const updateCartMutation = useMutation(mutations.updateCart);
   const [quantity, setQuantity] = useState(
     productCartQuantity[product.id] || 0
   );

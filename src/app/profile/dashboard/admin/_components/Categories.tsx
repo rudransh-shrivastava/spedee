@@ -1,4 +1,3 @@
-import queries from "@/app/_getdata";
 import Loader from "@/components/Loader";
 import { CategoryTree } from "@/types";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -19,6 +18,8 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { queries } from "@/app/_data/queries";
+import { mutations } from "@/app/_data/mutations";
 
 type AddCategoryToTreeType = (
   tree: CategoryTree[] | null,
@@ -32,10 +33,7 @@ type deleteCategoryFromTreeType = (
 ) => CategoryTree[];
 
 export function Categories() {
-  const { status, data: categories } = useQuery({
-    queryKey: ["categories"],
-    queryFn: queries.getCategories,
-  });
+  const { status, data: categories } = useQuery(queries.categories);
 
   const addCategoryToTree = useCallback(
     (
@@ -229,9 +227,9 @@ function ActionMenu({
   const queryClient = useQueryClient();
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
-  const { mutate: deleteCategory, status: deleteCategoryStatus } = useMutation({
-    mutationFn: queries.deleteCategory,
-  });
+  const { mutate: deleteCategory, status: deleteCategoryStatus } = useMutation(
+    mutations.deleteCategory
+  );
 
   return (
     <DropdownMenu
@@ -307,9 +305,7 @@ function CategoryForm({
   const queryClient = useQueryClient();
   const [newCategoryName, setNewCategoryName] = useState("");
   const [error, setError] = useState("");
-  const createCategoryMutation = useMutation({
-    mutationFn: queries.createCategory,
-  });
+  const createCategoryMutation = useMutation(mutations.createCategory);
 
   return (
     <form

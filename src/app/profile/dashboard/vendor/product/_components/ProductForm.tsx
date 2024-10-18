@@ -11,7 +11,7 @@ import { Variants } from "./Variants";
 import { Category } from "./Category";
 import { productFormDataSchema } from "@/zod-schema/product-zod-schema";
 import { useQuery } from "@tanstack/react-query";
-import queries from "@/app/_getdata";
+import { queries } from "@/app/_data/queries";
 
 export function ProductForm({
   productProps,
@@ -22,10 +22,9 @@ export function ProductForm({
   onSave: (product: FormData) => void;
   saving: boolean;
 }) {
-  const { status: attributesStatus, data: attributesServer } = useQuery({
-    queryKey: ["attributes"],
-    queryFn: queries.getAttributes,
-  });
+  const { status: attributesStatus, data: attributesServer } = useQuery(
+    queries.attributes
+  );
 
   const [product, setProduct] = useState<ProductType>({
     ...productProps,

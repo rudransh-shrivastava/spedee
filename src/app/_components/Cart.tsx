@@ -10,10 +10,11 @@ import {
 } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
 import { ProductType } from "@/models/Product";
-import queries from "../_getdata";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import Loader from "@/components/Loader";
 import { useCallback } from "react";
+import { queries } from "@/app/_data/queries";
+import { mutations } from "@/app/_data/mutations";
 
 export default function Cart() {
   return (
@@ -47,10 +48,7 @@ export default function Cart() {
 
 function CartContent() {
   const queryClient = useQueryClient();
-  const { status, data: cartProducts } = useQuery({
-    queryKey: ["products", "cart"],
-    queryFn: queries.getCart,
-  });
+  const { status, data: cartProducts } = useQuery(queries.cart);
 
   const setProductQuantity = useCallback(
     (id: string, quantity: number) => {
@@ -98,9 +96,7 @@ function CartItemCard({
   quantity: number;
   setProductQuantity: (id: string, quantity: number) => void;
 }) {
-  const updateCartMutation = useMutation({
-    mutationFn: queries.updateCart,
-  });
+  const updateCartMutation = useMutation(mutations.updateCart);
   return quantity > 0 ? (
     <div
       className={cn(

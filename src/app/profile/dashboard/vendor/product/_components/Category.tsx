@@ -19,8 +19,8 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { useQuery } from "@tanstack/react-query";
-import queries from "@/app/_getdata";
 import { CategoryTree } from "@/types";
+import { queries } from "@/app/_data/queries";
 
 export function Category({
   value,
@@ -29,10 +29,7 @@ export function Category({
   value: string;
   setValue: (categoryId: string) => void;
 }) {
-  const { data: categories } = useQuery({
-    queryKey: ["categories"],
-    queryFn: queries.getCategories,
-  });
+  const { data: categories } = useQuery(queries.categories);
 
   const buildCategoryArray = React.useCallback(
     (

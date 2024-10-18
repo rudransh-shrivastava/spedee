@@ -1,5 +1,4 @@
 "use client";
-import queries from "@/app/_getdata";
 import Loader from "@/components/Loader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -21,6 +20,8 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { queries } from "@/app/_data/queries";
+import { mutations } from "@/app/_data/mutations";
 
 type UpdateAttribute = (
   attribute: Partial<AttributeType> & { id: string },
@@ -30,19 +31,12 @@ type UpdateAttribute = (
 export function Attributes() {
   const queryClient = useQueryClient();
   const [newAttributeName, setNewAttributeName] = useState("");
-  const { status, data: attributes } = useQuery({
-    queryKey: ["attributes"],
-    queryFn: queries.getAttributes,
-  });
+  const { status, data: attributes } = useQuery(queries.attributes);
   const [error, setError] = useState("");
 
-  const createAttributeMutation = useMutation({
-    mutationFn: queries.createAttribute,
-  });
+  const createAttributeMutation = useMutation(mutations.createAttribute);
 
-  const updateAttributeMutation = useMutation({
-    mutationFn: queries.updateAttribute,
-  });
+  const updateAttributeMutation = useMutation(mutations.updateAttribute);
 
   const updateAttribute = useCallback(
     (attribute: Partial<AttributeType> & { id: string }, del?: boolean) => {
@@ -257,7 +251,7 @@ function DeleteAttributeButton({
   updateAttribute: UpdateAttribute;
 }) {
   const { mutate: deleteAttribute, status } = useMutation({
-    mutationFn: queries.deleteAttribute,
+    ...mutations.deleteAttribute,
     onSuccess: (data) => {
       if (data.success) {
         updateAttribute({ id: attributeId }, true);
