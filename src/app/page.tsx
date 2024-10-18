@@ -54,7 +54,6 @@ function HomePage() {
 
 function BestSellers() {
   const { status, data: bestSellers } = useQuery(queries.bestSellerProducts);
-  // TODO: fix not updating when updating cart
   const { status: cartQueryStatus, data: cartProducts } = useQuery(
     queries.cart
   );
