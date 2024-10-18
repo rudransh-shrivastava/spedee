@@ -26,9 +26,12 @@ import {
 } from "@/components/ui/alert-dialog";
 import { PlusIcon } from "lucide-react";
 import OrdersTable from "./components/OrdersTable";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { queries } from "@/app/_data/queries";
 import Loader from "@/components/Loader";
+import { mutations } from "@/app/_data/mutations";
+import { useCallback } from "react";
+import { toast } from "sonner";
 
 export default function Page() {
   return (
@@ -91,6 +94,29 @@ export default function Page() {
 
 function VendorProduts() {
   const { status, data: vendorProducts } = useQuery(queries.vendorProducts);
+  const deleteProductMutation = useMutation(mutations.deleteVendorProduct);
+  const queryClient = useQueryClient();
+
+  const deleteProduct = useCallback(
+    async (productId: string): Promise<{ success: boolean; error: string }> => {
+      return new Promise((resolve, reject) => {
+        deleteProductMutation.mutate(productId, {
+          onSuccess: () => {
+            resolve({ success: true, error: "" });
+            queryClient.setQueryData(
+              queries.vendorProducts.queryKey,
+              (prev: ProductType[]) =>
+                prev.filter((product) => product.id !== productId)
+            );
+          },
+          onError: () => {
+            reject({ success: false, error: "Something went wrong" });
+          },
+        });
+      });
+    },
+    [deleteProductMutation]
+  );
 
   if (status === "pending") {
     return (
@@ -119,13 +145,25 @@ function VendorProduts() {
       </Button>
       {vendorProducts &&
         vendorProducts.map((product, index) => (
-          <ProductCard key={index} product={product} />
+          <ProductCard
+            key={index}
+            product={product}
+            deleteProduct={deleteProduct}
+          />
         ))}
     </div>
   );
 }
 
-function ProductCard({ product }: { product: ProductType & { id: string } }) {
+function ProductCard({
+  product,
+  deleteProduct,
+}: {
+  product: ProductType & { id: string };
+  deleteProduct: (
+    productId: string
+  ) => Promise<{ success: boolean; error: string }>;
+}) {
   return (
     <Card className="group flex max-w-[16rem] flex-col">
       <CardHeader className="overflow-hidden rounded-lg p-0 pb-2">
@@ -164,17 +202,31 @@ function ProductCard({ product }: { product: ProductType & { id: string } }) {
             Edit
           </Link>
         </Button>
-        <DeleteProductButton />
+        <DeleteProductButton
+          productId={product.id}
+          deleteProduct={deleteProduct}
+        />
       </CardFooter>
     </Card>
   );
 }
 
-function DeleteProductButton() {
+function DeleteProductButton({
+  productId,
+  deleteProduct,
+}: {
+  productId: string;
+  deleteProduct: (
+    productId: string
+  ) => Promise<{ success: boolean; error: string }>;
+}) {
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
-        <Button className="w-full" variant="destructive">
+        <Button
+          className="w-full border-destructive text-destructive hover:text-destructive"
+          variant="outline"
+        >
           Delete
         </Button>
       </AlertDialogTrigger>
@@ -188,7 +240,19 @@ function DeleteProductButton() {
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction>Delete</AlertDialogAction>
+          <AlertDialogAction
+            onClick={() => {
+              toast.promise(deleteProduct(productId), {
+                loading: "Loading...",
+                success: () => {
+                  return `Product deleted successfully`;
+                },
+                error: "Something went wrong",
+              });
+            }}
+          >
+            Delete
+          </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

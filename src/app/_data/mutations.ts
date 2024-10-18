@@ -77,6 +77,13 @@ async function deleteCategory(
   return response.data;
 }
 
+async function deleteVendorProduct(productId: string) {
+  const response = await axios.post(
+    `/api/v1/vendor/product/delete?productId=${productId}`
+  );
+  return response.data;
+}
+
 const mutations = {
   createProduct: {
     mutationFn: createProduct,
@@ -98,6 +105,9 @@ const mutations = {
   },
   deleteCategory: {
     mutationFn: deleteCategory,
+  },
+  deleteVendorProduct: {
+    mutationFn: deleteVendorProduct,
   },
 };
 

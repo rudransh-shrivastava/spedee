@@ -8,6 +8,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import SessionProvider from "@/app/_components/SessionProvider";
 import ReactQueryProvider from "@/app/_components/ReactQueryProvider";
+import { Toaster } from "@/components/ui/sonner";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -44,6 +45,7 @@ export default async function RootLayout({
             <Navbar />
             <div className="mx-auto max-w-screen-xl p-2 md:p-4">{children}</div>
             <Footer />
+            <Toaster />
           </ReactQueryProvider>
         </body>
       </SessionProvider>
