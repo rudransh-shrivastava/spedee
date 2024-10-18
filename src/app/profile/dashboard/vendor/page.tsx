@@ -115,7 +115,7 @@ function VendorProduts() {
         });
       });
     },
-    [deleteProductMutation]
+    [deleteProductMutation, queryClient]
   );
 
   if (status === "pending") {

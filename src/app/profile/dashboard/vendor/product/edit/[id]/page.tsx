@@ -1,30 +1,45 @@
 "use client";
 
-import { ProductType } from "@/models/Product";
 import Loader from "@/components/Loader";
 import BackButton from "@/components/BackButton";
-// import { ProductForm } from "@/app/profile/dashboard/vendor/product/_components/ProductForm";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { queries } from "@/app/_data/queries";
+import { mutations } from "@/app/_data/mutations";
+import { ProductForm } from "@/app/profile/dashboard/vendor/product/_components/ProductForm";
 
 export default function EditProductPage({
   params: { id },
 }: {
   params: { id: string };
 }) {
-  const product: ProductType | null = null;
+  const { status, data: product } = useQuery(queries.product(id));
+  const editProductMutation = useMutation(mutations.createProduct);
 
-  if (!id) return "No Product Found";
+  if (status === "pending") {
+    return (
+      <div className="flex justify-center py-12">
+        <Loader />
+      </div>
+    );
+  }
 
-  return product ? (
+  if (status === "error") {
+    return (
+      <div className="flex justify-center py-12">Something Went Wrong</div>
+    );
+  }
+
+  return (
     <>
       <div className="flex items-center gap-2 pb-8 pt-4">
         <BackButton />
         <h1 className="text-2xl">Edit Product</h1>
       </div>
-      {/* <ProductForm productProps={product} submitUrl="" /> */}
+      <ProductForm
+        saving={editProductMutation.status === "pending"}
+        onSave={() => {}}
+        productProps={product}
+      />
     </>
-  ) : (
-    <div className="flex justify-center py-20">
-      <Loader className="size-12" />
-    </div>
   );
 }
