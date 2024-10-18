@@ -25,7 +25,6 @@ import { signIn, signOut, useSession } from "next-auth/react";
 import Loader from "@/components/Loader";
 import { cn } from "@/lib/utils";
 import { CircleUser } from "lucide-react";
-import Cart from "@/app/_components/Cart";
 
 export function Navbar() {
   const { data } = useSession();
@@ -69,7 +68,20 @@ export function Navbar() {
         <div className="h-9 w-full rounded-lg border bg-secondary/20"></div>
       </div>
       <div className="hidden items-center justify-center md:flex">
-        <Cart />
+        <Button className="gap-2" asChild>
+          <Link href="/cart">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              height="24px"
+              viewBox="0 -960 960 960"
+              width="24px"
+              className="fill-current"
+            >
+              <path d="M280-80q-33 0-56.5-23.5T200-160q0-33 23.5-56.5T280-240q33 0 56.5 23.5T360-160q0 33-23.5 56.5T280-80Zm400 0q-33 0-56.5-23.5T600-160q0-33 23.5-56.5T680-240q33 0 56.5 23.5T760-160q0 33-23.5 56.5T680-80ZM246-720l96 200h280l110-200H246Zm-38-80h590q23 0 35 20.5t1 41.5L692-482q-11 20-29.5 31T622-440H324l-44 80h440q17 0 28.5 11.5T760-320q0 17-11.5 28.5T720-280H280q-45 0-68-39.5t-2-78.5l54-98-144-304H80q-17 0-28.5-11.5T40-840q0-17 11.5-28.5T80-880h65q11 0 21 6t15 17l27 57Zm134 280h280-280Z" />
+            </svg>
+            My Cart
+          </Link>
+        </Button>
       </div>
       <div className="ml-auto flex shrink-0 items-center justify-center md:ml-0">
         {data && data.user ? (

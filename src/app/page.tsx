@@ -45,7 +45,7 @@ function HomePage() {
           </div>
         </div>
       </div>
-      <div className="flex justify-center py-4 sm:justify-start">
+      <div className="flex justify-center gap-4 py-4 sm:justify-start">
         <BestSellers />
       </div>
     </div>
