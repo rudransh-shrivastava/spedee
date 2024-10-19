@@ -82,7 +82,7 @@ export default function Page() {
           </div>
         </TabsContent>
         <TabsContent value="products">
-          <VendorProduts />
+          <VendorProducts />
         </TabsContent>
         <TabsContent value="orders">
           <OrdersTable />
@@ -92,7 +92,7 @@ export default function Page() {
   );
 }
 
-function VendorProduts() {
+function VendorProducts() {
   const { status, data: vendorProducts } = useQuery(queries.vendorProducts);
   const deleteProductMutation = useMutation(mutations.deleteVendorProduct);
   const queryClient = useQueryClient();

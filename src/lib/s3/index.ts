@@ -21,7 +21,7 @@ export const uploadFile = async (file: File, key: string) => {
 
 export const deleteFile = async (key: string) => {
   const deleteParams = {
-    Bucket: "spedee-produt-images",
+    Bucket: "spedee-product-images",
     Key: key,
   };
   const command = new DeleteObjectCommand(deleteParams);
