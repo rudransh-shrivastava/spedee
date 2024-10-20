@@ -1,6 +1,5 @@
 "use client";
 
-import Loader from "@/components/Loader";
 import BackButton from "@/components/BackButton";
 import { ProductForm } from "@/app/profile/dashboard/vendor/product/_components/ProductForm";
 import { mutations } from "@/app/_data/mutations";
@@ -25,7 +24,7 @@ export default function CreateProductPage() {
 
   const createProductMutation = useMutation(mutations.createProduct);
 
-  return product ? (
+  return (
     <>
       <div className="flex items-center gap-2 pb-8 pt-4">
         <BackButton />
@@ -37,9 +36,5 @@ export default function CreateProductPage() {
         productProps={product}
       />
     </>
-  ) : (
-    <div className="flex justify-center py-20">
-      <Loader className="size-12" />
-    </div>
   );
 }

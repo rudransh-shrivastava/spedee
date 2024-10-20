@@ -5,10 +5,10 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { ProductType } from "@/models/Product";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import Loader from "@/components/Loader";
 import { useCallback } from "react";
 import { queries } from "@/app/_data/queries";
 import { mutations } from "@/app/_data/mutations";
+import { LoadingData } from "@/components/LoadingData";
 
 export function Cart() {
   const queryClient = useQueryClient();
@@ -28,32 +28,21 @@ export function Cart() {
     [cartProducts, queryClient]
   );
 
-  if (status === "pending") {
-    return (
-      <div className="flex justify-center py-12">
-        <Loader />
-      </div>
-    );
-  }
-  if (status === "error") {
-    return (
-      <div className="flex justify-center py-12">Something Went Wrong</div>
-    );
-  }
-
   return (
-    <div className="flex flex-col divide-y">
-      {cartProducts
-        ? cartProducts.map(({ product, quantity }, index) => (
-            <CartItemCard
-              quantity={quantity}
-              key={index}
-              product={product}
-              setProductQuantity={setProductQuantity}
-            />
-          ))
-        : ""}
-    </div>
+    <LoadingData status={status}>
+      <div className="flex flex-col divide-y">
+        {cartProducts
+          ? cartProducts.map(({ product, quantity }, index) => (
+              <CartItemCard
+                quantity={quantity}
+                key={index}
+                product={product}
+                setProductQuantity={setProductQuantity}
+              />
+            ))
+          : ""}
+      </div>
+    </LoadingData>
   );
 }
 

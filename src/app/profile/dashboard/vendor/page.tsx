@@ -28,10 +28,10 @@ import { PlusIcon } from "lucide-react";
 import OrdersTable from "./components/OrdersTable";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { queries } from "@/app/_data/queries";
-import Loader from "@/components/Loader";
 import { mutations } from "@/app/_data/mutations";
 import { useCallback } from "react";
 import { toast } from "sonner";
+import { LoadingData } from "@/components/LoadingData";
 
 export default function Page() {
   return (
@@ -118,39 +118,28 @@ function VendorProducts() {
     [deleteProductMutation, queryClient]
   );
 
-  if (status === "pending") {
-    return (
-      <div className="flex justify-center py-12">
-        <Loader />
-      </div>
-    );
-  }
-  if (status === "error") {
-    return (
-      <div className="flex justify-center py-12">Something Went Wrong</div>
-    );
-  }
-
   return (
     <div className="flex min-h-[16rem] flex-wrap gap-4 py-4">
-      <Button
-        className="h-auto min-h-[24rem] w-full max-w-[16rem] flex-col gap-2 rounded-xl border bg-card text-card-foreground shadow"
-        variant="ghost"
-        asChild
-      >
-        <Link href="/profile/dashboard/vendor/product/create">
-          <PlusIcon className="size-8" />
-          <span>Add a Product</span>
-        </Link>
-      </Button>
-      {vendorProducts &&
-        vendorProducts.map((product, index) => (
-          <ProductCard
-            key={index}
-            product={product}
-            deleteProduct={deleteProduct}
-          />
-        ))}
+      <LoadingData status={status}>
+        <Button
+          className="h-auto min-h-[24rem] w-full max-w-[16rem] flex-col gap-2 rounded-xl border bg-card text-card-foreground shadow"
+          variant="ghost"
+          asChild
+        >
+          <Link href="/profile/dashboard/vendor/product/create">
+            <PlusIcon className="size-8" />
+            <span>Add a Product</span>
+          </Link>
+        </Button>
+        {vendorProducts &&
+          vendorProducts.map((product, index) => (
+            <ProductCard
+              key={index}
+              product={product}
+              deleteProduct={deleteProduct}
+            />
+          ))}
+      </LoadingData>
     </div>
   );
 }

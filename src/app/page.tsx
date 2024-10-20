@@ -12,11 +12,9 @@ import { ProductType } from "@/models/Product";
 import Image from "next/image";
 import Link from "next/link";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import Loader from "@/components/Loader";
 import { useState } from "react";
 import { queries } from "@/app/_data/queries";
 import { mutations } from "@/app/_data/mutations";
-import { InfoIcon } from "lucide-react";
 import { LoadingData } from "@/components/LoadingData";
 
 export default function Home() {
@@ -63,6 +61,12 @@ function BestSellers() {
   const productCartQuantity: {
     [key: string]: number;
   } = {};
+
+  if (cartQueryStatus === "success") {
+    cartProducts.forEach((cartProduct) => {
+      productCartQuantity[cartProduct.product.id] = cartProduct.quantity;
+    });
+  }
 
   return (
     <LoadingData status={[status, cartQueryStatus]}>

@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { queries } from "@/app/_data/queries";
 import { mutations } from "@/app/_data/mutations";
+import { LoadingData } from "@/components/LoadingData";
 
 type AddCategoryToTreeType = (
   tree: CategoryTree[] | null,
@@ -108,40 +109,29 @@ export function Categories() {
   //   []
   // );
 
-  if (status === "pending") {
-    return (
-      <div className="flex justify-center py-12">
-        <Loader />
-      </div>
-    );
-  }
-  if (status === "error") {
-    return (
-      <div className="flex justify-center py-12">Something Went Wrong</div>
-    );
-  }
-
   return (
     <div>
       <h1 className="mb-4 px-4 text-xl">Categories</h1>
       <div>
-        {categories &&
-          (categories.length > 0 ? (
-            <CategoryList
-              deleteCategoryFromTree={deleteCategoryFromTree}
-              categories={categories}
-              addCategoryToTree={addCategoryToTree}
-            />
-          ) : (
-            <div className="space-y-2">
-              <div className="px-2 py-4">No Categories</div>
-              <CategoryForm
-                category={categories}
-                parentId={null}
+        <LoadingData status={status}>
+          {categories &&
+            (categories.length > 0 ? (
+              <CategoryList
+                deleteCategoryFromTree={deleteCategoryFromTree}
+                categories={categories}
                 addCategoryToTree={addCategoryToTree}
               />
-            </div>
-          ))}
+            ) : (
+              <div className="space-y-2">
+                <div className="px-2 py-4">No Categories</div>
+                <CategoryForm
+                  category={categories}
+                  parentId={null}
+                  addCategoryToTree={addCategoryToTree}
+                />
+              </div>
+            ))}
+        </LoadingData>
       </div>
     </div>
   );

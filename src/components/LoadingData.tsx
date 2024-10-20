@@ -1,48 +1,36 @@
-import { InfoIcon } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import Loader from "./Loader";
+import Loader from "@/components/Loader";
 import { cn } from "@/lib/utils";
+import { Error } from "@/components/Error";
+
+type StatusType = "error" | "success" | "pending";
 
 export function LoadingData({
   status,
   className,
   children,
 }: {
-  status: string[];
+  status: StatusType[] | StatusType;
   className?: string;
   children?: React.ReactNode;
 }) {
-  let computedStatus = status.some((s) => s === "error")
-    ? "error"
-    : status.some((s) => s === "pending")
-      ? "pending"
-      : "success";
+  let computedStatus: StatusType = "pending";
+
+  if (Array.isArray(status)) {
+    if (status.every((s) => s === "success")) {
+      computedStatus = "success";
+    } else if (status.some((s) => s === "error")) {
+      computedStatus = "error";
+    } else if (status.some((s) => s === "pending")) {
+      computedStatus = "pending";
+    } else {
+      computedStatus = "error";
+    }
+  } else {
+    computedStatus = status;
+  }
 
   if (computedStatus === "error") {
-    return (
-      <div className={cn("flex w-full justify-center py-12", className)}>
-        <div className="flex items-center gap-2 text-destructive">
-          <InfoIcon />
-          <span>Something Went Wrong</span>
-          <Button
-            variant="outline"
-            className="border-2 text-foreground shadow-none"
-            onClick={() => {
-              window.location.reload();
-            }}
-          >
-            Refresh
-          </Button>
-          <Button
-            variant="outline"
-            className="border-2 text-foreground shadow-none"
-            asChild
-          >
-            <a href="/">Home</a>
-          </Button>
-        </div>
-      </div>
-    );
+    return <Error className={className} />;
   }
 
   if (computedStatus === "pending") {

@@ -8,7 +8,9 @@ import { PlusIcon } from "lucide-react";
 import { useCallback, useState } from "react";
 import { AttributeType } from "@/types";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-
+import { queries } from "@/app/_data/queries";
+import { mutations } from "@/app/_data/mutations";
+import { LoadingData } from "@/components/LoadingData";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -20,8 +22,6 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { queries } from "@/app/_data/queries";
-import { mutations } from "@/app/_data/mutations";
 
 type UpdateAttribute = (
   attribute: Partial<AttributeType> & { id: string },
@@ -72,21 +72,8 @@ export function Attributes() {
     [attributes, queryClient, updateAttributeMutation]
   );
 
-  if (status === "pending") {
-    return (
-      <div className="flex justify-center py-12">
-        <Loader />
-      </div>
-    );
-  }
-  if (status === "error") {
-    return (
-      <div className="flex justify-center py-12">Something Went Wrong</div>
-    );
-  }
-
   return (
-    <>
+    <LoadingData status={status}>
       <h1 className="mb-4 px-4 text-xl">Attributes</h1>
       {attributes && (
         <>
@@ -150,7 +137,7 @@ export function Attributes() {
           </form>
         </>
       )}
-    </>
+    </LoadingData>
   );
 }
 
