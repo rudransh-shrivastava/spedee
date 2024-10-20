@@ -25,20 +25,12 @@ export async function POST() {
   await Order.create({
     transactionId,
     amount,
-    status: "pending",
+    status: "PENDING",
     products: [], // TODO: Add products
     userEmail,
     shippingAddress,
     paymentMethod: "phonepe",
   });
-  // const resp = await paymentGateway.initPayment({
-  //   amount,
-  //   transactionId,
-  //   userId,
-  //   redirectUrl: process.env.PHONEPE_REDIRECT_URL || "",
-  //   callbackUrl: `${callbackUrl}/api/v1/payment-callback`,
-  //   // TODO: add a secret key to verify transacitons on callback
-  // });
   const ngrokUrl = process.env.PHONEPE_CALLBACK_URL; // Replace with your actual ngrok URL
 
   const payload = {
@@ -81,7 +73,7 @@ export async function POST() {
       request: base64Payload,
     },
   };
-
+  console.log("sent base64 payload: ", base64Payload);
   axios
     .request(requestData)
     .then(async function (response) {
