@@ -16,6 +16,8 @@ import Loader from "@/components/Loader";
 import { useState } from "react";
 import { queries } from "@/app/_data/queries";
 import { mutations } from "@/app/_data/mutations";
+import { InfoIcon } from "lucide-react";
+import { LoadingData } from "@/components/LoadingData";
 
 export default function Home() {
   return (
@@ -62,34 +64,19 @@ function BestSellers() {
     [key: string]: number;
   } = {};
 
-  if (cartQueryStatus === "success") {
-    cartProducts.forEach((cartProduct) => {
-      productCartQuantity[cartProduct.product.id] = cartProduct.quantity;
-    });
-  }
-
-  if (status === "pending" || cartQueryStatus === "pending") {
-    return (
-      <div className="flex justify-center py-12">
-        <Loader />
-      </div>
-    );
-  }
-  if (status === "error" || cartQueryStatus === "error") {
-    return (
-      <div className="flex justify-center py-12">Something Went Wrong</div>
-    );
-  }
-
-  return bestSellers
-    ? bestSellers.map((product, index) => (
-        <ProductCard
-          key={index}
-          productCartQuantity={productCartQuantity}
-          product={product}
-        />
-      ))
-    : "";
+  return (
+    <LoadingData status={[status, cartQueryStatus]}>
+      {bestSellers
+        ? bestSellers.map((product, index) => (
+            <ProductCard
+              key={index}
+              productCartQuantity={productCartQuantity}
+              product={product}
+            />
+          ))
+        : ""}
+    </LoadingData>
+  );
 }
 
 function ProductCard({
