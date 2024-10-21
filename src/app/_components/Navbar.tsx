@@ -3,7 +3,6 @@
 import React, { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -24,7 +23,8 @@ import {
 import { signIn, signOut, useSession } from "next-auth/react";
 import Loader from "@/components/Loader";
 import { cn } from "@/lib/utils";
-import { CircleUser } from "lucide-react";
+import { CircleUser, LocateIcon } from "lucide-react";
+import { useLocationContext } from "@/app/_components/LocationProvider";
 
 export function Navbar() {
   const { data } = useSession();
@@ -37,32 +37,7 @@ export function Navbar() {
         </div>
       </Link>
       <div className="hidden shrink-0 items-center justify-center md:flex">
-        <Dialog>
-          <DialogTrigger asChild>
-            <Button variant="ghost" className="text-sm">
-              Select Location
-            </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Location</DialogTitle>
-              <DialogDescription>
-                Please provide your delivery location to see products at nearby
-                store
-              </DialogDescription>
-            </DialogHeader>
-            <div className="flex flex-col items-center justify-center gap-2 py-4">
-              <Button>Use Current Location</Button>
-              <span>OR</span>
-              <Input
-                type="text"
-                placeholder="Enter your location"
-                className="w-full"
-              />
-              <div className="min-h-[10rem] p-4">No Location Found</div>
-            </div>
-          </DialogContent>
-        </Dialog>
+        <LocationDialog />
       </div>
       <div className="hidden w-full shrink items-center justify-center md:flex">
         <div className="h-9 w-full rounded-lg border bg-secondary/20"></div>
@@ -154,5 +129,87 @@ export function Navbar() {
         )}
       </div>
     </nav>
+  );
+}
+
+function LocationDialog() {
+  const { location, updateLocation, locationPopupOpen, setLocationPopupOpen } =
+    useLocationContext();
+  const [detectLocationStatus, setDetectLocationStatus] = useState<{
+    status: "idle" | "pending" | "error" | "success";
+    message: string;
+  }>({ status: "idle", message: "" });
+
+  const detectCurrentLocation = () => {
+    setDetectLocationStatus({ status: "pending", message: "" });
+    if (typeof window !== "undefined" && "geolocation" in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const coords = {
+            lat: position.coords.latitude,
+            lon: position.coords.longitude,
+          };
+          updateLocation(coords);
+          setDetectLocationStatus({ status: "success", message: "" });
+        },
+        (err) => {
+          setDetectLocationStatus({ status: "error", message: err.message });
+        }
+      );
+    } else {
+      setDetectLocationStatus({
+        status: "error",
+        message: "Geolocation is not supported on this device",
+      });
+    }
+  };
+
+  return (
+    <Dialog
+      open={locationPopupOpen}
+      onOpenChange={(e) => {
+        setLocationPopupOpen(e);
+      }}
+    >
+      <DialogTrigger asChild>
+        <Button variant="ghost" className="text-sm">
+          {location ? JSON.stringify(location) : "Location"}
+        </Button>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Location</DialogTitle>
+          <DialogDescription>
+            Please provide your delivery location to see products at nearby
+            store
+          </DialogDescription>
+        </DialogHeader>
+        <div className="flex flex-col items-center justify-center gap-2 py-4">
+          <Button
+            variant="secondary"
+            className="relative"
+            onClick={() => {
+              detectCurrentLocation();
+            }}
+          >
+            <span
+              className={cn(
+                "flex items-center gap-1",
+                detectLocationStatus.status === "pending"
+                  ? "text-transparent"
+                  : ""
+              )}
+            >
+              <LocateIcon />
+              Detect Current Location
+            </span>
+            {detectLocationStatus.status === "pending" && (
+              <Loader className="absolute size-6" />
+            )}
+          </Button>
+          <span>OR</span>
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 }

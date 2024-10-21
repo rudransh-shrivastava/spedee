@@ -1,7 +1,7 @@
 import { NextRequest } from "next/server";
 import { Client } from "@googlemaps/google-maps-services-js";
 
-export async function POST(req: NextRequest) {
+export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const query = searchParams.get("query");
 

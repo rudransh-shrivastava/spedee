@@ -40,6 +40,11 @@ async function getCategories(): Promise<CategoryTree[]> {
   return await getData("/api/v1/categories");
 }
 
+async function getLocations(query: string) {
+  const data = await getData(`/api/v1/locations/search?query=${query}`);
+  return data.predictions;
+}
+
 const queries = {
   bestSellerProducts: {
     queryFn: getBestSellerProducts,
@@ -64,6 +69,11 @@ const queries = {
   product: (id: string) => ({
     queryFn: () => getProduct(id),
     queryKey: ["products", id],
+  }),
+  locations: (query: string) => ({
+    queryFn: () => getLocations(query),
+    queryKey: ["locations", query],
+    enabled: !!query,
   }),
 };
 
