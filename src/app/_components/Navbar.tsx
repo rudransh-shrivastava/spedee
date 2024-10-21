@@ -258,8 +258,6 @@ function SearchLocation() {
   const [searchQuery, setSearchQuery] = useState("");
   const { data, status } = useQuery<Place[]>(queries.locations(searchQuery));
 
-  console.log(status);
-
   return (
     <div className="w-full">
       <div className="relative flex items-center">

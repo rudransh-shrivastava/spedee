@@ -169,7 +169,6 @@ function VariantCard({
           }}
           onChange={(e) => {
             e.preventDefault();
-            console.log(parseInt(e.target.value) || 0);
             setVariant({
               ...variant,
               stock: parseInt(e.target.value) || 0,

@@ -191,8 +191,8 @@ function ProductCard({
             </Button>
           )}
         </div>
-        <Button variant="secondary" className="w-full">
-          Buy Now
+        <Button variant="secondary" className="w-full" asChild>
+          <Link href={`/product/${product.id}/checkout`}>Buy Now</Link>
         </Button>
       </CardContent>
     </Card>
