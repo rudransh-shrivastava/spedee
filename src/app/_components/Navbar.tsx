@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -23,8 +24,11 @@ import {
 import { signIn, signOut, useSession } from "next-auth/react";
 import Loader from "@/components/Loader";
 import { cn } from "@/lib/utils";
-import { CircleUser, LocateIcon } from "lucide-react";
+import { CircleUser, LocateIcon, MapPin, Search } from "lucide-react";
 import { useLocationContext } from "@/app/_components/LocationProvider";
+import { useQuery } from "@tanstack/react-query";
+import { queries } from "../_data/queries";
+import { Error } from "@/components/Error";
 
 export function Navbar() {
   const { data } = useSession();
@@ -208,8 +212,116 @@ function LocationDialog() {
             )}
           </Button>
           <span>OR</span>
+          <SearchLocation />
         </div>
       </DialogContent>
     </Dialog>
+  );
+}
+
+type Place = {
+  description: string;
+  place_id: string;
+  structured_formatting: {
+    main_text: string;
+    main_text_matched_substrings: { length: number; offset: number }[];
+    secondary_text: string;
+  };
+  types: string[];
+};
+
+function highlightMatchedText(
+  text: string,
+  matchedSubstrings: { length: number; offset: number }[]
+): string[] {
+  const highlightedText = [];
+  let currentIndex = 0;
+
+  matchedSubstrings.forEach(({ length, offset }) => {
+    if (offset > currentIndex) {
+      highlightedText.push(text.substring(currentIndex, offset));
+    }
+    highlightedText.push(
+      <strong key={offset}>{text.substring(offset, offset + length)}</strong>
+    );
+    currentIndex = offset + length;
+  });
+
+  if (currentIndex < text.length) {
+    highlightedText.push(text.substring(currentIndex));
+  }
+
+  return highlightedText;
+}
+
+function SearchLocation() {
+  const [searchQuery, setSearchQuery] = useState("");
+  const { data, status } = useQuery<Place[]>(queries.locations(searchQuery));
+
+  console.log(status);
+
+  return (
+    <div className="w-full">
+      <div className="relative flex items-center">
+        <Search className="pointer-events-none absolute left-1 size-6 stroke-foreground/70" />
+        <Input
+          type="text"
+          placeholder="Enter your location"
+          className="w-full pl-9 shadow-none"
+          onChange={(e) => {
+            setSearchQuery(e.target.value);
+          }}
+        />
+      </div>
+      <div className="flex min-h-[20rem] flex-col items-center gap-2 py-2">
+        {searchQuery.length === 0 && (
+          <div className="my-auto">Search a Location</div>
+        )}
+        {searchQuery &&
+          status === "pending" &&
+          [1, 1, 1, 1, 1].map((_, index) => (
+            <div
+              className="flex w-full animate-pulse items-center rounded-lg"
+              key={index}
+            >
+              <div className="px-2">
+                <MapPin className="stroke-foreground/40" />
+              </div>
+              <div className="flex w-full flex-col gap-1 p-2">
+                <div className="w-max select-none rounded-full bg-foreground/10 text-transparent">
+                  Searching Location
+                </div>
+                <div className="w-max select-none rounded-full bg-foreground/10 text-sm font-light leading-tight text-transparent">
+                  Searching Location Secondary Text
+                </div>
+              </div>
+            </div>
+          ))}
+
+        {status === "error" && <Error className="my-auto" />}
+        {data &&
+          data.map((place) => (
+            <div
+              key={place.place_id}
+              className="flex w-full cursor-pointer items-center rounded-lg hover:bg-secondary"
+            >
+              <div className="px-2">
+                <MapPin className="stroke-foreground/75" />
+              </div>
+              <div className="flex flex-col p-2">
+                <div className="text-lg">
+                  {highlightMatchedText(
+                    place.structured_formatting.main_text,
+                    place.structured_formatting.main_text_matched_substrings
+                  )}
+                </div>
+                <div className="text-sm font-light leading-tight text-foreground/70">
+                  {place.structured_formatting.secondary_text}
+                </div>
+              </div>
+            </div>
+          ))}
+      </div>
+    </div>
   );
 }
