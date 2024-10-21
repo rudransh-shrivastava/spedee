@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import Image from "next/image";
+import Link from "next/link";
 import { useCallback, useState } from "react";
 
 export default function ProductPage({
@@ -209,7 +210,9 @@ export default function ProductPage({
                   Add
                 </Button>
               )}
-              <Button className="w-full">Buy Now</Button>
+              <Button className="w-full" asChild>
+                <Link href={`/product/${id}/checkout`}>Buy Now</Link>
+              </Button>
             </div>
           </div>
         </div>

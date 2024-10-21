@@ -16,7 +16,7 @@ export default function Page({ params: { id } }: { params: { id: string } }) {
     <div className="grid h-full gap-4 lg:flex lg:flex-row-reverse">
       <RightPan id={id} />
       <div className="grid w-full gap-4">
-        <div className="w-full border p-4">
+        <div className="w-full rounded-lg border p-4">
           <h2>Address</h2>
           <div className="grid grid-cols-[20ch,auto] items-center gap-2 p-4">
             <Label>Name</Label>
@@ -33,7 +33,7 @@ export default function Page({ params: { id } }: { params: { id: string } }) {
             <Input />
           </div>
         </div>
-        <div className="w-full border p-4">
+        <div className="w-full rounded-lg border p-4">
           <h2>Payment Options</h2>
           <div className="pt-4">
             <RadioGroup defaultValue="option-one">
@@ -95,7 +95,7 @@ function RightPan({ id }: { id: string }) {
   );
 
   return product ? (
-    <div className="shrink-0 border p-4">
+    <div className="shrink-0 rounded-lg border p-4">
       {quantity > 0 ? (
         <div
           className={cn(
@@ -196,7 +196,7 @@ function RightPan({ id }: { id: string }) {
           <span>{100}</span>
         </div>
         <div className="mt-2 flex justify-between border-t py-1 font-medium">
-          <span>Total Pay</span>
+          <span>Total Payable</span>
           <span>{100}</span>
         </div>
       </div>
