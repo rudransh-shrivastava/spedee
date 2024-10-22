@@ -261,7 +261,6 @@ export default function ProductPage({
                   )
                 )}
             </div>
-            <pre>{JSON.stringify(product.variants, null, 2)}</pre>
           </div>
         </div>
       )}

@@ -87,7 +87,7 @@ function ProductCard({
               alt={product.name}
               width={500}
               height={500}
-              className="aspect-square h-full w-full object-cover object-top"
+              className="h-full w-full object-cover object-top group-hover/link:object-contain group-hover/link:object-center"
             />
           </div>
           <div className="pt-2 font-medium group-hover/link:underline">

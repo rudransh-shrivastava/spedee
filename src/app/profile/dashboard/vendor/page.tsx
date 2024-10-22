@@ -6,14 +6,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import {
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
@@ -38,47 +30,47 @@ export default function Page() {
     <div>
       <h1 className="mb-4 text-2xl">Dashboard</h1>
       <Tabs defaultValue="products">
-        <TabsList>
+        <TabsList className="rounded-none shadow-none">
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="products">Products</TabsTrigger>
           <TabsTrigger value="orders">Orders</TabsTrigger>
         </TabsList>
         <TabsContent value="overview">
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 lg:grid-cols-5">
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle>Total Revenue</CardTitle>
-              </CardHeader>
-              <CardContent>
+            <div>
+              <div className="pb-2">
+                <div>Total Revenue</div>
+              </div>
+              <div>
                 <div className="text-2xl font-bold">+12,234</div>
                 <p className="text-xs text-muted-foreground">
                   +19% from last month
                 </p>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle>Products</CardTitle>
-              </CardHeader>
-              <CardContent>
+              </div>
+            </div>
+            <div>
+              <div className="pb-2">
+                <div>Products</div>
+              </div>
+              <div>
                 <div className="text-2xl font-bold">17</div>
                 <p className="text-xs text-muted-foreground">
                   +19% from last month
                 </p>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
 
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle>Sales</CardTitle>
-              </CardHeader>
-              <CardContent>
+            <div>
+              <div className="pb-2">
+                <div>Sales</div>
+              </div>
+              <div>
                 <div className="text-2xl font-bold">88</div>
                 <p className="text-xs text-muted-foreground">
                   +19% from last month
                 </p>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           </div>
         </TabsContent>
         <TabsContent value="products">
@@ -122,7 +114,7 @@ function VendorProducts() {
     <div className="flex min-h-[16rem] flex-wrap gap-4 py-4">
       <LoadingData status={status}>
         <Button
-          className="h-auto min-h-[24rem] w-full max-w-[16rem] flex-col gap-2 rounded-xl border bg-card text-card-foreground shadow"
+          className="h-auto min-h-[24rem] w-full max-w-[16rem] flex-col gap-2 bg-card text-card-foreground"
           variant="ghost"
           asChild
         >
@@ -154,38 +146,30 @@ function ProductCard({
   ) => Promise<{ success: boolean; error: string }>;
 }) {
   return (
-    <Card className="group flex max-w-[16rem] flex-col">
-      <CardHeader className="overflow-hidden rounded-lg p-0 pb-2">
-        <div className="relative mx-auto size-[16rem] overflow-hidden rounded-lg rounded-b-none">
-          <div className="absolute h-full w-full animate-pulse bg-secondary-foreground/10"></div>
-          <Image
-            src={product.image}
-            alt={product.name}
-            width={200}
-            height={200}
-            className="absolute block h-full w-full transition-transform group-hover:rotate-1 group-hover:scale-105"
-          />
-        </div>
-        <CardTitle className="px-2 pt-2">
-          <Link href={`/product/${product.id}`} className="hover:underline">
+    <div className="group flex w-full max-w-[19rem] flex-col border p-4">
+      <Link href={`/product/${product.id}`}>
+        <div className="group/link overflow-hidden p-0">
+          <div className="relative mx-auto flex size-[17rem] items-center justify-center overflow-hidden">
+            <Image
+              src={product.image}
+              alt={product.name}
+              width={500}
+              height={500}
+              className="h-full w-full object-cover object-top group-hover/link:object-contain group-hover/link:object-center"
+            />
+          </div>
+          <div className="pt-2 font-medium group-hover/link:underline">
             {product.name}
-          </Link>
-        </CardTitle>
-        <CardDescription className="px-2">
-          {product.description}
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="p-2 py-0">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <span className="font-bold">&#8377;{product.salePriceInPaise}</span>
-            <span className="text-sm text-gray-400 line-through">
-              &#8377;{product.priceInPaise}
-            </span>
           </div>
         </div>
-      </CardContent>
-      <CardFooter className="mt-auto flex flex-col gap-2 p-2 pt-4">
+      </Link>
+      <div className="flex items-center gap-2">
+        <span className="font-bold">&#8377;{product.salePriceInPaise}</span>
+        <span className="text-sm text-gray-400 line-through">
+          &#8377;{product.priceInPaise}
+        </span>
+      </div>
+      <div className="mt-auto flex flex-col gap-2 pt-4">
         <Button className="w-full" asChild>
           <Link href={`/profile/dashboard/vendor/product/edit/${product.id}`}>
             Edit
@@ -195,8 +179,8 @@ function ProductCard({
           productId={product.id}
           deleteProduct={deleteProduct}
         />
-      </CardFooter>
-    </Card>
+      </div>
+    </div>
   );
 }
 
