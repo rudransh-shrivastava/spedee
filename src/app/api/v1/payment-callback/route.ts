@@ -1,5 +1,4 @@
 import { connectDB } from "@/lib/mongodb";
-import Order from "@/models/Order";
 import axios from "axios";
 import { NextRequest, NextResponse } from "next/server";
 

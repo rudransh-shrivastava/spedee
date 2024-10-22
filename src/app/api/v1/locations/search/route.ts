@@ -24,7 +24,6 @@ export async function GET(req: NextRequest) {
         key: apiKey as string,
       },
     });
-
     return Response.json(response.data);
   } catch (error) {
     if (error instanceof Error) {

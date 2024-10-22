@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
 import axios from "axios";
 import Order from "@/models/Order";
-
+// TODO: only allow authenticated users to access this route
+// TODO: only allow customers' order status to be checked by the customer
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const merchantTransactionId = searchParams.get("transactionId");
