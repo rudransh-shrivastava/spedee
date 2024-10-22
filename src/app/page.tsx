@@ -34,7 +34,7 @@ function HomePage() {
 }
 
 function BestSellers() {
-  const { status, data: bestSellers } = useQuery(queries.bestSellerProducts);
+  const { status, data: bestSellers } = useQuery(queries.allProducts);
   const { status: cartQueryStatus, data: cartProducts } = useQuery(
     queries.cart
   );
@@ -168,7 +168,7 @@ function ProductCard({
             </Button>
           )}
         </div>
-        <Button variant="secondary" className="w-full rounded-none" asChild>
+        <Button variant="secondary" className="w-full" asChild>
           <Link href={`/product/${product.id}/checkout`}>Buy Now</Link>
         </Button>
       </div>

@@ -52,11 +52,11 @@ export function Navbar() {
         </div>
         <div className="relative mr-auto hidden h-10 w-full max-w-[25rem] shrink items-center justify-center bg-secondary md:flex">
           <Search className="pointer-events-none absolute left-2 size-6 stroke-foreground/80" />
-          <Input className="rounded-none border-none bg-transparent pl-10 shadow-none" />
+          <Input className="border-none bg-transparent pl-10 shadow-none" />
         </div>
         <div className="hidden items-center justify-center md:flex">
           <Button
-            className="rounded-none hover:bg-transparent"
+            className="hover:bg-transparent"
             variant="ghost"
             size="icon"
             asChild
