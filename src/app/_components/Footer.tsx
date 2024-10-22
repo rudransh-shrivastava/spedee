@@ -67,7 +67,7 @@ function FooterLink({
     <Link
       href={href || "/"}
       className={cn(
-        "flex h-10 cursor-pointer items-center justify-center rounded-lg px-4 text-secondary-foreground transition-colors hover:bg-secondary hover:text-foreground lg:justify-start",
+        "flex h-10 cursor-pointer items-center justify-center rounded px-4 text-secondary-foreground transition-colors hover:bg-secondary hover:text-foreground lg:justify-start",
         className
       )}
     >

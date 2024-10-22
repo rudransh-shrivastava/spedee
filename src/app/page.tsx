@@ -149,7 +149,7 @@ function ProductCard({
             <Button
               disabled={updateCartMutation.status === "pending"}
               variant="secondary"
-              className="min-w-16 rounded-none"
+              className="min-w-16"
               onClick={() => {
                 updateCartMutation.mutate(
                   {

@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import Image from "next/image";
 import Link from "next/link";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useState } from "react";
 
 export default function ProductPage({
@@ -15,6 +16,9 @@ export default function ProductPage({
 }: {
   params: { id: string };
 }) {
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
+  const router = useRouter();
   const { status: productStatus, data: product } = useQuery(
     queries.product(id)
   );
@@ -99,14 +103,13 @@ export default function ProductPage({
                 })}
             </div>
             {product && (
-              <div className="relative size-[25rem] overflow-hidden rounded-lg">
-                <div className="absolute h-full w-full animate-pulse bg-secondary-foreground/10"></div>
+              <div className="relative size-[25rem] overflow-hidden">
                 <Image
                   src={currentProductImage}
-                  width={400}
-                  height={400}
+                  width={500}
+                  height={500}
                   alt={product.name}
-                  className="absolute block"
+                  className="absolute block size-full object-contain object-center"
                 />
               </div>
             )}
@@ -147,7 +150,7 @@ export default function ProductPage({
             <p className="">{product?.description}</p>
             <div className="flex gap-2 py-2">
               {quantity > 0 ? (
-                <div className="flex h-9 w-full items-center justify-between rounded-lg bg-primary text-background">
+                <div className="flex h-9 w-full items-center justify-between bg-primary text-background">
                   <Button
                     disabled={updateCartMutation.status === "pending"}
                     className="px-2 text-2xl font-medium leading-none"
@@ -214,6 +217,51 @@ export default function ProductPage({
                 <Link href={`/product/${id}/checkout`}>Buy Now</Link>
               </Button>
             </div>
+            <div>
+              {product.variants.length &&
+                Object.keys(product.variants[0].attributes).map(
+                  (key, index) => (
+                    <div key={index}>
+                      <div>{key}</div>
+                      <div className="flex flex-wrap gap-2">
+                        {product.variants.map((variant, index) => (
+                          <div
+                            key={index}
+                            onClick={() => {
+                              const currentParams = new URLSearchParams(
+                                searchParams.toString()
+                              );
+                              currentParams.set(key, variant.attributes[key]);
+                              router.push(
+                                `${pathname}?${currentParams.toString()}`
+                              );
+                            }}
+                            className={cn(
+                              "flex cursor-pointer flex-col items-center gap-1 border-2 border-transparent bg-secondary p-1 pb-0",
+                              searchParams.get(key) === variant.attributes[key]
+                                ? "border-primary"
+                                : ""
+                            )}
+                          >
+                            <div className="size-12">
+                              <Image
+                                // src={variant.image ? variant.image : ""}
+                                src={product.image}
+                                width={48}
+                                height={48}
+                                alt=""
+                                className="size-12 object-cover"
+                              />
+                            </div>
+                            <div>{variant.attributes[key]}</div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )
+                )}
+            </div>
+            <pre>{JSON.stringify(product.variants, null, 2)}</pre>
           </div>
         </div>
       )}
@@ -234,12 +282,18 @@ function ProductImageCard({
   return (
     <div
       className={cn(
-        "w-32 shrink-0 overflow-hidden rounded-lg border-2 border-transparent transition-colors",
+        "w-32 shrink-0 overflow-hidden border-2 p-3 transition-colors",
         className
       )}
       {...props}
     >
-      <Image src={url} width={128} height={128} className="w-32" alt={alt} />
+      <Image
+        src={url}
+        width={500}
+        height={500}
+        className="size-28 object-contain object-center"
+        alt={alt}
+      />
     </div>
   );
 }
