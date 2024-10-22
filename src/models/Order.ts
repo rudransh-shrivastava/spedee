@@ -2,9 +2,12 @@ import mongoose, { Document, Model } from "mongoose";
 
 type OrderType = {
   id: string;
+  name: string;
+  phone: string;
   transactionId: string;
   amount: number;
-  status: string;
+  paymentStatus: string;
+  orderStatus: string;
   products: {
     productId: string;
     quantity: number;
@@ -17,14 +20,18 @@ type OrderType = {
     zip: string;
   };
   paymentMethod: string;
+  paymentTransactionId?: string;
 };
 
 interface OrderInterface extends Omit<OrderType, "id">, Document {}
 
 const OrderSchema = new mongoose.Schema<OrderInterface>({
+  name: { type: String, required: true },
+  phone: { type: String, required: true },
   transactionId: { type: String, required: true },
   amount: { type: Number, required: true },
-  status: { type: String, required: true },
+  paymentStatus: { type: String, required: true },
+  orderStatus: { type: String, required: true },
   products: [
     {
       productId: { type: String, required: true },
@@ -39,6 +46,7 @@ const OrderSchema = new mongoose.Schema<OrderInterface>({
     zip: { type: String, required: true },
   },
   paymentMethod: { type: String, required: true },
+  paymentTransactionId: { type: String, required: false },
 });
 
 const Order: Model<OrderInterface> =

@@ -2,9 +2,11 @@ import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
 import axios from "axios";
 import Order from "@/models/Order";
+import { connectDB } from "@/lib/mongodb";
 // TODO: only allow authenticated users to access this route
 // TODO: only allow customers' order status to be checked by the customer
 export async function GET(req: NextRequest) {
+  await connectDB();
   const { searchParams } = new URL(req.url);
   const merchantTransactionId = searchParams.get("transactionId");
   if (!merchantTransactionId) {
@@ -19,15 +21,15 @@ export async function GET(req: NextRequest) {
   if (!order) {
     return NextResponse.json({ message: "Order not found" }, { status: 404 });
   }
-  if (order.status === "COMPLETED") {
+  if (order.paymentStatus === "COMPLETED") {
     return NextResponse.json({ message: "COMPLETED", success: true });
-  } else if (order.status === "FAILED") {
+  } else if (order.paymentStatus === "FAILED") {
     return NextResponse.json({ message: "FAILED", success: false });
   }
-  const merchantId = "PGTESTPAYUAT86";
+  const merchantId = process.env.PHONEPE_MERCHANT_ID;
   // SHA256(“/pg/v1/status/{merchantId}/{merchantTransactionId}” + saltKey) + “###” + saltIndex
-  const saltKey = "96434309-7796-489d-8924-ab56988a6076";
-  const saltIndex = "1";
+  const saltKey = process.env.PHONEPE_SALT_KEY;
+  const saltIndex = process.env.PHONEPE_SALT_KEY_INDEX;
   const endpoint = `/pg/v1/status/${merchantId}/${merchantTransactionId}`;
   const checksumString = endpoint + saltKey;
   const sha256 = crypto
@@ -36,8 +38,9 @@ export async function GET(req: NextRequest) {
     .digest("hex");
   const checksum = sha256 + "###" + saltIndex;
   console.log("calculated to check status checksum is:", checksum);
-  const prod_URL = `https://api-preprod.phonepe.com/apis/pg-sandbox/pg/v1/status/${merchantId}/${merchantTransactionId}`;
-  //api-preprod.phonepe.com/apis/pg-sandbox/pg/v1/status/{merchantId}/{merchantTransactionId}
+  const phonepeUrl = process.env.PHONEPE_URL;
+  const prod_URL = `${phonepeUrl}/pg/v1/status/${merchantId}/${merchantTransactionId}`;
+
   const requestData = {
     method: "GET",
     url: prod_URL,
