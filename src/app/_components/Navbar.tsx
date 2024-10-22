@@ -24,7 +24,13 @@ import {
 import { signIn, signOut, useSession } from "next-auth/react";
 import Loader from "@/components/Loader";
 import { cn } from "@/lib/utils";
-import { CircleUser, LocateIcon, MapPin, Search } from "lucide-react";
+import {
+  ChevronDown,
+  CircleUser,
+  LocateIcon,
+  MapPin,
+  Search,
+} from "lucide-react";
 import { useLocationContext } from "@/app/_components/LocationProvider";
 import { useQuery } from "@tanstack/react-query";
 import { queries } from "../_data/queries";
@@ -34,105 +40,127 @@ export function Navbar() {
   const { data } = useSession();
   const [signingIn, setSigningIn] = useState(false);
   return (
-    <nav className="sticky top-0 z-50 flex h-20 w-full gap-4 border-b border-border/40 bg-background px-4 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <Link href="/" className="shrink-0">
-        <div className="py-4">
-          <Image src="/spedee-logo.png" alt="Logo" width={48} height={48} />
+    <header className="sticky top-0 z-50">
+      <nav className="mx-auto flex h-20 w-full max-w-screen-xl items-center gap-4 border-border/40 bg-background px-4 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <Link href="/" className="shrink-0">
+          <div className="py-4">
+            <Image src="/spedee-logo.png" alt="Logo" width={48} height={48} />
+          </div>
+        </Link>
+        <div className="hidden shrink-0 items-center justify-center md:flex">
+          <LocationDialog />
         </div>
-      </Link>
-      <div className="hidden shrink-0 items-center justify-center md:flex">
-        <LocationDialog />
-      </div>
-      <div className="hidden w-full shrink items-center justify-center md:flex">
-        <div className="h-9 w-full rounded-lg border bg-secondary/20"></div>
-      </div>
-      <div className="hidden items-center justify-center md:flex">
-        <Button className="gap-2" asChild>
-          <Link href="/cart">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              height="24px"
-              viewBox="0 -960 960 960"
-              width="24px"
-              className="fill-current"
-            >
-              <path d="M280-80q-33 0-56.5-23.5T200-160q0-33 23.5-56.5T280-240q33 0 56.5 23.5T360-160q0 33-23.5 56.5T280-80Zm400 0q-33 0-56.5-23.5T600-160q0-33 23.5-56.5T680-240q33 0 56.5 23.5T760-160q0 33-23.5 56.5T680-80ZM246-720l96 200h280l110-200H246Zm-38-80h590q23 0 35 20.5t1 41.5L692-482q-11 20-29.5 31T622-440H324l-44 80h440q17 0 28.5 11.5T760-320q0 17-11.5 28.5T720-280H280q-45 0-68-39.5t-2-78.5l54-98-144-304H80q-17 0-28.5-11.5T40-840q0-17 11.5-28.5T80-880h65q11 0 21 6t15 17l27 57Zm134 280h280-280Z" />
-            </svg>
-            My Cart
-          </Link>
-        </Button>
-      </div>
-      <div className="ml-auto flex shrink-0 items-center justify-center md:ml-0">
-        {data && data.user ? (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="secondary"
-                size="icon"
-                className="relative size-9 rounded-full border"
-              >
-                <CircleUser className="absolute" />
-                {data.user.image && (
-                  <Image
-                    src={data.user.image}
-                    className="absolute rounded-full"
-                    width={36}
-                    height={36}
-                    alt=""
-                  />
-                )}
-                <span className="sr-only">Toggle user menu</span>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent sideOffset={32} align="end">
-              <DropdownMenuLabel>
-                <div className="px-2 py-1.5 text-sm font-normal">
-                  <div className="flex flex-col space-y-1">
-                    <p className="text-sm font-medium leading-none">
-                      {data.user.name}
-                    </p>
-                    <p className="text-xs leading-none text-muted-foreground">
-                      {data.user.email}
-                    </p>
-                  </div>
-                </div>
-              </DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem asChild className="cursor-pointer">
-                <Link href="/profile">Profile</Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem asChild className="cursor-pointer">
-                <Link href="/support">Support</Link>
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem
-                className="cursor-pointer"
-                onClick={(e) => {
-                  e.preventDefault();
-                  signOut();
-                }}
-              >
-                Logout
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        ) : (
+        <div className="relative mr-auto hidden h-10 w-full max-w-[25rem] shrink items-center justify-center bg-secondary md:flex">
+          <Search className="pointer-events-none absolute left-2 size-6 stroke-foreground/80" />
+          <Input className="rounded-none border-none bg-transparent pl-10 shadow-none" />
+        </div>
+        <div className="hidden items-center justify-center md:flex">
           <Button
-            variant="secondary"
-            className="relative"
-            onClick={() => {
-              setSigningIn(true);
-              signIn("google");
-            }}
+            className="rounded-none hover:bg-transparent"
+            variant="ghost"
+            size="icon"
+            asChild
           >
-            <span className={cn(signingIn ? "text-transparent" : "")}>
-              Login
-            </span>
-            {signingIn && <Loader className="absolute size-6" />}
+            <Link href="/cart">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 960 960"
+                width="24px"
+                height="24px"
+                strokeWidth={50}
+                className="stroke-foreground"
+              >
+                <path
+                  fill="none"
+                  d="M780,199.75H180c-16.67,233.33-33.33,466.67-50,700
+	h700C813.33,666.42,796.67,433.08,780,199.75z"
+                />
+                <path
+                  fill="none"
+                  d="M649.71,199.75H310.29
+	c5.17-89.23,79.18-160,169.71-160S644.54,110.52,649.71,199.75z"
+                />
+                <polyline
+                  fill="none"
+                  points="654.42,265.75 648.84,199.75 
+	310.29,199.75 309.41,199.75 303.83,265.75 "
+                />
+              </svg>
+            </Link>
           </Button>
-        )}
-      </div>
-    </nav>
+        </div>
+        <div className="ml-auto flex shrink-0 items-center justify-center md:ml-0">
+          {data && data.user ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="secondary"
+                  size="icon"
+                  className="relative size-9 rounded-full border"
+                >
+                  <CircleUser className="absolute" />
+                  {data.user.image && (
+                    <Image
+                      src={data.user.image}
+                      className="absolute rounded-full"
+                      width={36}
+                      height={36}
+                      alt=""
+                    />
+                  )}
+                  <span className="sr-only">Toggle user menu</span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent sideOffset={32} align="end">
+                <DropdownMenuLabel>
+                  <div className="px-2 py-1.5 text-sm font-normal">
+                    <div className="flex flex-col space-y-1">
+                      <p className="text-sm font-medium leading-none">
+                        {data.user.name}
+                      </p>
+                      <p className="text-xs leading-none text-muted-foreground">
+                        {data.user.email}
+                      </p>
+                    </div>
+                  </div>
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild className="cursor-pointer">
+                  <Link href="/profile">Profile</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild className="cursor-pointer">
+                  <Link href="/support">Support</Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  className="cursor-pointer"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    signOut();
+                  }}
+                >
+                  Logout
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : (
+            <Button
+              variant="secondary"
+              className="relative"
+              onClick={() => {
+                setSigningIn(true);
+                signIn("google");
+              }}
+            >
+              <span className={cn(signingIn ? "text-transparent" : "")}>
+                Login
+              </span>
+              {signingIn && <Loader className="absolute size-6" />}
+            </Button>
+          )}
+        </div>
+      </nav>
+    </header>
   );
 }
 
@@ -144,14 +172,23 @@ function LocationDialog() {
     message: string;
   }>({ status: "idle", message: "" });
 
+  const { data: locationName, status: locationNameStatus } = useQuery({
+    enabled: location ? true : false,
+    ...queries.locationName({
+      placeId: "",
+      latitude: location?.latitude,
+      longitude: location?.longitude,
+    }),
+  });
+
   const detectCurrentLocation = () => {
     setDetectLocationStatus({ status: "pending", message: "" });
     if (typeof window !== "undefined" && "geolocation" in navigator) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
           const coords = {
-            lat: position.coords.latitude,
-            lon: position.coords.longitude,
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude,
           };
           updateLocation(coords);
           setDetectLocationStatus({ status: "success", message: "" });
@@ -176,8 +213,12 @@ function LocationDialog() {
       }}
     >
       <DialogTrigger asChild>
-        <Button variant="ghost" className="text-sm">
-          {location ? JSON.stringify(location) : "Location"}
+        <Button variant="ghost" className="text-sm hover:bg-transparent">
+          <div className="relative flex max-w-[15rem] items-center overflow-hidden">
+            {locationName ? locationName : "Location"}
+            <div className="to absolute right-0 h-full w-5 bg-gradient-to-tr from-background/50 to-background"></div>
+          </div>
+          <ChevronDown strokeWidth={1.5} />
         </Button>
       </DialogTrigger>
       <DialogContent>
@@ -188,7 +229,11 @@ function LocationDialog() {
             store
           </DialogDescription>
         </DialogHeader>
-        <div className="flex flex-col items-center justify-center gap-2 py-4">
+        <div className="bg-secondary p-4">
+          <span className="font-light opacity-50">Location: </span>
+          {locationName ? locationName : ""}
+        </div>
+        <div className="flex flex-col items-center justify-center gap-2 py-2">
           <Button
             variant="secondary"
             className="relative"
@@ -302,6 +347,7 @@ function SearchLocation() {
             <div
               key={place.place_id}
               className="flex w-full cursor-pointer items-center rounded-lg hover:bg-secondary"
+              onClick={() => {}}
             >
               <div className="px-2">
                 <MapPin className="stroke-foreground/75" />

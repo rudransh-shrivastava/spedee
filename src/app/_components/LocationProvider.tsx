@@ -8,7 +8,7 @@ import {
   useEffect,
 } from "react";
 
-type LocationType = { lat: number; lon: number };
+type LocationType = { latitude: number; longitude: number };
 const LOCAL_STORAGE_LOCATION_KEY = "spedee_location";
 
 type LocationContextType = {

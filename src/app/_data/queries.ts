@@ -45,6 +45,30 @@ async function getLocations(query: string) {
   return data.predictions;
 }
 
+async function getLocationName(locationData: {
+  placeId: string;
+  latitude?: number;
+  longitude?: number;
+}) {
+  let queryParams = "";
+  console.log("lat: ", locationData.latitude);
+  if (locationData.placeId) {
+    queryParams = `placeId=${locationData.placeId}`;
+  } else if (locationData.latitude && locationData.longitude) {
+    queryParams = `lat=${locationData.latitude}&lng=${locationData.longitude}`;
+  } else {
+    return "";
+  }
+  const data = await getData(`/api/v1/location/search?${queryParams}`);
+  // TODO: message.results[0].formatted_address
+  return data.message.results[0].formatted_address;
+}
+
+async function getLocationCoordinates(placeId: string) {
+  const data = await getData(`/api/v1/location/search?placeId=${placeId}`);
+  return data;
+}
+
 const queries = {
   bestSellerProducts: {
     queryFn: getBestSellerProducts,
@@ -74,6 +98,18 @@ const queries = {
     queryFn: () => getLocations(query),
     queryKey: ["locations", query],
     enabled: !!query,
+  }),
+  locationName: (locationData: {
+    placeId: string;
+    latitude?: number;
+    longitude?: number;
+  }) => ({
+    queryFn: () => getLocationName(locationData),
+    queryKey: ["locationName", locationData],
+  }),
+  locationCoordinates: (placeId: string) => ({
+    queryFn: () => getLocationCoordinates(placeId),
+    queryKey: ["locationCoordinates", placeId],
   }),
 };
 
