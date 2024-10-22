@@ -38,8 +38,8 @@ export async function POST(req: NextRequest) {
   }
   const { name, phone, shippingAddress, products } = result.data;
   const userEmail = session.user.email;
-  let matchedProducts = [];
-  let totalAmount = [];
+  const matchedProducts = [];
+  let totalAmount = 0;
   // TODO: Implement sale price, coupons, discounts, etc.
   for (const product of products) {
     const matchedProduct = await Product.findById(product.productId);
@@ -50,7 +50,7 @@ export async function POST(req: NextRequest) {
       product: matchedProduct,
       quantity: product.quantity,
     });
-    totalAmount.push(matchedProduct.priceInPaise * product.quantity);
+    totalAmount += matchedProduct.priceInPaise * product.quantity;
   }
   if (!matchedProducts) {
     return Response.json({ message: "Invalid product" }, { status: 400 });

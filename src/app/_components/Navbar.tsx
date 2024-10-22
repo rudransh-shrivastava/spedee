@@ -172,7 +172,15 @@ function LocationDialog() {
     message: string;
   }>({ status: "idle", message: "" });
 
-  const { data: locationName, status: locationNameStatus } = useQuery({
+  // const { data: locationName, status: locationNameStatus } = useQuery({
+  //   enabled: location ? true : false,
+  //   ...queries.locationName({
+  //     placeId: "",
+  //     latitude: location?.latitude,
+  //     longitude: location?.longitude,
+  //   }),
+  // });
+  const { data: locationName } = useQuery({
     enabled: location ? true : false,
     ...queries.locationName({
       placeId: "",
@@ -180,7 +188,6 @@ function LocationDialog() {
       longitude: location?.longitude,
     }),
   });
-
   const detectCurrentLocation = () => {
     setDetectLocationStatus({ status: "pending", message: "" });
     if (typeof window !== "undefined" && "geolocation" in navigator) {
