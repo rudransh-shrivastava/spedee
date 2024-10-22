@@ -50,9 +50,9 @@ export function Variants({
   );
 
   return (
-    <div>
-      <div>
-        <span className="text-lg">Attributes</span>
+    <>
+      <FormGroup>
+        <Label>Attributes</Label>
         <div className="flex gap-2 py-2">
           {attributes.map((attribute, index) => (
             <Button
@@ -74,44 +74,47 @@ export function Variants({
             </Button>
           ))}
         </div>
-      </div>
-      <div className="grid gap-2 py-2 sm:grid-cols-2 lg:grid-cols-3">
-        {variants.map((variant, index) => (
-          <VariantCard
-            key={index}
-            attributes={attributes}
-            variant={variant}
-            setVariant={(v, del) => {
-              if (del) {
-                setVariants(variants.filter((_, i) => i !== index));
-              } else {
-                const newVariants = [...variants];
-                newVariants[index] = v;
-                setVariants(newVariants);
-              }
+      </FormGroup>
+      <FormGroup>
+        <Label>Variants</Label>
+        <div className="grid gap-2 py-2 sm:grid-cols-2 lg:grid-cols-3">
+          {variants.map((variant, index) => (
+            <VariantCard
+              key={index}
+              attributes={attributes}
+              variant={variant}
+              setVariant={(v, del) => {
+                if (del) {
+                  setVariants(variants.filter((_, i) => i !== index));
+                } else {
+                  const newVariants = [...variants];
+                  newVariants[index] = v;
+                  setVariants(newVariants);
+                }
+              }}
+            />
+          ))}
+          <Button
+            variant="ghost"
+            className="flex h-auto min-h-[280px] flex-col items-center justify-center gap-2 rounded-lg border bg-card p-4 text-card-foreground"
+            onClick={(e) => {
+              e.preventDefault();
+              setVariants([
+                ...variants,
+                {
+                  attributes: {},
+                  stock: 0,
+                  image: null,
+                },
+              ]);
             }}
-          />
-        ))}
-        <Button
-          variant="ghost"
-          className="flex h-auto min-h-[280px] flex-col items-center justify-center gap-2 rounded-lg border bg-card p-4 text-card-foreground"
-          onClick={(e) => {
-            e.preventDefault();
-            setVariants([
-              ...variants,
-              {
-                attributes: {},
-                stock: 0,
-                image: null,
-              },
-            ]);
-          }}
-        >
-          <PlusCircledIcon className="size-8" />
-          <span>Add a Variant</span>
-        </Button>
-      </div>
-    </div>
+          >
+            <PlusCircledIcon className="size-8" />
+            <span>Add a Variant</span>
+          </Button>
+        </div>
+      </FormGroup>
+    </>
   );
 }
 
@@ -129,7 +132,7 @@ function VariantCard({
       {attributes
         .filter((a) => a.include)
         .map((attribute, index) => (
-          <div key={index} className="grid items-center gap-1 py-2">
+          <VariantFormGroup key={index}>
             <Label>{attribute.name}</Label>
             <Select
               value={variant.attributes[attribute.name]}
@@ -154,9 +157,9 @@ function VariantCard({
                 ))}
               </SelectContent>
             </Select>
-          </div>
+          </VariantFormGroup>
         ))}
-      <div className="grid items-center gap-1 py-2">
+      <VariantFormGroup>
         <Label>Stock</Label>
         <Input
           type="text"
@@ -175,10 +178,19 @@ function VariantCard({
             });
           }}
         />
-      </div>
-      <div className="grid items-center gap-1 py-2">
+      </VariantFormGroup>
+      <VariantFormGroup>
+        <Label>Price in Paise</Label>
+        <Input />
+      </VariantFormGroup>
+      <VariantFormGroup>
+        <Label>Sale Price in Paise</Label>
+        <Input />
+      </VariantFormGroup>
+      <div className="mt-4 grid items-center gap-1">
         <Button
           variant="outline"
+          className="border-destructive text-destructive hover:text-destructive"
           onClick={(e) => {
             e.preventDefault();
             setVariant(variant, true);
@@ -189,4 +201,16 @@ function VariantCard({
       </div>
     </div>
   );
+}
+
+function FormGroup({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="grid items-center gap-1 py-2 md:grid-cols-[25ch,1fr] md:gap-x-4">
+      {children}
+    </div>
+  );
+}
+
+function VariantFormGroup({ children }: { children: React.ReactNode }) {
+  return <div className="grid items-center gap-1 py-2">{children}</div>;
 }

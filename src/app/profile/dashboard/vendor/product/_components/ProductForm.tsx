@@ -13,6 +13,7 @@ import { productFormDataSchema } from "@/zod-schema/product-zod-schema";
 import { useQuery } from "@tanstack/react-query";
 import { queries } from "@/app/_data/queries";
 import { LoadingData } from "@/components/LoadingData";
+import { Textarea } from "@/components/ui/textarea";
 
 export function ProductForm({
   productProps,
@@ -105,7 +106,8 @@ export function ProductForm({
           </FormGroup>
           <FormGroup>
             <Label>Description</Label>
-            <Input
+            <Textarea
+              className="h-20"
               value={product.description}
               onChange={(e) => {
                 setProduct((p) => ({ ...p, description: e.target.value }));
@@ -118,74 +120,34 @@ export function ProductForm({
             )}
           </FormGroup>
           <FormGroup>
-            <Label>Variants</Label>
-            <Variants
-              attributesServer={attributesServer}
-              variants={product.variants}
-              setVariants={(variants) => {
-                setProduct((p) => ({ ...p, variants }));
-              }}
-            />
-          </FormGroup>
-          <FormGroup>
-            <Label>Price in Paise</Label>
-            <Input
-              value={product.priceInPaise || 0}
-              onChange={(e) => {
-                setProduct((p) => ({
-                  ...p,
-                  priceInPaise: parseInt(e.target.value)
-                    ? parseInt(e.target.value)
-                    : 0,
-                }));
-              }}
-            />
-            {productErrors.priceInPaise && (
+            <Label>Best Seller Priority</Label>
+            <div className="flex items-center gap-8">
+              <Switch
+                checked={product.bestSeller}
+                onCheckedChange={(e) => {
+                  setProduct((p) => ({
+                    ...p,
+                    bestSeller: e.valueOf(),
+                  }));
+                }}
+              />
+              <Input
+                value={product.bestSellerPriority}
+                disabled={!product.bestSeller}
+                className="w-full max-w-[200px]"
+                onChange={(e) => {
+                  setProduct((p) => ({
+                    ...p,
+                    bestSellerPriority: parseInt(e.target.value)
+                      ? parseInt(e.target.value)
+                      : 0,
+                  }));
+                }}
+              />
+            </div>
+            {productErrors.bestSellerPriority && (
               <div className="col-start-2 text-destructive">
-                Price is required
-              </div>
-            )}
-          </FormGroup>
-          <FormGroup>
-            <Label>Sale Price in Paise</Label>
-            <Input
-              value={product.salePriceInPaise}
-              onChange={(e) => {
-                setProduct((p) => ({
-                  ...p,
-                  salePriceInPaise: parseInt(e.target.value)
-                    ? parseInt(e.target.value)
-                    : 0,
-                }));
-              }}
-            />
-          </FormGroup>
-          <FormGroup>
-            <Label>Image</Label>
-            <Input
-              className="h-20"
-              type="file"
-              ref={imageInputRef}
-              accept="image/*"
-            />
-            {productErrors.image && (
-              <div className="col-start-2 text-destructive">
-                Image is required
-              </div>
-            )}
-          </FormGroup>
-          <FormGroup>
-            <Label>Other Images</Label>
-            <Input
-              className="h-20"
-              type="file"
-              ref={otherImagesInputRef}
-              accept="image/*"
-              multiple
-            />
-            {productErrors.otherImages && (
-              <div className="col-start-2 text-destructive">
-                Other Images is required
+                Best Seller Priority is required
               </div>
             )}
           </FormGroup>
@@ -208,61 +170,75 @@ export function ProductForm({
               </div>
             )}
           </FormGroup>
-          <FormGroup>
-            <Label>Stock</Label>
+          <Variants
+            attributesServer={attributesServer}
+            variants={product.variants}
+            setVariants={(variants) => {
+              setProduct((p) => ({ ...p, variants }));
+            }}
+          />
+          {/* <FormGroup>
+            <Label>Price in Paise</Label>
             <Input
-              value={product.stock}
+              value={product.priceInPaise || 0}
               onChange={(e) => {
                 setProduct((p) => ({
                   ...p,
-                  stock: parseInt(e.target.value)
+                  priceInPaise: parseInt(e.target.value)
                     ? parseInt(e.target.value)
                     : 0,
                 }));
               }}
             />
-            {productErrors.stock && (
+            {productErrors.priceInPaise && (
               <div className="col-start-2 text-destructive">
-                Stock is required
+                Price is required
               </div>
             )}
-          </FormGroup>
-          <FormGroup>
-            <Label>Best Seller</Label>
-            <Switch
-              checked={product.bestSeller}
-              onCheckedChange={(e) => {
-                setProduct((p) => ({
-                  ...p,
-                  bestSeller: e.valueOf(),
-                }));
-              }}
-            />
-            {productErrors.bestSeller && (
-              <div className="col-start-2 text-destructive">
-                Best Seller is required
-              </div>
-            )}
-          </FormGroup>
-          <FormGroup>
-            <Label>Best Seller Priority</Label>
+          </FormGroup> */}
+          {/* <FormGroup>
+            <Label>Sale Price in Paise</Label>
             <Input
-              value={product.bestSellerPriority}
+              value={product.salePriceInPaise}
               onChange={(e) => {
                 setProduct((p) => ({
                   ...p,
-                  bestSellerPriority: parseInt(e.target.value)
+                  salePriceInPaise: parseInt(e.target.value)
                     ? parseInt(e.target.value)
                     : 0,
                 }));
               }}
             />
-            {productErrors.bestSellerPriority && (
+          </FormGroup> */}
+          {/* <FormGroup>
+            <Label>Image</Label>
+            <Input
+              className="h-20"
+              type="file"
+              ref={imageInputRef}
+              accept="image/*"
+            />
+            {productErrors.image && (
               <div className="col-start-2 text-destructive">
-                Best Seller Priority is required
+                Image is required
               </div>
             )}
-          </FormGroup>
+          </FormGroup> */}
+          {/* <FormGroup>
+            <Label>Other Images</Label>
+            <Input
+              className="h-20"
+              type="file"
+              ref={otherImagesInputRef}
+              accept="image/*"
+              multiple
+            />
+            {productErrors.otherImages && (
+              <div className="col-start-2 text-destructive">
+                Other Images is required
+              </div>
+            )}
+          </FormGroup> */}
           <div className="flex justify-end py-2">
             <Button
               type="submit"
