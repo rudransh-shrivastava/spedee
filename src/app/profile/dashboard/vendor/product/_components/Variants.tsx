@@ -13,8 +13,7 @@ import { AttributeType } from "@/types";
 import { PlusCircledIcon } from "@radix-ui/react-icons";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ChangeEvent, DragEvent, useCallback, useState } from "react";
-import Image from "next/image";
-import { Cross, Delete, Pin, X } from "lucide-react";
+import { Pin, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export function Variants({
@@ -281,7 +280,8 @@ const DragAndDropImageUploader: React.FC = () => {
             <div className="absolute right-2 top-2 grid gap-2">
               <Button variant="secondary" size="icon">
                 <X
-                  onClick={() => {
+                  onClick={(e) => {
+                    e.preventDefault();
                     setSelectedImages((prev) =>
                       prev.filter((_, index) => index !== imageIndex)
                     );
@@ -291,7 +291,8 @@ const DragAndDropImageUploader: React.FC = () => {
               <Button
                 variant="secondary"
                 size="icon"
-                onClick={() => {
+                onClick={(e) => {
+                  e.preventDefault();
                   setSelectedImages((prev) => [
                     ...prev.slice(imageIndex, imageIndex + 1),
                     ...prev.slice(0, imageIndex),
