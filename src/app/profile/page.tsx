@@ -12,7 +12,7 @@ export default function Page() {
   return data && data.user ? (
     <div>
       <h1 className="text-2xl">Hii {data?.user.name}, How are you today</h1>
-      <div className="mt-4 flex items-center gap-4 rounded-lg border p-4">
+      <div className="mt-4 flex flex-wrap items-center gap-4 rounded-lg border p-4">
         <div>
           {data.user.image && (
             <Image
@@ -40,7 +40,7 @@ export default function Page() {
           </div>
           <div className="text-sm">{data.user.email}</div>
         </div>
-        <div className="ml-auto flex gap-2">
+        <div className="mx-auto flex gap-2 sm:ml-auto sm:w-auto">
           {data.user.role === Role.VENDOR && (
             <Button asChild>
               <Link href="/profile/dashboard/vendor">Dashboard</Link>

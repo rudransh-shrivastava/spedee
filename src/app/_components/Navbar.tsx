@@ -216,7 +216,7 @@ function LocationDialog() {
         <Button variant="ghost" className="text-sm hover:bg-transparent">
           <div className="relative flex max-w-[15rem] items-center overflow-hidden">
             {locationName ? locationName : "Location"}
-            <div className="to absolute right-0 h-full w-5 bg-gradient-to-tr from-background/50 to-background"></div>
+            <div className="to absolute right-0 h-full w-1 bg-gradient-to-tr from-transparent to-background"></div>
           </div>
           <ChevronDown strokeWidth={1.5} />
         </Button>
@@ -229,9 +229,15 @@ function LocationDialog() {
             store
           </DialogDescription>
         </DialogHeader>
-        <div className="bg-secondary p-4">
-          <span className="font-light opacity-50">Location: </span>
-          {locationName ? locationName : ""}
+        <div className="bg-secondary p-2 px-3">
+          <span className="self-start font-light opacity-70">Location: </span>
+          {locationName ? (
+            locationName
+          ) : (
+            <span className="ml-2 inline-block w-full max-w-40 animate-pulse select-none rounded-full bg-secondary-foreground/10 text-center text-transparent">
+              Loading...
+            </span>
+          )}
         </div>
         <div className="flex flex-col items-center justify-center gap-2 py-2">
           <Button
@@ -302,6 +308,7 @@ function highlightMatchedText(
 function SearchLocation() {
   const [searchQuery, setSearchQuery] = useState("");
   const { data, status } = useQuery<Place[]>(queries.locations(searchQuery));
+  const { updateLocation } = useLocationContext();
 
   return (
     <div className="w-full">
@@ -342,12 +349,24 @@ function SearchLocation() {
           ))}
 
         {status === "error" && <Error className="my-auto" />}
-        {data &&
+        {status !== "error" &&
+          data &&
           data.map((place) => (
             <div
               key={place.place_id}
               className="flex w-full cursor-pointer items-center rounded-lg hover:bg-secondary"
-              onClick={() => {}}
+              onClick={() => {
+                queries
+                  .locationCoordinates(place.place_id)
+                  .queryFn()
+                  .then((data) => {
+                    const coordinates = {
+                      latitude: data.message.result.geometry.location.lat,
+                      longitude: data.message.result.geometry.location.lng,
+                    };
+                    updateLocation(coordinates);
+                  });
+              }}
             >
               <div className="px-2">
                 <MapPin className="stroke-foreground/75" />

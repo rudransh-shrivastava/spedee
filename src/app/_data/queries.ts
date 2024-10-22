@@ -51,7 +51,6 @@ async function getLocationName(locationData: {
   longitude?: number;
 }) {
   let queryParams = "";
-  console.log("lat: ", locationData.latitude);
   if (locationData.placeId) {
     queryParams = `placeId=${locationData.placeId}`;
   } else if (locationData.latitude && locationData.longitude) {
