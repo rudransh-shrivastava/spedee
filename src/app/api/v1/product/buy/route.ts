@@ -1,46 +1,87 @@
 import { authOptions } from "@/lib/auth";
 import { connectDB } from "@/lib/mongodb";
-// import { paymentGateway } from "@/lib/phonepe";
 import Order from "@/models/Order";
 import axios from "axios";
 import { getServerSession } from "next-auth";
 import crypto from "crypto";
+import z from "zod";
+import { NextRequest } from "next/server";
+import Product from "@/models/Product";
 
-export async function POST() {
+const zodSchema = z.object({
+  name: z.string(),
+  phone: z.string(),
+  shippingAddress: z.object({
+    address: z.string(),
+    city: z.string(),
+    state: z.string(),
+    zip: z.string(),
+  }),
+  products: z.array(
+    z.object({
+      productId: z.string(),
+      quantity: z.number(),
+    })
+  ),
+});
+
+export async function POST(req: NextRequest) {
   await connectDB();
   const session = await getServerSession(authOptions);
   if (!session) {
     return Response.json({ message: "Unauthorized" }, { status: 401 });
   }
+  const data = await req.json();
+  const result = zodSchema.safeParse(data);
+  if (!result.success) {
+    return Response.json({ message: "Invalid data", error: result.error });
+  }
+  const { name, phone, shippingAddress, products } = result.data;
   const userEmail = session.user.email;
-  const amount = 500;
+  const matchedProducts = [];
+  let totalAmount = 0;
+  // TODO: Implement sale price, coupons, discounts, etc.
+  for (const product of products) {
+    const matchedProduct = await Product.findById(product.productId);
+    if (!matchedProduct) {
+      return Response.json({ message: "Invalid product" }, { status: 400 });
+    }
+    matchedProducts.push({
+      product: matchedProduct,
+      quantity: product.quantity,
+    });
+    totalAmount += matchedProduct.priceInPaise * product.quantity;
+  }
+  if (!matchedProducts) {
+    return Response.json({ message: "Invalid product" }, { status: 400 });
+  }
+  const priceInPaise = totalAmount;
   const transactionId = generatedTranscId();
   const userId = session.user.email ?? "anonymous";
-  const shippingAddress = {
-    address: "123, Main Street",
-    city: "Bangalore",
-    state: "Karnataka",
-    zip: "473005",
-  };
+
   await Order.create({
+    name,
+    phone,
     transactionId,
-    amount,
-    status: "PENDING",
-    products: [], // TODO: Add products
+    amount: priceInPaise,
+    paymentStatus: "PENDING",
+    orderStatus: "INITIATED",
+    products,
     userEmail,
     shippingAddress,
     paymentMethod: "phonepe",
+    paymentTransactionId: "",
   });
-  const ngrokUrl = process.env.PHONEPE_CALLBACK_URL; // Replace with your actual ngrok URL
+  const serverUrl = process.env.PHONEPE_CALLBACK_URL;
 
   const payload = {
-    merchantId: "PGTESTPAYUAT86", // Replace with your actual merchant ID
+    merchantId: process.env.PHONEPE_MERCHANT_ID,
     merchantTransactionId: transactionId,
     merchantUserId: userId,
-    amount,
-    redirectUrl: `localhost:3000/payredirect`,
+    amount: priceInPaise,
+    redirectUrl: `${serverUrl}/payredirect`,
     redirectMode: "REDIRECT",
-    callbackUrl: `${ngrokUrl}/api/v1/payment-callback`,
+    callbackUrl: `${serverUrl}/api/v1/payment-callback`,
     paymentInstrument: {
       type: "PAY_PAGE",
     },
@@ -49,8 +90,8 @@ export async function POST() {
   const payloadString = JSON.stringify(payload);
   const base64Payload = Buffer.from(payloadString).toString("base64");
 
-  const saltKey = "96434309-7796-489d-8924-ab56988a6076"; // Replace with your actual salt key
-  const saltIndex = "1"; // Replace with your actual salt index
+  const saltKey = process.env.PHONEPE_SALT_KEY;
+  const saltIndex = process.env.PHONEPE_SALT_KEY_INDEX;
   const endpoint = "/pg/v1/pay";
   const checksumString = base64Payload + endpoint + saltKey;
   console.log("caluclated checksum string is:", checksumString);

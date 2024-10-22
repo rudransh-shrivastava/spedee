@@ -23,5 +23,5 @@ export async function POST(req: NextRequest) {
   const statusResponse = axios.get(
     `${process.env.NEXTAUTH_URL}/api/v1/order/status?transactionId=${merchantTransactionId}`
   );
-  return Response.json({ message: "Hello" });
+  return Response.json({ message: statusResponse });
 }
