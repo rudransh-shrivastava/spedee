@@ -40,7 +40,7 @@ export default function Page() {
           </div>
           <div className="text-sm">{data.user.email}</div>
         </div>
-        <div className="mx-auto flex gap-2 sm:ml-auto sm:w-auto">
+        <div className="mx-auto flex gap-2 sm:ml-auto sm:mr-0 sm:w-auto">
           {data.user.role === Role.VENDOR && (
             <Button asChild>
               <Link href="/profile/dashboard/vendor">Dashboard</Link>
