@@ -25,17 +25,17 @@ export async function POST(req: Request) {
   if (product?.vendorEmail != vendorEmail) {
     return Response.json({ message: "Unauthorized" }, { status: 401 });
   }
-  const uploadedImage = product?.image;
-  const uploadedOtherImages = product?.otherImages;
+
   const deleteFilePromises = [];
-  if (uploadedImage) {
-    deleteFilePromises.push(deleteFile(uploadedImage));
+  for (const variant of product.variants) {
+    deleteFilePromises.push(deleteFile(variant.image));
+    if (variant.otherImages) {
+      variant.otherImages.forEach((image) => {
+        deleteFilePromises.push(deleteFile(image));
+      });
+    }
   }
-  if (uploadedOtherImages) {
-    uploadedOtherImages.forEach((image) => {
-      deleteFilePromises.push(deleteFile(image));
-    });
-  }
+
   console.log("deleting product files");
   await Promise.all(deleteFilePromises);
   console.log("deleting product");
