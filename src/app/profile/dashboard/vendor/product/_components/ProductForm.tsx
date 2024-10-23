@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ProductType } from "@/models/Product";
-import { FormEvent, useCallback, useRef, useState } from "react";
+import { FormEvent, useCallback, useState } from "react";
 import { cn } from "@/lib/utils";
 import { Switch } from "@/components/ui/switch";
 import Loader from "@/components/Loader";
@@ -40,50 +40,52 @@ export function ProductForm({
     _errors: [],
   });
 
+  const productToFormdata = useCallback((product: ProductType) => {
+    const formData = new FormData();
+    formData.append("name", product.name);
+    formData.append("description", product.description);
+    formData.append("bestSeller", product.bestSeller.toString());
+    formData.append(
+      "bestSellerPriority",
+      product.bestSellerPriority.toString()
+    );
+    formData.append("category", product.category);
+    formData.append("attributes", JSON.stringify(product.attributes));
+
+    product.variants.forEach((variant, index) => {
+      formData.append(
+        `variants[${index}].attributes`,
+        JSON.stringify(variant.attributes)
+      );
+      formData.append(`variants[${index}].stock`, variant.stock.toString());
+      formData.append(
+        `variants[${index}].priceInPaise`,
+        variant.priceInPaise.toString()
+      );
+      formData.append(
+        `variants[${index}].salePriceInPaise`,
+        variant.salePriceInPaise.toString()
+      );
+    });
+    return formData;
+  }, []);
+
   const handleSubmit = useCallback(
     (e: FormEvent<HTMLFormElement>) => {
       e.preventDefault();
-      const formData = new FormData();
-      formData.append("productId", product.id);
-      formData.append("name", product.name);
-      formData.append("description", product.description);
-      const variantsArray = product.variants.map((variant) => ({
-        attributes: JSON.stringify(variant.attributes),
-        stock: variant.stock.toString(),
-        image: variant.image ?? "",
-      }));
-      formData.append("variants", JSON.stringify(variantsArray));
-      formData.append("attributes", JSON.stringify(product.attributes));
-      console.log(product.attributes);
-      // images
-      if (imageInputRef.current?.files && otherImagesInputRef.current?.files) {
-        formData.append("image", imageInputRef.current.files[0]);
-        for (let i = 0; i < otherImagesInputRef.current.files.length; i++) {
-          formData.append("otherImages", otherImagesInputRef.current.files[i]);
-        }
-      }
-      // ^images
-      formData.append("category", product.category);
-      formData.append("bestSeller", product.bestSeller.toString());
-      formData.append(
-        "bestSellerPriority",
-        product.bestSellerPriority.toString()
-      );
+      const formData = productToFormdata(product);
       const validationResult = productFormDataSchema.safeParse(formData);
-      console.log(validationResult);
       if (!validationResult.success) {
         const formattedErrors = validationResult.error.format();
         setErrors(formattedErrors);
       } else {
         setErrors({ _errors: [] });
+        console.log(validationResult.data);
         onSave(formData);
       }
     },
     [product, onSave]
   );
-
-  const imageInputRef = useRef<HTMLInputElement | null>(null);
-  const otherImagesInputRef = useRef<HTMLInputElement | null>(null);
 
   return (
     <LoadingData status={attributesStatus}>
@@ -97,11 +99,7 @@ export function ProductForm({
                 setProduct((p) => ({ ...p, name: e.target.value }));
               }}
             />
-            {productErrors.name && (
-              <div className="col-start-2 text-destructive">
-                name is required
-              </div>
-            )}
+            <FormError error={productErrors.name} />
           </FormGroup>
           <FormGroup>
             <Label>Description</Label>
@@ -112,11 +110,7 @@ export function ProductForm({
                 setProduct((p) => ({ ...p, description: e.target.value }));
               }}
             />
-            {productErrors.description && (
-              <div className="col-start-2 text-destructive">
-                Description is required
-              </div>
-            )}
+            <FormError error={productErrors.description} />
           </FormGroup>
           <FormGroup>
             <Label>Best Seller Priority</Label>
@@ -144,11 +138,7 @@ export function ProductForm({
                 }}
               />
             </div>
-            {productErrors.bestSellerPriority && (
-              <div className="col-start-2 text-destructive">
-                Best Seller Priority is required
-              </div>
-            )}
+            <FormError error={productErrors.bestSellerPriority} />
           </FormGroup>
           <FormGroup>
             <Label>Category</Label>
@@ -163,81 +153,19 @@ export function ProductForm({
                 }}
               />
             </div>
-            {productErrors.category && (
-              <div className="col-start-2 text-destructive">
-                Category is required
-              </div>
-            )}
+            <FormError error={productErrors.category} />
           </FormGroup>
           <Variants
+            updateAttributes={(attributes: ProductType["attributes"]) => {
+              setProduct((p) => ({ ...p, attributes }));
+            }}
             attributesServer={attributesServer}
             variants={product.variants}
             setVariants={(variants) => {
               setProduct((p) => ({ ...p, variants }));
             }}
+            productErrors={productErrors}
           />
-          {/* <FormGroup>
-            <Label>Price in Paise</Label>
-            <Input
-              value={product.priceInPaise || 0}
-              onChange={(e) => {
-                setProduct((p) => ({
-                  ...p,
-                  priceInPaise: parseInt(e.target.value)
-                    ? parseInt(e.target.value)
-                    : 0,
-                }));
-              }}
-            />
-            {productErrors.priceInPaise && (
-              <div className="col-start-2 text-destructive">
-                Price is required
-              </div>
-            )}
-          </FormGroup> */}
-          {/* <FormGroup>
-            <Label>Sale Price in Paise</Label>
-            <Input
-              value={product.salePriceInPaise}
-              onChange={(e) => {
-                setProduct((p) => ({
-                  ...p,
-                  salePriceInPaise: parseInt(e.target.value)
-                    ? parseInt(e.target.value)
-                    : 0,
-                }));
-              }}
-            />
-          </FormGroup> */}
-          {/* <FormGroup>
-            <Label>Image</Label>
-            <Input
-              className="h-20"
-              type="file"
-              ref={imageInputRef}
-              accept="image/*"
-            />
-            {productErrors.image && (
-              <div className="col-start-2 text-destructive">
-                Image is required
-              </div>
-            )}
-          </FormGroup> */}
-          {/* <FormGroup>
-            <Label>Other Images</Label>
-            <Input
-              className="h-20"
-              type="file"
-              ref={otherImagesInputRef}
-              accept="image/*"
-              multiple
-            />
-            {productErrors.otherImages && (
-              <div className="col-start-2 text-destructive">
-                Other Images is required
-              </div>
-            )}
-          </FormGroup> */}
           <div className="flex justify-end py-2">
             <Button
               type="submit"
@@ -261,5 +189,13 @@ function FormGroup({ children }: { children: React.ReactNode }) {
     <div className="grid items-center gap-1 py-2 md:grid-cols-[25ch,1fr] md:gap-x-4">
       {children}
     </div>
+  );
+}
+
+function FormError({ error }: { error?: { _errors: string[] } | undefined }) {
+  return error ? (
+    <div className="col-start-2 text-destructive">{error._errors[0]}</div>
+  ) : (
+    ""
   );
 }

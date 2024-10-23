@@ -81,11 +81,14 @@ export const productFormDataSchema = zfd.formData({
       .array(
         z.object({
           attributes: zfd.json(
-            z.record(
-              z.string().min(1, {
-                message: "Variant attribute values must not be empty",
+            z
+              .record(z.string())
+              .refine((val) => Object.keys(val).length !== 0, {
+                message: "There should be atleast one Attribute",
               })
-            )
+              .refine((val) => Object.values(val).every((v) => v.length > 0), {
+                message: "All variant attribute must have a value",
+              })
           ),
           stock: zfd.numeric(
             z

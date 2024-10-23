@@ -8,22 +8,27 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { VariantType } from "@/models/Product";
+import { ProductType, VariantType } from "@/models/Product";
 import { AttributeType } from "@/types";
 import { PlusCircledIcon } from "@radix-ui/react-icons";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ChangeEvent, DragEvent, useCallback, useState } from "react";
 import { Pin, X } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { productFormDataSchemaErrorType } from "@/zod-schema/product-zod-schema";
 
 export function Variants({
   variants,
   setVariants,
   attributesServer,
+  updateAttributes,
+  productErrors,
 }: {
   variants: VariantType[];
   setVariants: (v: VariantType[]) => void;
   attributesServer: AttributeType[];
+  updateAttributes: (attributes: ProductType["attributes"]) => void;
+  productErrors: productFormDataSchemaErrorType;
 }) {
   const [attributes, setAttributes] = useState<
     (AttributeType & { include: boolean })[]
@@ -47,6 +52,15 @@ export function Variants({
       setAttributes((attb) =>
         attb.map((a, i) => (i === index ? { ...a, include: value } : a))
       );
+
+      // TODO: we have to select at least once
+      const newAttributes: { [key: string]: string[] } = {};
+      attributes.forEach((attribute) => {
+        if (attribute.include) {
+          newAttributes[attribute.name] = [...attribute.values];
+        }
+      });
+      updateAttributes(newAttributes);
     },
     [setVariants, variants, attributes]
   );
@@ -76,6 +90,7 @@ export function Variants({
             </Button>
           ))}
         </div>
+        <FormError error={productErrors.attributes} />
       </FormGroup>
       <Label className="block pb-8 pt-12 text-xl">Variants</Label>
       <div className="grid gap-8">
@@ -84,6 +99,8 @@ export function Variants({
             key={index}
             attributes={attributes}
             variant={variant}
+            productErrors={productErrors}
+            index={index}
             setVariant={(v, del) => {
               if (del) {
                 setVariants(variants.filter((_, i) => i !== index));
@@ -100,20 +117,30 @@ export function Variants({
           className="flex h-auto min-h-[280px] min-w-[17rem] flex-col items-center justify-center gap-2 rounded-lg bg-card p-4 text-card-foreground"
           onClick={(e) => {
             e.preventDefault();
-            // setVariants([
-            //   ...variants,
-            //   {
-            //     attributes: {},
-            //     stock: 0,
-            //     image: null,
-            //   },
-            // ]);
+            setVariants([
+              ...variants,
+              {
+                attributes: attributes.reduce(
+                  (acc, attribute) => ({
+                    ...acc,
+                    [attribute.name]: "",
+                  }),
+                  {}
+                ),
+                image: "",
+                otherImages: [],
+                priceInPaise: 0,
+                salePriceInPaise: 0,
+                stock: 0,
+              },
+            ]);
           }}
         >
           <PlusCircledIcon className="size-8" />
           <span>Add a Variant</span>
         </Button>
       </div>
+      <FormError error={productErrors.variants} />
     </>
   );
 }
@@ -122,18 +149,22 @@ function VariantCard({
   attributes,
   variant,
   setVariant,
+  productErrors,
+  index,
 }: {
   attributes: (AttributeType & { include: boolean })[];
   variant: VariantType;
   setVariant: (v: VariantType, del?: boolean) => void;
+  productErrors: productFormDataSchemaErrorType;
+  index: number;
 }) {
   return (
     <div className="relative grid gap-8 md:grid-cols-[23rem,auto]">
       <div className="h-max min-w-[17rem] border p-4 md:sticky md:top-20">
         {attributes
           .filter((a) => a.include)
-          .map((attribute, index) => (
-            <VariantFormGroup key={index}>
+          .map((attribute, attributeIndex) => (
+            <VariantFormGroup key={attributeIndex}>
               <Label>{attribute.name}</Label>
               <Select
                 value={variant.attributes[attribute.name]}
@@ -160,6 +191,13 @@ function VariantCard({
               </Select>
             </VariantFormGroup>
           ))}
+        <VariantFormError
+          error={
+            productErrors.variants &&
+            productErrors.variants[0] &&
+            productErrors.variants[0].attributes
+          }
+        />
         <VariantFormGroup>
           <Label>Stock</Label>
           <Input
@@ -179,14 +217,35 @@ function VariantCard({
               });
             }}
           />
+          <VariantFormError
+            error={
+              productErrors.variants &&
+              productErrors.variants[0] &&
+              productErrors.variants[0].stock
+            }
+          />
         </VariantFormGroup>
         <VariantFormGroup>
           <Label>Price in Paise</Label>
           <Input />
+          <VariantFormError
+            error={
+              productErrors.variants &&
+              productErrors.variants[0] &&
+              productErrors.variants[0].priceInPaise
+            }
+          />
         </VariantFormGroup>
         <VariantFormGroup>
           <Label>Sale Price in Paise</Label>
           <Input />
+          <VariantFormError
+            error={
+              productErrors.variants &&
+              productErrors.variants[0] &&
+              productErrors.variants[0].salePriceInPaise
+            }
+          />
         </VariantFormGroup>
         <div className="mt-4 grid items-center gap-1">
           <Button
@@ -323,4 +382,24 @@ function FormGroup({ children }: { children: React.ReactNode }) {
 
 function VariantFormGroup({ children }: { children: React.ReactNode }) {
   return <div className="grid items-center gap-1 py-2">{children}</div>;
+}
+
+function FormError({ error }: { error?: { _errors: string[] } | undefined }) {
+  return error ? (
+    <div className="col-start-2 text-destructive">{error._errors[0]}</div>
+  ) : (
+    ""
+  );
+}
+
+function VariantFormError({
+  error,
+}: {
+  error?: { _errors: string[] } | undefined;
+}) {
+  return error ? (
+    <div className="text-sm text-destructive">{error._errors[0]}</div>
+  ) : (
+    ""
+  );
 }
