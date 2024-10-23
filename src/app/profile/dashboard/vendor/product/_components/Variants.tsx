@@ -100,14 +100,14 @@ export function Variants({
           className="flex h-auto min-h-[280px] min-w-[17rem] flex-col items-center justify-center gap-2 rounded-lg bg-card p-4 text-card-foreground"
           onClick={(e) => {
             e.preventDefault();
-            setVariants([
-              ...variants,
-              {
-                attributes: {},
-                stock: 0,
-                image: null,
-              },
-            ]);
+            // setVariants([
+            //   ...variants,
+            //   {
+            //     attributes: {},
+            //     stock: 0,
+            //     image: null,
+            //   },
+            // ]);
           }}
         >
           <PlusCircledIcon className="size-8" />

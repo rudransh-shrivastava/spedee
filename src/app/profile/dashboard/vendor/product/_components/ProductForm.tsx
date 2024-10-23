@@ -3,13 +3,15 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ProductType } from "@/models/Product";
 import { FormEvent, useCallback, useRef, useState } from "react";
-import { ProductSchemaFormattedError } from "@/zod-schema/product-schema";
 import { cn } from "@/lib/utils";
 import { Switch } from "@/components/ui/switch";
 import Loader from "@/components/Loader";
 import { Variants } from "./Variants";
 import { Category } from "./Category";
-import { productFormDataSchema } from "@/zod-schema/product-zod-schema";
+import {
+  productFormDataSchema,
+  productFormDataSchemaErrorType,
+} from "@/zod-schema/product-zod-schema";
 import { useQuery } from "@tanstack/react-query";
 import { queries } from "@/app/_data/queries";
 import { LoadingData } from "@/components/LoadingData";
@@ -34,7 +36,7 @@ export function ProductForm({
     attributes: productProps.attributes || {},
   });
 
-  const [productErrors, setErrors] = useState<ProductSchemaFormattedError>({
+  const [productErrors, setErrors] = useState<productFormDataSchemaErrorType>({
     _errors: [],
   });
 
@@ -51,8 +53,6 @@ export function ProductForm({
         image: variant.image ?? "",
       }));
       formData.append("variants", JSON.stringify(variantsArray));
-      formData.append("priceInPaise", product.priceInPaise.toString());
-      formData.append("salePriceInPaise", product.salePriceInPaise.toString());
       formData.append("attributes", JSON.stringify(product.attributes));
       console.log(product.attributes);
       // images
@@ -64,7 +64,6 @@ export function ProductForm({
       }
       // ^images
       formData.append("category", product.category);
-      formData.append("stock", product.stock.toString());
       formData.append("bestSeller", product.bestSeller.toString());
       formData.append(
         "bestSellerPriority",

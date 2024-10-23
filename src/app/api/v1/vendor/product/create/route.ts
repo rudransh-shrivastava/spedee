@@ -4,7 +4,7 @@ import { getServerSession } from "next-auth";
 import { uploadFile } from "@/lib/s3";
 import Product, { VariantType } from "@/models/Product";
 
-import { newProductFormDataSchema as productSchema } from "@/zod-schema/product-zod-schema";
+import { productFormDataSchema as productSchema } from "@/zod-schema/product-zod-schema";
 
 export async function POST(req: Request) {
   const session = await getServerSession(authOptions);
