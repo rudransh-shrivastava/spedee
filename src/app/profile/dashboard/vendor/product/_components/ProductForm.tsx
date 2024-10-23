@@ -81,10 +81,7 @@ export function ProductForm({
             `variants[${index}].salePriceInPaise`,
             variant.salePriceInPaise.toString()
           );
-          formData.append(
-            `variants[${index}].image`,
-            variant.images[0] || new File([], "")
-          );
+          formData.append(`variants[${index}].image`, variant.images[0]);
         }
       );
       return formData;
@@ -100,14 +97,19 @@ export function ProductForm({
       if (!validationResult.success) {
         const formattedErrors = validationResult.error.format();
         setErrors(formattedErrors);
-        console.log(formattedErrors);
       } else {
         setErrors({ _errors: [] });
-        console.log(validationResult.data);
         onSave(formData);
       }
     },
-    [product, onSave]
+    [product, productToFormdata, onSave]
+  );
+
+  const updateAttributes = useCallback(
+    (attributes: ProductType["attributes"]) => {
+      setProduct((p) => ({ ...p, attributes }));
+    },
+    []
   );
 
   return (
@@ -179,9 +181,7 @@ export function ProductForm({
             <FormError error={productErrors.category} />
           </FormGroup>
           <Variants
-            updateAttributes={(attributes: ProductType["attributes"]) => {
-              setProduct((p) => ({ ...p, attributes }));
-            }}
+            updateAttributes={updateAttributes}
             attributesServer={attributesServer}
             variants={product.variants}
             setVariants={(variants) => {
@@ -189,6 +189,7 @@ export function ProductForm({
             }}
             productErrors={productErrors}
           />
+          <FormError error={productErrors} />
           <div className="flex justify-end py-2">
             <Button
               type="submit"

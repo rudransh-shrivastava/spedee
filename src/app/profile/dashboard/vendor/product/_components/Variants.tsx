@@ -12,7 +12,13 @@ import { ProductType, VariantType } from "@/models/Product";
 import { AttributeType } from "@/types";
 import { PlusCircledIcon } from "@radix-ui/react-icons";
 import { Checkbox } from "@/components/ui/checkbox";
-import { ChangeEvent, DragEvent, useCallback, useState } from "react";
+import {
+  ChangeEvent,
+  DragEvent,
+  useCallback,
+  useEffect,
+  useState,
+} from "react";
 import { Pin, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { productFormDataSchemaErrorType } from "@/zod-schema/product-zod-schema";
@@ -52,18 +58,19 @@ export function Variants({
       setAttributes((attb) =>
         attb.map((a, i) => (i === index ? { ...a, include: value } : a))
       );
-
-      // TODO: we have to select at least once
-      const newAttributes: { [key: string]: string[] } = {};
-      attributes.forEach((attribute) => {
-        if (attribute.include) {
-          newAttributes[attribute.name] = [...attribute.values];
-        }
-      });
-      updateAttributes(newAttributes);
     },
     [setVariants, variants, attributes]
   );
+
+  useEffect(() => {
+    const newAttributes: { [key: string]: string[] } = {};
+    attributes.forEach((attribute) => {
+      if (attribute.include) {
+        newAttributes[attribute.name] = [...attribute.values];
+      }
+    });
+    updateAttributes(newAttributes);
+  }, [attributes, updateAttributes]);
 
   return (
     <>
@@ -100,7 +107,7 @@ export function Variants({
             attributes={attributes}
             variant={variant}
             productErrors={productErrors}
-            index={index}
+            variantIndex={index}
             setVariant={(v, del) => {
               if (del) {
                 setVariants(variants.filter((_, i) => i !== index));
@@ -151,13 +158,13 @@ function VariantCard({
   variant,
   setVariant,
   productErrors,
-  index,
+  variantIndex,
 }: {
   attributes: (AttributeType & { include: boolean })[];
   variant: VariantType & { images: File[] };
   setVariant: (v: VariantType & { images: File[] }, del?: boolean) => void;
   productErrors: productFormDataSchemaErrorType;
-  index: number;
+  variantIndex: number;
 }) {
   return (
     <div className="relative grid gap-8 md:grid-cols-[23rem,auto]">
@@ -194,9 +201,11 @@ function VariantCard({
           ))}
         <VariantFormError
           error={
-            productErrors.variants &&
-            productErrors.variants[0] &&
-            productErrors.variants[0].attributes
+            (productErrors.variants &&
+              productErrors.variants[variantIndex] &&
+              "attributes" in productErrors.variants[variantIndex] &&
+              productErrors.variants[variantIndex].attributes) ||
+            undefined
           }
         />
         <VariantFormGroup>
@@ -220,9 +229,11 @@ function VariantCard({
           />
           <VariantFormError
             error={
-              productErrors.variants &&
-              productErrors.variants[0] &&
-              productErrors.variants[0].stock
+              (productErrors.variants &&
+                productErrors.variants[variantIndex] &&
+                "stock" in productErrors.variants[variantIndex] &&
+                productErrors.variants[variantIndex].stock) ||
+              undefined
             }
           />
         </VariantFormGroup>
@@ -238,9 +249,11 @@ function VariantCard({
           />
           <VariantFormError
             error={
-              productErrors.variants &&
-              productErrors.variants[0] &&
-              productErrors.variants[0].priceInPaise
+              (productErrors.variants &&
+                productErrors.variants[variantIndex] &&
+                "priceInPaise" in productErrors.variants[variantIndex] &&
+                productErrors.variants[variantIndex].priceInPaise) ||
+              undefined
             }
           />
         </VariantFormGroup>
@@ -256,9 +269,11 @@ function VariantCard({
           />
           <VariantFormError
             error={
-              productErrors.variants &&
-              productErrors.variants[0] &&
-              productErrors.variants[0].salePriceInPaise
+              (productErrors.variants &&
+                productErrors.variants[variantIndex] &&
+                "salePriceInPaise" in productErrors.variants[variantIndex] &&
+                productErrors.variants[variantIndex].salePriceInPaise) ||
+              undefined
             }
           />
         </VariantFormGroup>
@@ -286,16 +301,20 @@ function VariantCard({
       />
       <FormError
         error={
-          productErrors.variants &&
-          productErrors.variants[0] &&
-          productErrors.variants[0].image
+          (productErrors.variants &&
+            productErrors.variants[variantIndex] &&
+            "image" in productErrors.variants[variantIndex] &&
+            productErrors.variants[variantIndex].image) ||
+          undefined
         }
       />
       <FormError
         error={
-          productErrors.variants &&
-          productErrors.variants[0] &&
-          productErrors.variants[0].otherImages
+          (productErrors.variants &&
+            productErrors.variants[variantIndex] &&
+            "otherImages" in productErrors.variants[variantIndex] &&
+            productErrors.variants[variantIndex].otherImages) ||
+          undefined
         }
       />
     </div>
@@ -370,10 +389,7 @@ function DragAndDropImageUploader({
               <img
                 src={URL.createObjectURL(image)}
                 alt={`Selected ${imageIndex}`}
-                className={cn(
-                  "h-full w-full object-top",
-                  imageIndex === 0 ? "object-cover" : "object-contain"
-                )}
+                className={cn("h-full w-full object-contain object-top")}
               />
             </div>
             <div className="absolute right-2 top-2 grid gap-2">

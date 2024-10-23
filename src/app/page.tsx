@@ -44,9 +44,9 @@ function BestSellers() {
   } = {};
 
   if (cartQueryStatus === "success") {
-    cartProducts.forEach((cartProduct) => {
-      productCartQuantity[cartProduct.product.id] = cartProduct.quantity;
-    });
+    // cartProducts.forEach((cartProduct) => {
+    //   productCartQuantity[cartProduct.product.id] = cartProduct.quantity;
+    // });
   }
 
   return (
@@ -83,7 +83,7 @@ function ProductCard({
         <div className="group/link overflow-hidden p-0">
           <div className="relative mx-auto flex size-[17rem] items-center justify-center overflow-hidden">
             <Image
-              src={product.image}
+              src={product.variants[0].image}
               alt={product.name}
               width={500}
               height={500}
@@ -98,9 +98,11 @@ function ProductCard({
       <div className="mt-auto">
         <div className="flex flex-wrap items-center justify-between gap-2 py-4">
           <div className="flex items-center gap-2">
-            <span className="font-bold">&#8377;{product.salePriceInPaise}</span>
+            <span className="font-bold">
+              &#8377;{product.variants[0].salePriceInPaise}
+            </span>
             <span className="text-sm text-gray-400 line-through">
-              &#8377;{product.priceInPaise}
+              &#8377;{product.variants[0].priceInPaise}
             </span>
           </div>
           {quantity > 0 ? (

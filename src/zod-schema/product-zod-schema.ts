@@ -70,12 +70,7 @@ export const productFormDataSchema = zfd.formData({
       message: "Best seller must be either 'true' or 'false'",
     })
   ),
-  bestSellerPriority: zfd.numeric(
-    z
-      .number()
-      .min(1, { message: "Priority must be at least 1" })
-      .max(100, { message: "Priority cannot exceed 100" })
-  ),
+  bestSellerPriority: zfd.numeric(z.number()),
   variants: zfd.json(
     z
       .array(
@@ -93,8 +88,8 @@ export const productFormDataSchema = zfd.formData({
           stock: zfd.numeric(
             z
               .number()
-              .int()
-              .positive({ message: "Stock must be a positive number" })
+              .int({ message: "Stock must be a non negetive integer" })
+              .nonnegative()
           ),
           image: zfd.file(
             z.instanceof(File, {
