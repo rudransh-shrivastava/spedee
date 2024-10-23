@@ -2,6 +2,7 @@
 
 import axios from "axios";
 import { AttributeType, CategoryTree } from "@/types";
+import { OrderDataType } from "../product/[id]/checkout/page";
 
 async function createProduct(product: FormData) {
   const response = await axios.post("/api/v1/vendor/product/create", product);
@@ -84,6 +85,11 @@ async function deleteVendorProduct(productId: string) {
   return response.data;
 }
 
+async function buyProduct(orderData: OrderDataType) {
+  const response = await axios.post("/api/v1/product/buy", orderData);
+  return response.data;
+}
+
 const mutations = {
   createProduct: {
     mutationFn: createProduct,
@@ -108,6 +114,9 @@ const mutations = {
   },
   deleteVendorProduct: {
     mutationFn: deleteVendorProduct,
+  },
+  buyProduct: {
+    mutationFn: buyProduct,
   },
 };
 

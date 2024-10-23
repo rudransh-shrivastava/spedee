@@ -51,7 +51,7 @@ export function Cart() {
             {cartProducts
               ? cartProducts?.reduce(
                   (acc, { product, quantity }) =>
-                    acc + product.priceInPaise * quantity,
+                    acc + product.variants[0].priceInPaise * quantity,
                   0
                 )
               : ""}
@@ -102,7 +102,7 @@ function CartItemCard({
         <div className="group/link flex items-center gap-2">
           <div className="size-12">
             <Image
-              src={product.image}
+              src={product.variants[0].image}
               width={48}
               height={48}
               alt=""
@@ -115,9 +115,9 @@ function CartItemCard({
         </div>
       </Link>
       <div className="ml-auto flex flex-col items-center px-2">
-        <span>{product.priceInPaise * quantity}</span>
+        <span>{product.variants[0].priceInPaise * quantity}</span>
         <span className="text-sm text-foreground/75 line-through">
-          {product.salePriceInPaise * quantity}
+          {product.variants[0].salePriceInPaise * quantity}
         </span>
       </div>
       {quantity > 0 && (

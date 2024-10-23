@@ -8,77 +8,243 @@ import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import Image from "next/image";
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { z, ZodFormattedError } from "zod";
+import { ProductType } from "@/models/Product";
+import { LoadingData } from "@/components/LoadingData";
+
+const zodSchema = z.object({
+  name: z.string(),
+  phone: z.string(),
+  shippingAddress: z.object({
+    address: z.string(),
+    city: z.string(),
+    state: z.string(),
+    zip: z.string(),
+  }),
+  products: z.array(
+    z.object({
+      productId: z.string(),
+      quantity: z.number(),
+    })
+  ),
+});
+
+export type OrderDataType = z.infer<typeof zodSchema>;
+type OrderDataErrorType = ZodFormattedError<z.infer<typeof zodSchema>>;
 
 export default function Page({ params: { id } }: { params: { id: string } }) {
+  const { status: cartQueryStatus, data: cartProducts } = useQuery(
+    queries.cart
+  );
+  const { data: product, status: productQueryStatus } = useQuery(
+    queries.product(id)
+  );
+
+  return (
+    <LoadingData status={[cartQueryStatus, productQueryStatus]}>
+      {product && cartProducts && (
+        <Checkout product={product} cartProducts={cartProducts} />
+      )}
+    </LoadingData>
+  );
+}
+
+function Checkout({
+  product,
+  cartProducts,
+}: {
+  product: ProductType;
+  cartProducts: { product: ProductType; quantity: number }[];
+}) {
+  const buyProductMutation = useMutation(mutations.buyProduct);
+  let quantity = 0;
+  const prod = cartProducts.find((cartProduct) => {
+    return cartProduct.product.id === product.id;
+  });
+  if (prod) {
+    quantity = prod.quantity;
+  }
+
+  const [orderData, setOrderData] = useState({
+    name: "",
+    phone: "",
+    shippingAddress: {
+      address: "",
+      city: "",
+      state: "",
+      zip: "",
+    },
+    products: [
+      {
+        productId: product.id,
+        quantity: quantity || 1,
+      },
+    ],
+  });
+
+  const [errors, setErrors] = useState<OrderDataErrorType>({ _errors: [] });
+
+  const placeOrder = useCallback(() => {
+    const result = zodSchema.safeParse(orderData);
+    if (result.success) {
+      setErrors({ _errors: [] });
+      buyProductMutation.mutate(orderData, {
+        onSuccess: (data: any) => {
+          console.log(data);
+        },
+      });
+    } else {
+      setErrors(result.error.format());
+    }
+  }, []);
+
   return (
     <div className="grid h-full gap-4 lg:flex lg:flex-row-reverse">
-      <RightPan id={id} />
-      <div className="grid w-full gap-4">
-        <div className="w-full rounded-lg border p-4">
-          <h2>Address</h2>
-          <div className="grid grid-cols-[20ch,auto] items-center gap-2 p-4">
-            <Label>Name</Label>
-            <Input />
-            <Label>Phone</Label>
-            <Input />
-            <Label>Pincode</Label>
-            <Input />
-            <Label>Locality</Label>
-            <Input />
-            <Label>Area and Street</Label>
-            <Input />
-            <Label>Landmark</Label>
-            <Input />
-          </div>
+      <LeftPan
+        orderData={orderData}
+        setOrderData={setOrderData}
+        errors={errors}
+        placeOrder={placeOrder}
+      />
+      <RightPan
+        orderData={orderData}
+        product={product}
+        cartProducts={cartProducts}
+      />
+    </div>
+  );
+}
+
+function LeftPan({
+  orderData,
+  setOrderData,
+  errors,
+  placeOrder,
+}: {
+  orderData: OrderDataType;
+  setOrderData: React.Dispatch<React.SetStateAction<OrderDataType>>;
+  errors: OrderDataErrorType;
+  placeOrder: () => void;
+}) {
+  return (
+    <div className="grid w-full gap-4">
+      <div className="w-full rounded-lg border p-4">
+        <h2>Address</h2>
+        <div className="grid grid-cols-[20ch,auto] items-center gap-2 p-4">
+          <Label>Name</Label>
+          <Input
+            value={orderData.name}
+            onChange={(e) => {
+              setOrderData((prev) => ({ ...prev, name: e.target.value }));
+            }}
+          />
+          <FormError error={errors.name} />
+          <Label>Phone</Label>
+          <Input
+            value={orderData.phone}
+            onChange={(e) => {
+              setOrderData((prev) => ({ ...prev, phone: e.target.value }));
+            }}
+          />
+          <FormError error={errors.phone} />
+          <Label>Address</Label>
+          <Input
+            value={orderData.shippingAddress.address}
+            onChange={(e) => {
+              setOrderData((prev) => ({
+                ...prev,
+                shippingAddress: {
+                  ...prev.shippingAddress,
+                  address: e.target.value,
+                },
+              }));
+            }}
+          />
+          <FormError error={errors.shippingAddress?.address} />
+          <Label>Pincode</Label>
+          <Input
+            value={orderData.shippingAddress.zip}
+            onChange={(e) => {
+              setOrderData((prev) => ({
+                ...prev,
+                shippingAddress: {
+                  ...prev.shippingAddress,
+                  zip: e.target.value,
+                },
+              }));
+            }}
+          />
+          <FormError error={errors.shippingAddress?.zip} />
+          <Label>City</Label>
+          <Input
+            value={orderData.shippingAddress.city}
+            onChange={(e) => {
+              setOrderData((prev) => ({
+                ...prev,
+                shippingAddress: {
+                  ...prev.shippingAddress,
+                  city: e.target.value,
+                },
+              }));
+            }}
+          />
+          <FormError error={errors.shippingAddress?.city} />
+          <Label>State</Label>
+          <Input
+            value={orderData.shippingAddress.state}
+            onChange={(e) => {
+              setOrderData((prev) => ({
+                ...prev,
+                shippingAddress: {
+                  ...prev.shippingAddress,
+                  state: e.target.value,
+                },
+              }));
+            }}
+          />
+          <FormError error={errors.shippingAddress?.state} />
         </div>
-        <div className="w-full rounded-lg border p-4">
-          <h2>Payment Options</h2>
-          <div className="pt-4">
-            <RadioGroup defaultValue="option-one">
-              <Label htmlFor="option-one" asChild>
-                <div className="flex items-center space-x-2 rounded-lg border p-4">
-                  <RadioGroupItem value="option-one" id="option-one" />
-                  <span>Phonepe UPI</span>
-                </div>
-              </Label>
-              <Label htmlFor="option-two" asChild>
-                <div className="flex items-center space-x-2 rounded-lg border p-4">
-                  <RadioGroupItem value="option-two" id="option-two" />
-                  <span>Nahi Pata</span>
-                </div>
-              </Label>
-            </RadioGroup>
-          </div>
-          <div className="flex justify-end pt-2">
-            <Button>Pay</Button>
-          </div>
+      </div>
+      <div className="w-full rounded-lg border p-4">
+        <h2>Payment Options</h2>
+        <div className="pt-4">
+          <RadioGroup defaultValue="option-one">
+            <Label htmlFor="option-one" asChild>
+              <div className="flex items-center space-x-2 rounded-lg border p-4">
+                <RadioGroupItem value="option-one" id="option-one" />
+                <span>Phonepe UPI</span>
+              </div>
+            </Label>
+            <Label htmlFor="option-two" asChild>
+              <div className="flex items-center space-x-2 rounded-lg border p-4">
+                <RadioGroupItem value="option-two" id="option-two" />
+                <span>Nahi Pata</span>
+              </div>
+            </Label>
+          </RadioGroup>
+        </div>
+        <div className="flex justify-end pt-2">
+          <Button onClick={placeOrder}>Pay</Button>
         </div>
       </div>
     </div>
   );
 }
 
-function RightPan({ id }: { id: string }) {
+function RightPan({
+  orderData,
+  product,
+  cartProducts,
+}: {
+  orderData: OrderDataType;
+  product: ProductType;
+  cartProducts: { product: ProductType; quantity: number }[];
+}) {
   const queryClient = useQueryClient();
 
   const updateCartMutation = useMutation(mutations.updateCart);
-  const { status: cartQueryStatus, data: cartProducts } = useQuery(
-    queries.cart
-  );
-  const { data: product } = useQuery(queries.product(id));
-
-  let quantity = 0;
-
-  if (cartQueryStatus === "success") {
-    const product = cartProducts.find((cartProduct) => {
-      return cartProduct.product.id === id;
-    });
-    if (product) {
-      quantity = product.quantity;
-    }
-  }
 
   const setProductQuantity = useCallback(
     (id: string, quantity: number) => {
@@ -96,7 +262,7 @@ function RightPan({ id }: { id: string }) {
 
   return product ? (
     <div className="shrink-0 rounded-lg border p-4">
-      {quantity > 0 ? (
+      {orderData.products[0].quantity > 0 ? (
         <div
           className={cn(
             "flex items-center gap-2 p-2",
@@ -107,7 +273,7 @@ function RightPan({ id }: { id: string }) {
         >
           <div className="size-12 rounded-lg bg-secondary shadow">
             <Image
-              src={product.image}
+              src={product.variants[0].image}
               width={48}
               height={48}
               alt=""
@@ -115,7 +281,7 @@ function RightPan({ id }: { id: string }) {
             />
           </div>
           <span className="text-sm">{product.name}</span>
-          {quantity > 0 && (
+          {orderData.products[0].quantity > 0 && (
             <div className="ml-auto flex h-9 items-center overflow-hidden rounded-lg border bg-background">
               <Button
                 className="rounded-r-none px-2 text-2xl font-medium leading-none"
@@ -125,12 +291,15 @@ function RightPan({ id }: { id: string }) {
                   updateCartMutation.mutate(
                     {
                       productId: product.id,
-                      quantity: quantity - 1,
+                      quantity: orderData.products[0].quantity - 1,
                     },
                     {
                       onSuccess: (res) => {
                         if (!res.data.error) {
-                          setProductQuantity(product.id, quantity - 1);
+                          setProductQuantity(
+                            product.id,
+                            orderData.products[0].quantity - 1
+                          );
                         }
                       },
                     }
@@ -139,7 +308,7 @@ function RightPan({ id }: { id: string }) {
               >
                 -
               </Button>
-              <span className="px-2">{quantity}</span>
+              <span className="px-2">{orderData.products[0].quantity}</span>
               <Button
                 className="rounded-l-none px-2 text-lg font-medium leading-none"
                 variant="ghost"
@@ -148,12 +317,15 @@ function RightPan({ id }: { id: string }) {
                   updateCartMutation.mutate(
                     {
                       productId: product.id,
-                      quantity: quantity + 1,
+                      quantity: orderData.products[0].quantity + 1,
                     },
                     {
                       onSuccess: (res) => {
                         if (!res.data.error) {
-                          setProductQuantity(product.id, quantity + 1);
+                          setProductQuantity(
+                            product.id,
+                            orderData.products[0].quantity + 1
+                          );
                         }
                       },
                     }
@@ -165,9 +337,13 @@ function RightPan({ id }: { id: string }) {
             </div>
           )}
           <div className="flex flex-col items-center px-2">
-            <span>{product.priceInPaise * quantity}</span>
+            <span>
+              {product.variants[0].priceInPaise *
+                orderData.products[0].quantity}
+            </span>
             <span className="text-sm text-secondary-foreground line-through">
-              {product.salePriceInPaise * quantity}
+              {product.variants[0].salePriceInPaise *
+                orderData.products[0].quantity}
             </span>
           </div>
         </div>
@@ -181,7 +357,10 @@ function RightPan({ id }: { id: string }) {
       <div className="mt-4">
         <div className="flex justify-between py-1 text-sm font-light text-foreground/75">
           <span>Item Total</span>
-          <span>{product.salePriceInPaise * quantity}</span>
+          <span>
+            {product.variants[0].salePriceInPaise *
+              orderData.products[0].quantity}
+          </span>
         </div>
         <div className="flex justify-between py-1 text-sm font-light text-foreground/75">
           <span>Delivery Fee</span>
@@ -201,6 +380,14 @@ function RightPan({ id }: { id: string }) {
         </div>
       </div>
     </div>
+  ) : (
+    ""
+  );
+}
+
+function FormError({ error }: { error: { _errors: string[] } | undefined }) {
+  return error ? (
+    <div className="text-sm text-destructive">{error._errors[0]}</div>
   ) : (
     ""
   );

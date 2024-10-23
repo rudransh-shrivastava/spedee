@@ -59,12 +59,18 @@ export default function ProductPage({
     [queryClient, cartProducts, product, id]
   );
   const updateCartMutation = useMutation(mutations.updateCart);
-  const isSale = product && product?.priceInPaise > product?.salePriceInPaise;
+  const isSale =
+    product &&
+    product?.variants[0].priceInPaise > product?.variants[0].salePriceInPaise;
 
   const [currentProductImage, setCurrentProductImage] = useState("");
 
-  if (currentProductImage === "" && product && product.image !== "") {
-    setCurrentProductImage(product.image);
+  if (
+    currentProductImage === "" &&
+    product &&
+    product.variants[0].image !== ""
+  ) {
+    setCurrentProductImage(product.variants[0].image);
   }
 
   return (
@@ -75,16 +81,18 @@ export default function ProductPage({
             <div className="flex flex-col gap-2">
               <ProductImageCard
                 alt={product.name}
-                url={product.image}
+                url={product.variants[0].image}
                 className={
-                  product.image === currentProductImage ? "border-primary" : ""
+                  product.variants[0].image === currentProductImage
+                    ? "border-primary"
+                    : ""
                 }
                 onMouseOver={() => {
-                  setCurrentProductImage(product.image);
+                  setCurrentProductImage(product.variants[0].image);
                 }}
               />
               {product &&
-                product.otherImages.map((otherImage, index) => {
+                product.variants[0].otherImages.map((otherImage, index) => {
                   return (
                     <ProductImageCard
                       alt={product.name}
@@ -127,7 +135,7 @@ export default function ProductPage({
             >
               {isSale && (
                 <span className="relative inline-block text-2xl font-bold">
-                  &#8377;{product?.salePriceInPaise}
+                  &#8377;{product?.variants[0].salePriceInPaise}
                 </span>
               )}
               <span
@@ -144,7 +152,7 @@ export default function ProductPage({
                     )}
                   ></span>
                 )}
-                &#8377;{product?.priceInPaise}
+                &#8377;{product?.variants[0].priceInPaise}
               </span>
             </div>
             <p className="">{product?.description}</p>
@@ -246,7 +254,7 @@ export default function ProductPage({
                             <div className="size-12">
                               <Image
                                 // src={variant.image ? variant.image : ""}
-                                src={product.image}
+                                src={product.variants[0].image}
                                 width={48}
                                 height={48}
                                 alt=""
