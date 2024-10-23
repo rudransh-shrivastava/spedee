@@ -24,8 +24,8 @@ export function Variants({
   updateAttributes,
   productErrors,
 }: {
-  variants: VariantType[];
-  setVariants: (v: VariantType[]) => void;
+  variants: (VariantType & { images: File[] })[];
+  setVariants: (v: (VariantType & { images: File[] })[]) => void;
   attributesServer: AttributeType[];
   updateAttributes: (attributes: ProductType["attributes"]) => void;
   productErrors: productFormDataSchemaErrorType;
@@ -129,6 +129,7 @@ export function Variants({
                 ),
                 image: "",
                 otherImages: [],
+                images: [],
                 priceInPaise: 0,
                 salePriceInPaise: 0,
                 stock: 0,
@@ -153,8 +154,8 @@ function VariantCard({
   index,
 }: {
   attributes: (AttributeType & { include: boolean })[];
-  variant: VariantType;
-  setVariant: (v: VariantType, del?: boolean) => void;
+  variant: VariantType & { images: File[] };
+  setVariant: (v: VariantType & { images: File[] }, del?: boolean) => void;
   productErrors: productFormDataSchemaErrorType;
   index: number;
 }) {
@@ -227,7 +228,14 @@ function VariantCard({
         </VariantFormGroup>
         <VariantFormGroup>
           <Label>Price in Paise</Label>
-          <Input />
+          <Input
+            onChange={(e) => {
+              setVariant({
+                ...variant,
+                priceInPaise: parseInt(e.target.value) || 0,
+              });
+            }}
+          />
           <VariantFormError
             error={
               productErrors.variants &&
@@ -238,7 +246,14 @@ function VariantCard({
         </VariantFormGroup>
         <VariantFormGroup>
           <Label>Sale Price in Paise</Label>
-          <Input />
+          <Input
+            onChange={(e) => {
+              setVariant({
+                ...variant,
+                salePriceInPaise: parseInt(e.target.value) || 0,
+              });
+            }}
+          />
           <VariantFormError
             error={
               productErrors.variants &&
@@ -260,13 +275,40 @@ function VariantCard({
           </Button>
         </div>
       </div>
-      <DragAndDropImageUploader />
+      <DragAndDropImageUploader
+        images={variant.images}
+        updateImages={(images: File[]) => {
+          setVariant({
+            ...variant,
+            images,
+          });
+        }}
+      />
+      <FormError
+        error={
+          productErrors.variants &&
+          productErrors.variants[0] &&
+          productErrors.variants[0].image
+        }
+      />
+      <FormError
+        error={
+          productErrors.variants &&
+          productErrors.variants[0] &&
+          productErrors.variants[0].otherImages
+        }
+      />
     </div>
   );
 }
 
-const DragAndDropImageUploader: React.FC = () => {
-  const [selectedImages, setSelectedImages] = useState<string[]>([]);
+function DragAndDropImageUploader({
+  images,
+  updateImages,
+}: {
+  images: File[];
+  updateImages: (images: File[]) => void;
+}) {
   const [isDragging, setIsDragging] = useState(false);
 
   const handleDragOver = (e: DragEvent<HTMLLabelElement>): void => {
@@ -288,14 +330,12 @@ const DragAndDropImageUploader: React.FC = () => {
 
     const files = Array.from(e.dataTransfer.files);
     const imageFiles = files.filter((file) => file.type.startsWith("image/"));
-    const imageUrls = imageFiles.map((file) => URL.createObjectURL(file));
-    setSelectedImages((prevImages) => [...prevImages, ...imageUrls]);
+    updateImages([...images, ...imageFiles]);
   };
 
   const handleImageChange = (e: ChangeEvent<HTMLInputElement>): void => {
     const files = Array.from(e.target.files || []);
-    const imageUrls = files.map((file) => URL.createObjectURL(file));
-    setSelectedImages((prevImages) => [...prevImages, ...imageUrls]);
+    updateImages([...images, ...files]);
   };
 
   return (
@@ -321,17 +361,17 @@ const DragAndDropImageUploader: React.FC = () => {
             Drag & Drop your images here or click to upload
           </p>
         </label>
-        {selectedImages.map((image, imageIndex) => (
+        {images.map((image, imageIndex) => (
           <div
             key={imageIndex}
             className="group/link relative flex flex-col items-center justify-center"
           >
             <div className="size-[17rem] overflow-hidden border">
               <img
-                src={image}
+                src={URL.createObjectURL(image)}
                 alt={`Selected ${imageIndex}`}
                 className={cn(
-                  "h-full w-full object-top group-hover/link:object-contain group-hover/link:object-center",
+                  "h-full w-full object-top",
                   imageIndex === 0 ? "object-cover" : "object-contain"
                 )}
               />
@@ -341,8 +381,8 @@ const DragAndDropImageUploader: React.FC = () => {
                 <X
                   onClick={(e) => {
                     e.preventDefault();
-                    setSelectedImages((prev) =>
-                      prev.filter((_, index) => index !== imageIndex)
+                    updateImages(
+                      images.filter((_, index) => index !== imageIndex)
                     );
                   }}
                 />
@@ -352,10 +392,10 @@ const DragAndDropImageUploader: React.FC = () => {
                 size="icon"
                 onClick={(e) => {
                   e.preventDefault();
-                  setSelectedImages((prev) => [
-                    ...prev.slice(imageIndex, imageIndex + 1),
-                    ...prev.slice(0, imageIndex),
-                    ...prev.slice(imageIndex + 1),
+                  updateImages([
+                    ...images.slice(imageIndex, imageIndex + 1),
+                    ...images.slice(0, imageIndex),
+                    ...images.slice(imageIndex + 1),
                   ]);
                 }}
               >
@@ -370,7 +410,7 @@ const DragAndDropImageUploader: React.FC = () => {
       </div>
     </div>
   );
-};
+}
 
 function FormGroup({ children }: { children: React.ReactNode }) {
   return (

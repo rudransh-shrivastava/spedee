@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ProductType } from "@/models/Product";
+import { ProductType, VariantType } from "@/models/Product";
 import { FormEvent, useCallback, useState } from "react";
 import { cn } from "@/lib/utils";
 import { Switch } from "@/components/ui/switch";
@@ -30,9 +30,17 @@ export function ProductForm({
     queries.attributes
   );
 
-  const [product, setProduct] = useState<ProductType>({
+  const [product, setProduct] = useState<
+    ProductType & {
+      variants: (ProductType["variants"][number] & { images: File[] })[];
+    }
+  >({
     ...productProps,
     id: productProps.id || "",
+    variants: productProps.variants.map((variant) => ({
+      ...variant,
+      images: [] as File[],
+    })),
     attributes: productProps.attributes || {},
   });
 
@@ -40,35 +48,49 @@ export function ProductForm({
     _errors: [],
   });
 
-  const productToFormdata = useCallback((product: ProductType) => {
-    const formData = new FormData();
-    formData.append("name", product.name);
-    formData.append("description", product.description);
-    formData.append("bestSeller", product.bestSeller.toString());
-    formData.append(
-      "bestSellerPriority",
-      product.bestSellerPriority.toString()
-    );
-    formData.append("category", product.category);
-    formData.append("attributes", JSON.stringify(product.attributes));
+  const productToFormdata = useCallback(
+    (
+      product: ProductType & {
+        variants: (ProductType["variants"][number] & { images: File[] })[];
+      }
+    ) => {
+      const formData = new FormData();
+      formData.append("name", product.name);
+      formData.append("productId", product.id);
+      formData.append("description", product.description);
+      formData.append("bestSeller", product.bestSeller.toString());
+      formData.append(
+        "bestSellerPriority",
+        product.bestSellerPriority.toString()
+      );
+      formData.append("category", product.category);
+      formData.append("attributes", JSON.stringify(product.attributes));
 
-    product.variants.forEach((variant, index) => {
-      formData.append(
-        `variants[${index}].attributes`,
-        JSON.stringify(variant.attributes)
+      product.variants.forEach(
+        (variant: VariantType & { images: File[] }, index) => {
+          formData.append(
+            `variants[${index}].attributes`,
+            JSON.stringify(variant.attributes)
+          );
+          formData.append(`variants[${index}].stock`, variant.stock.toString());
+          formData.append(
+            `variants[${index}].priceInPaise`,
+            variant.priceInPaise.toString()
+          );
+          formData.append(
+            `variants[${index}].salePriceInPaise`,
+            variant.salePriceInPaise.toString()
+          );
+          formData.append(
+            `variants[${index}].image`,
+            variant.images[0] || new File([], "")
+          );
+        }
       );
-      formData.append(`variants[${index}].stock`, variant.stock.toString());
-      formData.append(
-        `variants[${index}].priceInPaise`,
-        variant.priceInPaise.toString()
-      );
-      formData.append(
-        `variants[${index}].salePriceInPaise`,
-        variant.salePriceInPaise.toString()
-      );
-    });
-    return formData;
-  }, []);
+      return formData;
+    },
+    []
+  );
 
   const handleSubmit = useCallback(
     (e: FormEvent<HTMLFormElement>) => {
@@ -78,6 +100,7 @@ export function ProductForm({
       if (!validationResult.success) {
         const formattedErrors = validationResult.error.format();
         setErrors(formattedErrors);
+        console.log(formattedErrors);
       } else {
         setErrors({ _errors: [] });
         console.log(validationResult.data);

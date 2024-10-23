@@ -93,8 +93,8 @@ export const productFormDataSchema = zfd.formData({
           stock: zfd.numeric(
             z
               .number()
-              .min(0, { message: "Stock must be a positive number" })
               .int()
+              .positive({ message: "Stock must be a positive number" })
           ),
           image: zfd.file(
             z.instanceof(File, {
