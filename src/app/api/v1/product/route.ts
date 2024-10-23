@@ -13,24 +13,24 @@ export async function GET(req: NextRequest) {
   if (!product) {
     return Response.json({ message: "Product not found" }, { status: 404 });
   }
-  const imageUrl = getPublicImageUrl(product.image);
-  const otherImagesUrls = product.otherImages.map((image) =>
-    getPublicImageUrl(image)
-  );
-  const productObject: ProductType & { id: string } = {
+  const productObject: ProductType = {
     id: product.id.toString(),
     name: product.name,
     description: product.description,
-    priceInPaise: product.priceInPaise,
-    salePriceInPaise: product.salePriceInPaise,
     attributes: product.attributes,
-    image: imageUrl,
-    otherImages: otherImagesUrls,
     category: product.category,
-    stock: product.stock,
     bestSeller: product.bestSeller,
     bestSellerPriority: product.bestSellerPriority,
-    variants: product.variants,
+    variants: product.variants.map((variant) => {
+      return {
+        attributes: variant.attributes,
+        stock: variant.stock,
+        priceInPaise: variant.priceInPaise,
+        salePriceInPaise: variant.salePriceInPaise,
+        image: getPublicImageUrl(variant.image),
+        otherImages: variant.otherImages.map(getPublicImageUrl),
+      };
+    }),
   };
 
   return Response.json({ product: productObject });

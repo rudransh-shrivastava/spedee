@@ -20,26 +20,29 @@ export async function GET() {
   const cartProductsIds = cart?.items;
   const productsPromises = cartProductsIds?.map(async (item) => {
     const product = await Product.findById(item.productId);
-    const imageUrl = getPublicImageUrl(product?.image as string);
-    const otherImagesUrls = product?.otherImages.map((image) =>
-      getPublicImageUrl(image)
-    );
-    const formattedProduct: ProductType = {
-      id: product?._id as string,
-      name: product?.name ?? "",
-      description: product?.description ?? "",
-      priceInPaise: product?.priceInPaise ?? -1,
-      salePriceInPaise: product?.salePriceInPaise ?? -1,
-      attributes: product?.attributes ?? {},
-      image: imageUrl,
-      otherImages: otherImagesUrls ?? [],
-      category: product?.category ?? "",
-      stock: product?.stock ?? -1,
-      bestSeller: product?.bestSeller ?? false,
-      bestSellerPriority: product?.bestSellerPriority ?? -1,
-      variants: product?.variants ?? [],
+    if (!product) {
+      return Response.json({ message: "Product not found" }, { status: 404 });
+    }
+    const productObject: ProductType = {
+      id: product.id.toString(),
+      name: product.name,
+      description: product.description,
+      attributes: product.attributes,
+      category: product.category,
+      bestSeller: product.bestSeller,
+      bestSellerPriority: product.bestSellerPriority,
+      variants: product.variants.map((variant) => {
+        return {
+          attributes: variant.attributes,
+          stock: variant.stock,
+          priceInPaise: variant.priceInPaise,
+          salePriceInPaise: variant.salePriceInPaise,
+          image: getPublicImageUrl(variant.image),
+          otherImages: variant.otherImages.map(getPublicImageUrl),
+        };
+      }),
     };
-    return { product: formattedProduct, quantity: item.quantity };
+    return { product: productObject, quantity: item.quantity };
   });
   const products = await Promise.all(productsPromises!);
   const cartData = {
