@@ -5,10 +5,11 @@ import { ProductType } from "@/models/Product";
 import Image from "next/image";
 import Link from "next/link";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { queries } from "@/app/_data/queries";
 import { mutations } from "@/app/_data/mutations";
 import { LoadingData } from "@/components/LoadingData";
+import { cn } from "@/lib/utils";
 
 export default function Home() {
   return <HomePage />;
@@ -73,12 +74,41 @@ function ProductCard({
     [key: string]: number;
   };
 }) {
+  const [isVisible, setIsVisible] = useState(false);
+  const elementRef = useRef(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+          observer.disconnect(); // Stop observing after animation triggers
+        }
+      },
+      {
+        threshold: 0.1, // Trigger when 10% of the element is visible
+      }
+    );
+    if (elementRef.current) {
+      observer.observe(elementRef.current);
+    }
+    return () => observer.disconnect();
+  }, []);
+
   const updateCartMutation = useMutation(mutations.updateCart);
   const [quantity, setQuantity] = useState(
     productCartQuantity[product.id] || 0
   );
+
+  console.log(isVisible);
   return (
-    <div className="group flex w-full max-w-[19rem] flex-col border p-4">
+    <div
+      ref={elementRef}
+      className={cn(
+        "group flex w-full max-w-[19rem] flex-col border p-4 transition-all duration-500",
+        isVisible ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0"
+      )}
+    >
       <Link href={`/product/${product.id}`}>
         <div className="group/link overflow-hidden p-0">
           <div className="relative mx-auto flex size-[17rem] items-center justify-center overflow-hidden">
