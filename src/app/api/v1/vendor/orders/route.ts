@@ -25,6 +25,26 @@ export async function GET() {
   const vendorEmail = session.user.email;
   const orders = await Order.find({ "products.vendorEmail": vendorEmail });
   console.log(orders);
-  return Response.json({ orders });
-  // TODO: Implement this
+  type VendorOrder = {
+    productId: string;
+    quantity: number;
+    pricePaid: number;
+  };
+  const vendorOrders: VendorOrder[] = [];
+  orders.forEach((order) => {
+    order.products.forEach((product) => {
+      if (product.vendorEmail === vendorEmail) {
+        vendorOrders.push({
+          productId: product.productId,
+          quantity: product.quantity,
+          pricePaid: product.pricePaid,
+        });
+      }
+    });
+  });
+  return Response.json({
+    message: vendorOrders,
+    error: false,
+    success: true,
+  });
 }

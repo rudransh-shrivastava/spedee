@@ -53,6 +53,7 @@ export async function POST(req: NextRequest) {
       quantity: product.quantity,
       vendorEmail,
       status: "PENDING",
+      pricePaid: 10 * product.quantity, // TODO:
     });
     // totalAmount += matchedProduct.priceInPaise * product.quantity;
   }

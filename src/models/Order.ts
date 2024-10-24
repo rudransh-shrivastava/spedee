@@ -12,6 +12,7 @@ type OrderType = {
     quantity: number;
     vendorEmail: string;
     status: string;
+    pricePaid: number;
   }[];
   userEmail: string;
   shippingAddress: {
@@ -38,6 +39,7 @@ const OrderSchema = new mongoose.Schema<OrderInterface>({
       quantity: { type: Number, required: true },
       vendorEmail: { type: String, required: true },
       status: { type: String, required: true },
+      pricePaid: { type: Number, required: true },
     },
   ],
   userEmail: { type: String, required: true },
