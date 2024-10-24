@@ -107,6 +107,7 @@ export function ProductForm({
         const formattedErrors = validationResult.error.format();
         setErrors(formattedErrors);
         console.log(formattedErrors);
+        console.log(product);
       } else {
         setErrors({ _errors: [] });
         onSave(formData);

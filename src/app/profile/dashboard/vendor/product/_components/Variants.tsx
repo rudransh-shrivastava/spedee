@@ -180,14 +180,18 @@ function VariantCard({
   variantIndex: number;
 }) {
   const updateImages = useCallback(
-    (images: File[]) => {
+    (variantIndex: number, images: File[]) => {
+      console.log("variantIndex in useCB: ", variantIndex);
       setVariant(variantIndex, {
         ...variant,
+        priceInPaise: 200,
         images: [...images],
       });
     },
-    [setVariant, variant, variantIndex]
+    [setVariant, variant]
   );
+  console.log("variantIndex in variantCompo: ", variantIndex);
+
   return (
     <div className="relative grid gap-8 md:grid-cols-[23rem,auto]">
       <div className="h-max min-w-[17rem] border p-4 md:sticky md:top-20">
@@ -313,7 +317,9 @@ function VariantCard({
         </div>
       </div>
       <DragAndDropImageUploader
+        key={variantIndex}
         images={variant.images}
+        variantIndex={variantIndex}
         updateImages={updateImages}
       />
       <FormError
@@ -341,9 +347,11 @@ function VariantCard({
 function DragAndDropImageUploader({
   images,
   updateImages,
+  variantIndex,
 }: {
   images: File[];
-  updateImages: (images: File[]) => void;
+  updateImages: (variantIndex: number, images: File[]) => void;
+  variantIndex: number;
 }) {
   const [isDragging, setIsDragging] = useState(false);
 
@@ -366,13 +374,15 @@ function DragAndDropImageUploader({
 
     const files = Array.from(e.dataTransfer.files);
     const imageFiles = files.filter((file) => file.type.startsWith("image/"));
-    updateImages([...images, ...imageFiles]);
+    updateImages(variantIndex, [...images, ...imageFiles]);
   };
 
   const handleImageChange = (e: ChangeEvent<HTMLInputElement>): void => {
     const files = Array.from(e.target.files || []);
-    updateImages([...images, ...files]);
+    updateImages(variantIndex, [...images, ...files]);
   };
+
+  console.log("variantIndex in images compo", variantIndex);
 
   return (
     <div className="">
@@ -382,12 +392,12 @@ function DragAndDropImageUploader({
         accept="image/*"
         onChange={handleImageChange}
         style={{ display: "none" }}
-        id="fileInput"
+        id={`fileInput-${variantIndex}`}
       />
 
       <div className="flex flex-wrap justify-center gap-4 md:justify-start">
         <label
-          htmlFor="fileInput"
+          htmlFor={`fileInput-${variantIndex}`}
           className={`flex aspect-square w-full max-w-[17rem] cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed p-2 text-center transition-colors ${isDragging ? "border-gray-400 bg-gray-200" : "border-gray-300 bg-white"}`}
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
@@ -417,6 +427,7 @@ function DragAndDropImageUploader({
                 onClick={(e) => {
                   e.preventDefault();
                   updateImages(
+                    variantIndex,
                     images.filter((_, index) => index !== imageIndex)
                   );
                 }}
@@ -428,7 +439,7 @@ function DragAndDropImageUploader({
                 size="icon"
                 onClick={(e) => {
                   e.preventDefault();
-                  updateImages([
+                  updateImages(variantIndex, [
                     ...images.slice(imageIndex, imageIndex + 1),
                     ...images.slice(0, imageIndex),
                     ...images.slice(imageIndex + 1),
