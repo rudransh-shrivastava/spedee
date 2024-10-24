@@ -13,7 +13,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { z, ZodFormattedError } from "zod";
 import { ProductType } from "@/models/Product";
 import { LoadingData } from "@/components/LoadingData";
-
+// TODO: send variant attributes to backend
 const zodSchema = z.object({
   name: z.string(),
   phone: z.string(),

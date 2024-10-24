@@ -37,28 +37,47 @@ export async function POST(req: NextRequest) {
   if (!result.success) {
     return Response.json({ message: "Invalid data", error: result.error });
   }
-  console.log(result.data);
-  return Response.json({ message: "works", error: result.error });
+
   const { name, phone, shippingAddress, products } = result.data;
   const userEmail = session.user.email;
   const matchedProducts = [];
-  // TODO: Implement varints price addup
   let totalAmount = 5000;
   // TODO: Implement sale price, coupons, discounts, etc.
   for (const product of products) {
     const matchedProduct = await Product.findById(product.productId);
     if (!matchedProduct) {
-      return Response.json({ message: "Invalid product" }, { status: 400 });
+      return Response.json({
+        message: "Invalid product",
+        status: 400,
+        error: true,
+        success: false,
+      });
     }
+    const matchedVariant = matchedProduct.variants.find(
+      (variant) =>
+        JSON.stringify(variant.attributes) ===
+        JSON.stringify(product.attributes)
+    );
+    const variantPrice =
+      matchedVariant?.salePriceInPaise ?? matchedVariant?.priceInPaise;
+    if (!variantPrice) {
+      return Response.json({
+        message: "Invalid product",
+        status: 400,
+        error: true,
+        success: false,
+      });
+    }
+    const pricePaid = variantPrice * product.quantity;
     const vendorEmail = matchedProduct.vendorEmail;
     matchedProducts.push({
       productId: matchedProduct.id,
       quantity: product.quantity,
       vendorEmail,
       status: "PENDING",
-      pricePaid: 10 * product.quantity, // TODO:
+      pricePaid,
     });
-    // totalAmount += matchedProduct.priceInPaise * product.quantity;
+    totalAmount += pricePaid;
   }
   if (!matchedProducts) {
     return Response.json({ message: "Invalid product" }, { status: 400 });
