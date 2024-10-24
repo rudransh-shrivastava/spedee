@@ -36,6 +36,23 @@ export function Variants({
   updateAttributes: (attributes: ProductType["attributes"]) => void;
   productErrors: productFormDataSchemaErrorType;
 }) {
+  const setVariant = useCallback(
+    (
+      variantIndex: number,
+      v: VariantType & { images: File[] },
+      del?: boolean
+    ) => {
+      if (del) {
+        setVariants(variants.filter((_, i) => i !== variantIndex));
+      } else {
+        const newVariants = [...variants];
+        newVariants[variantIndex] = v;
+        setVariants(newVariants);
+      }
+    },
+    [setVariants, variants]
+  );
+
   const [attributes, setAttributes] = useState<
     (AttributeType & { include: boolean })[]
   >(
@@ -101,22 +118,14 @@ export function Variants({
       </FormGroup>
       <Label className="block pb-8 pt-12 text-xl">Variants</Label>
       <div className="grid gap-8">
-        {variants.map((variant, index) => (
+        {variants.map((variant, variantIndex) => (
           <VariantCard
-            key={index}
+            key={variantIndex}
             attributes={attributes}
             variant={variant}
             productErrors={productErrors}
-            variantIndex={index}
-            setVariant={(v, del) => {
-              if (del) {
-                setVariants(variants.filter((_, i) => i !== index));
-              } else {
-                const newVariants = [...variants];
-                newVariants[index] = v;
-                setVariants(newVariants);
-              }
-            }}
+            variantIndex={variantIndex}
+            setVariant={setVariant}
           />
         ))}
         <Button
@@ -162,10 +171,23 @@ function VariantCard({
 }: {
   attributes: (AttributeType & { include: boolean })[];
   variant: VariantType & { images: File[] };
-  setVariant: (v: VariantType & { images: File[] }, del?: boolean) => void;
+  setVariant: (
+    variantIndex: number,
+    v: VariantType & { images: File[] },
+    del?: boolean
+  ) => void;
   productErrors: productFormDataSchemaErrorType;
   variantIndex: number;
 }) {
+  const updateImages = useCallback(
+    (images: File[]) => {
+      setVariant(variantIndex, {
+        ...variant,
+        images: [...images],
+      });
+    },
+    [setVariant, variant, variantIndex]
+  );
   return (
     <div className="relative grid gap-8 md:grid-cols-[23rem,auto]">
       <div className="h-max min-w-[17rem] border p-4 md:sticky md:top-20">
@@ -177,7 +199,7 @@ function VariantCard({
               <Select
                 value={variant.attributes[attribute.name]}
                 onValueChange={(e) => {
-                  setVariant({
+                  setVariant(variantIndex, {
                     ...variant,
                     attributes: {
                       ...variant.attributes,
@@ -221,7 +243,7 @@ function VariantCard({
             }}
             onChange={(e) => {
               e.preventDefault();
-              setVariant({
+              setVariant(variantIndex, {
                 ...variant,
                 stock: parseInt(e.target.value) || 0,
               });
@@ -241,7 +263,7 @@ function VariantCard({
           <Label>Price in Paise</Label>
           <Input
             onChange={(e) => {
-              setVariant({
+              setVariant(variantIndex, {
                 ...variant,
                 priceInPaise: parseInt(e.target.value) || 0,
               });
@@ -261,7 +283,7 @@ function VariantCard({
           <Label>Sale Price in Paise</Label>
           <Input
             onChange={(e) => {
-              setVariant({
+              setVariant(variantIndex, {
                 ...variant,
                 salePriceInPaise: parseInt(e.target.value) || 0,
               });
@@ -283,7 +305,7 @@ function VariantCard({
             className="border-destructive text-destructive hover:text-destructive"
             onClick={(e) => {
               e.preventDefault();
-              setVariant(variant, true);
+              setVariant(variantIndex, variant, true);
             }}
           >
             Delete
@@ -292,12 +314,7 @@ function VariantCard({
       </div>
       <DragAndDropImageUploader
         images={variant.images}
-        updateImages={(images: File[]) => {
-          setVariant({
-            ...variant,
-            images,
-          });
-        }}
+        updateImages={updateImages}
       />
       <FormError
         error={
@@ -387,21 +404,24 @@ function DragAndDropImageUploader({
           >
             <div className="size-[17rem] overflow-hidden border">
               <img
+                key={imageIndex}
                 src={URL.createObjectURL(image)}
                 alt={`Selected ${imageIndex}`}
                 className={cn("h-full w-full object-contain object-top")}
               />
             </div>
             <div className="absolute right-2 top-2 grid gap-2">
-              <Button variant="secondary" size="icon">
-                <X
-                  onClick={(e) => {
-                    e.preventDefault();
-                    updateImages(
-                      images.filter((_, index) => index !== imageIndex)
-                    );
-                  }}
-                />
+              <Button
+                variant="secondary"
+                size="icon"
+                onClick={(e) => {
+                  e.preventDefault();
+                  updateImages(
+                    images.filter((_, index) => index !== imageIndex)
+                  );
+                }}
+              >
+                <X />
               </Button>
               <Button
                 variant="secondary"

@@ -91,14 +91,14 @@ function Checkout({
     if (result.success) {
       setErrors({ _errors: [] });
       buyProductMutation.mutate(orderData, {
-        onSuccess: (data: any) => {
+        onSuccess: (data: unknown) => {
           console.log(data);
         },
       });
     } else {
       setErrors(result.error.format());
     }
-  }, []);
+  }, [buyProductMutation, orderData]);
 
   return (
     <div className="grid h-full gap-4 lg:flex lg:flex-row-reverse">

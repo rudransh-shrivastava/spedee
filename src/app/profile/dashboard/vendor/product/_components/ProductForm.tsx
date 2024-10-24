@@ -81,7 +81,16 @@ export function ProductForm({
             `variants[${index}].salePriceInPaise`,
             variant.salePriceInPaise.toString()
           );
-          formData.append(`variants[${index}].image`, variant.images[0]);
+          variant.images.forEach((image, imageIndex) => {
+            if (imageIndex === 0) {
+              formData.append(`variants[${index}].image`, image);
+            } else {
+              formData.append(
+                `variants[${index}].otherImages[${imageIndex - 1}]`,
+                image
+              );
+            }
+          });
         }
       );
       return formData;
@@ -97,6 +106,7 @@ export function ProductForm({
       if (!validationResult.success) {
         const formattedErrors = validationResult.error.format();
         setErrors(formattedErrors);
+        console.log(formattedErrors);
       } else {
         setErrors({ _errors: [] });
         onSave(formData);

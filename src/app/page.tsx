@@ -44,9 +44,9 @@ function BestSellers() {
   } = {};
 
   if (cartQueryStatus === "success") {
-    // cartProducts.forEach((cartProduct) => {
-    //   productCartQuantity[cartProduct.product.id] = cartProduct.quantity;
-    // });
+    cartProducts.forEach((cartProduct) => {
+      productCartQuantity[cartProduct.product.id] = cartProduct.quantity;
+    });
   }
 
   return (
