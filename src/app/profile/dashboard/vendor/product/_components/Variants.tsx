@@ -184,7 +184,6 @@ function VariantCard({
       console.log("variantIndex in useCB: ", variantIndex);
       setVariant(variantIndex, {
         ...variant,
-        priceInPaise: 200,
         images: [...images],
       });
     },
