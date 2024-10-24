@@ -18,16 +18,26 @@ export default function Home() {
 function HomePage() {
   return (
     <>
-      <div className="h-[15rem] pb-8">
-        <div className="flex h-full flex-col gap-2 px-8">
-          <div className="flex h-full flex-col justify-center gap-4">
-            <span className="text-4xl">SPEDEE</span>
-            <span>Delivery in 15 - 45 minutes</span>
+      <div className="relative flex max-h-[33svh]">
+        <Image
+          alt="banner"
+          className="block h-full w-full object-cover object-top"
+          src="/home-banner.jpg"
+          layout="responsive"
+          width={1920}
+          height={1080}
+        />
+        <div className="absolute h-full pb-8">
+          <div className="flex h-full flex-col gap-2 px-8">
+            <div className="flex h-full flex-col justify-center gap-4 shadow-sm">
+              <span className="text-4xl">SPEDEE</span>
+              <span>Delivery in 15 - 45 minutes</span>
+            </div>
+            <Button className="w-max">Shop Now</Button>
           </div>
-          <Button className="w-max">Shop Now</Button>
         </div>
       </div>
-      <div className="flex flex-wrap justify-center gap-2 py-4 sm:justify-center">
+      <div className="flex flex-wrap justify-center gap-2 py-4 sm:justify-center xl:justify-between">
         <BestSellers />
       </div>
     </>
