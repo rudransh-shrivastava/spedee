@@ -38,15 +38,27 @@ export async function POST(req: Request) {
   }
   const uploadPromises = [];
   const parsedProduct = product.data;
-
+  console.log("product: ", parsedProduct);
   const productVariants: VariantType[] = [];
-  for (const variant of parsedProduct.variants) {
-    const variantImage = data.get(
-      `variant-${variant.attributes}-image`
-    ) as File;
-    const variantOtherImages = data.getAll(
-      `variant-${variant.attributes}-otherImages`
-    ) as File[];
+  for (let i = 0; i < parsedProduct.variants.length; i++) {
+    const variantImage = parsedProduct.variants[i].image;
+    const variantOtherImages = parsedProduct.variants[i].otherImages;
+    if (!variantImage) {
+      return Response.json({
+        message: "Image is required",
+        status: 400,
+        success: false,
+        error: true,
+      });
+    }
+    // if(!variantOtherImages) {
+    //   return Response.json({
+    //     message: "Other images are required",
+    //     status: 400,
+    //     success: false,
+    //     error: true,
+    //   });
+    // }
     const newFileNames: string[] = [];
     if (variantImage) {
       const formattedFileName = `${new Date().toISOString()}-${variantImage.name}`;
@@ -56,7 +68,7 @@ export async function POST(req: Request) {
       uploadPromises.push(uploadFile(variantImage as File, key));
       newFileNames.push(key);
     }
-    if (variantOtherImages.length > 0) {
+    if (variantOtherImages && variantOtherImages.length > 0) {
       variantOtherImages.forEach((file) => {
         const formattedFileName = `${new Date().toISOString()}-${file.name}`;
         const key =
@@ -67,13 +79,16 @@ export async function POST(req: Request) {
       });
     }
     productVariants.push({
-      attributes: variant.attributes,
-      stock: variant.stock,
+      attributes: parsedProduct.variants[i].attributes,
+      stock: parsedProduct.variants[i].stock,
       image: newFileNames[0],
-      priceInPaise: variant.priceInPaise,
-      salePriceInPaise: variant.salePriceInPaise ?? variant.priceInPaise,
+      priceInPaise: parsedProduct.variants[i].priceInPaise,
+      salePriceInPaise:
+        parsedProduct.variants[i].salePriceInPaise ??
+        parsedProduct.variants[i].priceInPaise,
       otherImages: newFileNames.slice(1),
     });
+    console.log(newFileNames, variantImage, variantOtherImages);
   }
 
   const newProduct = {
