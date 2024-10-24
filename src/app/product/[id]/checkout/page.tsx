@@ -27,6 +27,7 @@ const zodSchema = z.object({
     z.object({
       productId: z.string(),
       quantity: z.number(),
+      attributes: z.array(z.record(z.string())),
     })
   ),
 });
@@ -80,6 +81,7 @@ function Checkout({
       {
         productId: product.id,
         quantity: quantity || 1,
+        attributes: [] as Record<string, string>[],
       },
     ],
   });

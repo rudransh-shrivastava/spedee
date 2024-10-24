@@ -21,6 +21,7 @@ const zodSchema = z.object({
     z.object({
       productId: z.string(),
       quantity: z.number(),
+      attributes: z.array(z.record(z.string())),
     })
   ),
 });
@@ -36,6 +37,8 @@ export async function POST(req: NextRequest) {
   if (!result.success) {
     return Response.json({ message: "Invalid data", error: result.error });
   }
+  console.log(result.data);
+  return Response.json({ message: "works", error: result.error });
   const { name, phone, shippingAddress, products } = result.data;
   const userEmail = session.user.email;
   const matchedProducts = [];
@@ -78,13 +81,13 @@ export async function POST(req: NextRequest) {
     paymentTransactionId: "",
   });
   const serverUrl = process.env.PHONEPE_CALLBACK_URL;
-
+  const clientUrl = process.env.NEXTAUTH_URL;
   const payload = {
     merchantId: process.env.PHONEPE_MERCHANT_ID,
     merchantTransactionId: transactionId,
     merchantUserId: userId,
     amount: priceInPaise,
-    redirectUrl: `${serverUrl}/payredirect`,
+    redirectUrl: `${clientUrl}/order/status/${transactionId}`,
     redirectMode: "REDIRECT",
     callbackUrl: `${serverUrl}/api/v1/payment-callback`,
     paymentInstrument: {
@@ -130,7 +133,7 @@ export async function POST(req: NextRequest) {
         message: "Payment initiated",
         success: true,
         phonePeTransactionId,
-        data: response.data,
+        url: response.data.data.instrumentResponse.url,
       });
     })
     .catch(function (error) {
@@ -141,7 +144,11 @@ export async function POST(req: NextRequest) {
         error: error.message,
       });
     });
-  return Response.json({ message: "Payment initiated", success: true });
+  return Response.json({
+    message: "Payment initiated (?)",
+    url: null,
+    success: true,
+  });
 }
 function generatedTranscId() {
   return "T" + Date.now();
