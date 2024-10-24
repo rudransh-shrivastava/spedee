@@ -4,12 +4,12 @@ import { Button } from "@/components/ui/button";
 import { ProductType } from "@/models/Product";
 import Image from "next/image";
 import Link from "next/link";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
 import { queries } from "@/app/_data/queries";
-import { mutations } from "@/app/_data/mutations";
 import { LoadingData } from "@/components/LoadingData";
 import { cn } from "@/lib/utils";
+import { AddToCartButton } from "@/components/AddToCartButton";
 
 export default function Home() {
   return <HomePage />;
@@ -36,44 +36,19 @@ function HomePage() {
 
 function BestSellers() {
   const { status, data: bestSellers } = useQuery(queries.allProducts);
-  const { status: cartQueryStatus, data: cartProducts } = useQuery(
-    queries.cart
-  );
-
-  const productCartQuantity: {
-    [key: string]: number;
-  } = {};
-
-  if (cartQueryStatus === "success") {
-    cartProducts.forEach((cartProduct) => {
-      productCartQuantity[cartProduct.product.id] = cartProduct.quantity;
-    });
-  }
 
   return (
-    <LoadingData status={[status, cartQueryStatus]}>
+    <LoadingData status={[status]}>
       {bestSellers
         ? bestSellers.map((product, index) => (
-            <ProductCard
-              key={index}
-              productCartQuantity={productCartQuantity}
-              product={product}
-            />
+            <ProductCard key={index} product={product} />
           ))
         : ""}
     </LoadingData>
   );
 }
 
-function ProductCard({
-  product,
-  productCartQuantity,
-}: {
-  product: ProductType & { id: string };
-  productCartQuantity: {
-    [key: string]: number;
-  };
-}) {
+function ProductCard({ product }: { product: ProductType & { id: string } }) {
   const [isVisible, setIsVisible] = useState(false);
   const elementRef = useRef(null);
 
@@ -82,11 +57,11 @@ function ProductCard({
       ([entry]) => {
         if (entry.isIntersecting) {
           setIsVisible(true);
-          observer.disconnect(); // Stop observing after animation triggers
+          observer.disconnect();
         }
       },
       {
-        threshold: 0.1, // Trigger when 10% of the element is visible
+        threshold: 0.1,
       }
     );
     if (elementRef.current) {
@@ -95,12 +70,6 @@ function ProductCard({
     return () => observer.disconnect();
   }, []);
 
-  const updateCartMutation = useMutation(mutations.updateCart);
-  const [quantity, setQuantity] = useState(
-    productCartQuantity[product.id] || 0
-  );
-
-  console.log(isVisible);
   return (
     <div
       ref={elementRef}
@@ -135,70 +104,7 @@ function ProductCard({
               &#8377;{product.variants[0].priceInPaise}
             </span>
           </div>
-          {quantity > 0 ? (
-            <div className="flex h-9 min-w-16 items-center justify-between bg-primary text-background">
-              <Button
-                disabled={updateCartMutation.status === "pending"}
-                className="px-2 text-2xl font-medium leading-none"
-                onClick={() => {
-                  updateCartMutation.mutate(
-                    {
-                      productId: product.id,
-                      quantity: quantity - 1,
-                    },
-                    {
-                      onSuccess: () => {
-                        setQuantity((q) => q - 1);
-                      },
-                    }
-                  );
-                }}
-              >
-                -
-              </Button>
-              {quantity}
-              <Button
-                disabled={updateCartMutation.status === "pending"}
-                className="px-2 text-lg font-medium leading-none"
-                onClick={() => {
-                  updateCartMutation.mutate(
-                    {
-                      productId: product.id,
-                      quantity: quantity + 1,
-                    },
-                    {
-                      onSuccess: () => {
-                        setQuantity((q) => q + 1);
-                      },
-                    }
-                  );
-                }}
-              >
-                +
-              </Button>
-            </div>
-          ) : (
-            <Button
-              disabled={updateCartMutation.status === "pending"}
-              variant="secondary"
-              className="min-w-16"
-              onClick={() => {
-                updateCartMutation.mutate(
-                  {
-                    productId: product.id,
-                    quantity: 1,
-                  },
-                  {
-                    onSuccess: () => {
-                      setQuantity(1);
-                    },
-                  }
-                );
-              }}
-            >
-              Add
-            </Button>
-          )}
+          <AddToCartButton product={product} />
         </div>
         <Button variant="secondary" className="w-full" asChild>
           <Link href={`/product/${product.id}/checkout`}>Buy Now</Link>

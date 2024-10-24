@@ -1,15 +1,15 @@
 "use client";
 
-import { mutations } from "@/app/_data/mutations";
 import { queries } from "@/app/_data/queries";
+import { AddToCartButton } from "@/components/AddToCartButton";
 import { LoadingData } from "@/components/LoadingData";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useState } from "react";
+import { useState } from "react";
 
 export default function ProductPage({
   params: { id },
@@ -29,36 +29,12 @@ export default function ProductPage({
     [key: string]: number;
   } = {};
 
-  const queryClient = useQueryClient();
   if (cartQueryStatus === "success") {
     cartProducts.forEach((cartProduct) => {
       productCartQuantity[cartProduct.product.id] = cartProduct.quantity;
     });
   }
 
-  const quantity = (product && productCartQuantity[product?.id]) || 0;
-  const updateQuantity = useCallback(
-    (quantity: number) => {
-      queryClient.setQueryData(
-        queries.cart.queryKey,
-        cartProducts?.map((p) =>
-          p.product.id === id ? { ...p, quantity } : p
-        ) || [{ product, quantity }]
-      );
-      if (
-        cartProducts &&
-        !cartProducts.find((p) => p.product.id === id) &&
-        quantity > 0
-      ) {
-        queryClient.setQueryData(queries.cart.queryKey, [
-          ...cartProducts,
-          { product, quantity },
-        ]);
-      }
-    },
-    [queryClient, cartProducts, product, id]
-  );
-  const updateCartMutation = useMutation(mutations.updateCart);
   const isSale =
     product &&
     product?.variants[0].priceInPaise > product?.variants[0].salePriceInPaise;
@@ -156,75 +132,6 @@ export default function ProductPage({
               </span>
             </div>
             <p className="">{product?.description}</p>
-            <div className="flex gap-2 py-2">
-              {quantity > 0 ? (
-                <div className="flex h-9 w-full items-center justify-between bg-primary text-background">
-                  <Button
-                    disabled={updateCartMutation.status === "pending"}
-                    className="px-2 text-2xl font-medium leading-none"
-                    onClick={() => {
-                      updateCartMutation.mutate(
-                        {
-                          productId: product.id,
-                          quantity: quantity - 1,
-                        },
-                        {
-                          onSuccess: () => {
-                            updateQuantity(quantity - 1);
-                          },
-                        }
-                      );
-                    }}
-                  >
-                    -
-                  </Button>
-                  <span>{quantity}</span>
-                  <Button
-                    disabled={updateCartMutation.status === "pending"}
-                    className="px-2 text-lg font-medium leading-none"
-                    onClick={() => {
-                      updateCartMutation.mutate(
-                        {
-                          productId: product.id,
-                          quantity: quantity + 1,
-                        },
-                        {
-                          onSuccess: () => {
-                            updateQuantity(quantity + 1);
-                          },
-                        }
-                      );
-                    }}
-                  >
-                    +
-                  </Button>
-                </div>
-              ) : (
-                <Button
-                  disabled={updateCartMutation.status === "pending"}
-                  variant="outline"
-                  className="w-full"
-                  onClick={() => {
-                    updateCartMutation.mutate(
-                      {
-                        productId: product.id,
-                        quantity: 1,
-                      },
-                      {
-                        onSuccess: () => {
-                          updateQuantity(1);
-                        },
-                      }
-                    );
-                  }}
-                >
-                  Add
-                </Button>
-              )}
-              <Button className="w-full" asChild>
-                <Link href={`/product/${id}/checkout`}>Buy Now</Link>
-              </Button>
-            </div>
             <div>
               {product.variants.length &&
                 Object.keys(product.variants[0].attributes).map(
@@ -268,6 +175,13 @@ export default function ProductPage({
                     </div>
                   )
                 )}
+            </div>
+
+            <div className="flex gap-2 py-2">
+              <AddToCartButton product={product} className="w-full" />
+              <Button className="w-full" asChild>
+                <Link href={`/product/${id}/checkout`}>Buy Now</Link>
+              </Button>
             </div>
           </div>
         </div>

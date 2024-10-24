@@ -4,45 +4,32 @@ import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { ProductType } from "@/models/Product";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useCallback } from "react";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { queries } from "@/app/_data/queries";
 import { mutations } from "@/app/_data/mutations";
 import { LoadingData } from "@/components/LoadingData";
-import { Minus, Plus } from "lucide-react";
 import Link from "next/link";
+import { AddToCartButton } from "@/components/AddToCartButton";
 
 export function Cart() {
-  const queryClient = useQueryClient();
   const { status, data: cartProducts } = useQuery(queries.cart);
-
-  const setProductQuantity = useCallback(
-    (id: string, quantity: number) => {
-      queryClient.setQueryData(
-        queries.cart.queryKey,
-        cartProducts?.map((p) => (p.product.id === id ? { ...p, quantity } : p))
-      );
-      queryClient.invalidateQueries({
-        queryKey: queries.cart.queryKey,
-        exact: true,
-      });
-    },
-    [cartProducts, queryClient]
-  );
 
   return (
     <LoadingData status={status}>
       <div className="flex w-full flex-col">
-        {cartProducts
-          ? cartProducts.map(({ product, quantity }, index) => (
-              <CartItemCard
-                quantity={quantity}
-                key={index}
-                product={product}
-                setProductQuantity={setProductQuantity}
-              />
+        {cartProducts ? (
+          cartProducts.length === 0 ? (
+            <div className="py-10 text-center font-medium opacity-80">
+              No Product in Cart
+            </div>
+          ) : (
+            cartProducts.map(({ product, quantity }, index) => (
+              <CartItemCard quantity={quantity} key={index} product={product} />
             ))
-          : ""}
+          )
+        ) : (
+          ""
+        )}
       </div>
       <div className="h-max border p-4 md:sticky md:top-20">
         <div className="flex justify-between py-1 text-sm font-light text-foreground/75">
@@ -82,11 +69,9 @@ export function Cart() {
 function CartItemCard({
   product,
   quantity,
-  setProductQuantity,
 }: {
   product: ProductType;
   quantity: number;
-  setProductQuantity: (id: string, quantity: number) => void;
 }) {
   const updateCartMutation = useMutation(mutations.updateCart);
   return quantity > 0 ? (
@@ -120,55 +105,7 @@ function CartItemCard({
           {product.variants[0].salePriceInPaise * quantity}
         </span>
       </div>
-      {quantity > 0 && (
-        <div className="flex h-9 items-center overflow-hidden border bg-background">
-          <Button
-            className="px-1"
-            variant="ghost"
-            disabled={updateCartMutation.status === "pending"}
-            onClick={() => {
-              updateCartMutation.mutate(
-                {
-                  productId: product.id,
-                  quantity: quantity - 1,
-                },
-                {
-                  onSuccess: (res) => {
-                    if (!res.data.error) {
-                      setProductQuantity(product.id, quantity - 1);
-                    }
-                  },
-                }
-              );
-            }}
-          >
-            <Minus className="size-4" />
-          </Button>
-          <span className="px-2">{quantity}</span>
-          <Button
-            className="px-1"
-            variant="ghost"
-            disabled={updateCartMutation.status === "pending"}
-            onClick={() => {
-              updateCartMutation.mutate(
-                {
-                  productId: product.id,
-                  quantity: quantity + 1,
-                },
-                {
-                  onSuccess: (res) => {
-                    if (!res.data.error) {
-                      setProductQuantity(product.id, quantity + 1);
-                    }
-                  },
-                }
-              );
-            }}
-          >
-            <Plus className="size-4" />
-          </Button>
-        </div>
-      )}
+      <AddToCartButton product={product} variant="outline" />
     </div>
   ) : (
     ""

@@ -38,6 +38,8 @@ import { Error } from "@/components/Error";
 
 export function Navbar() {
   const { data } = useSession();
+  const { data: cartProducts } = useQuery(queries.cart);
+
   const [signingIn, setSigningIn] = useState(false);
   return (
     <header className="sticky top-0 z-50">
@@ -56,12 +58,17 @@ export function Navbar() {
         </div>
         <div className="hidden items-center justify-center md:flex">
           <Button
-            className="hover:bg-transparent"
+            className="relative hover:bg-transparent"
             variant="ghost"
             size="icon"
             asChild
           >
             <Link href="/cart">
+              {cartProducts && cartProducts.length > 0 && (
+                <span className="absolute right-0 top-0 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 text-xs font-bold text-white">
+                  {cartProducts.length}
+                </span>
+              )}
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 960 960"
