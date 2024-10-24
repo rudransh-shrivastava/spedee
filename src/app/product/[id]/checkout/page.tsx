@@ -13,7 +13,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { z, ZodFormattedError } from "zod";
 import { ProductType } from "@/models/Product";
 import { LoadingData } from "@/components/LoadingData";
-// TODO: send variant attributes to backend
+
 const zodSchema = z.object({
   name: z.string(),
   phone: z.string(),
@@ -27,7 +27,7 @@ const zodSchema = z.object({
     z.object({
       productId: z.string(),
       quantity: z.number(),
-      attributes: z.array(z.record(z.string())),
+      attributes: z.record(z.string()),
     })
   ),
 });
@@ -63,7 +63,8 @@ function Checkout({
   let quantity = 0;
   const prod = cartProducts.find((cartProduct) => {
     return cartProduct.product.id === product.id;
-  });
+  }) || { product, quantity: 1 };
+
   if (prod) {
     quantity = prod.quantity;
   }
@@ -81,7 +82,7 @@ function Checkout({
       {
         productId: product.id,
         quantity: quantity || 1,
-        attributes: [] as Record<string, string>[],
+        attributes: prod.product.variants[0].attributes,
       },
     ],
   });

@@ -181,7 +181,6 @@ function VariantCard({
 }) {
   const updateImages = useCallback(
     (variantIndex: number, images: File[]) => {
-      console.log("variantIndex in useCB: ", variantIndex);
       setVariant(variantIndex, {
         ...variant,
         images: [...images],
@@ -189,7 +188,6 @@ function VariantCard({
     },
     [setVariant, variant]
   );
-  console.log("variantIndex in variantCompo: ", variantIndex);
 
   return (
     <div className="relative grid gap-8 md:grid-cols-[23rem,auto]">
@@ -380,8 +378,6 @@ function DragAndDropImageUploader({
     const files = Array.from(e.target.files || []);
     updateImages(variantIndex, [...images, ...files]);
   };
-
-  console.log("variantIndex in images compo", variantIndex);
 
   return (
     <div className="">

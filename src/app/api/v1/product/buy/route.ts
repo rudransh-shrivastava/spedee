@@ -21,7 +21,7 @@ const zodSchema = z.object({
     z.object({
       productId: z.string(),
       quantity: z.number(),
-      attributes: z.array(z.record(z.string())),
+      attributes: z.record(z.string()),
     })
   ),
 });

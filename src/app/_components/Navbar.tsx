@@ -136,6 +136,9 @@ export function Navbar() {
                   <Link href="/profile">Profile</Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild className="cursor-pointer">
+                  <Link href="/profile/my-orders">My Orders</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild className="cursor-pointer">
                   <Link href="/support">Support</Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />

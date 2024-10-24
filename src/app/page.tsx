@@ -18,12 +18,11 @@ export default function Home() {
 function HomePage() {
   return (
     <>
-      <div className="relative flex max-h-[33svh]">
+      <div className="relative flex max-h-[33svh] overflow-hidden">
         <Image
           alt="banner"
           className="block h-full w-full object-cover object-top"
           src="/home-banner.jpg"
-          layout="responsive"
           width={1920}
           height={1080}
         />
