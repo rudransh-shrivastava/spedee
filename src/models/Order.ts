@@ -7,11 +7,11 @@ type OrderType = {
   transactionId: string;
   amount: number;
   paymentStatus: string;
-  orderStatus: string;
   products: {
     productId: string;
     quantity: number;
     vendorEmail: string;
+    status: string;
   }[];
   userEmail: string;
   shippingAddress: {
@@ -32,12 +32,12 @@ const OrderSchema = new mongoose.Schema<OrderInterface>({
   transactionId: { type: String, required: true },
   amount: { type: Number, required: true },
   paymentStatus: { type: String, required: true },
-  orderStatus: { type: String, required: true },
   products: [
     {
       productId: { type: String, required: true },
       quantity: { type: Number, required: true },
       vendorEmail: { type: String, required: true },
+      status: { type: String, required: true },
     },
   ],
   userEmail: { type: String, required: true },

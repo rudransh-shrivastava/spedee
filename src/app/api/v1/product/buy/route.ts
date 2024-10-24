@@ -49,9 +49,10 @@ export async function POST(req: NextRequest) {
     }
     const vendorEmail = matchedProduct.vendorEmail;
     matchedProducts.push({
-      product: matchedProduct,
+      productId: matchedProduct.id,
       quantity: product.quantity,
       vendorEmail,
+      status: "PENDING",
     });
     // totalAmount += matchedProduct.priceInPaise * product.quantity;
   }
@@ -69,7 +70,7 @@ export async function POST(req: NextRequest) {
     amount: priceInPaise,
     paymentStatus: "PENDING",
     orderStatus: "INITIATED",
-    products,
+    products: matchedProducts,
     userEmail,
     shippingAddress,
     paymentMethod: "phonepe",
