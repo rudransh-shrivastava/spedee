@@ -13,38 +13,27 @@ export async function GET() {
       success: false,
     });
   }
-  if (session.user.role !== "vendor") {
-    return Response.json({
-      message: "Forbidden",
-      status: 403,
-      error: true,
-      success: false,
-    });
-  }
   await connectDB();
-  const vendorEmail = session.user.email;
-  const orders = await Order.find({ "products.vendorEmail": vendorEmail });
-  console.log(orders);
+  const userEmail = session.user.email;
+  const orders = await Order.find({ userEmail });
+  const userOrders: UserOrder[] = [];
   // TODO: remove type from here
-  type VendorOrder = {
+  type UserOrder = {
     productId: string;
     quantity: number;
     pricePaid: number;
   };
-  const vendorOrders: VendorOrder[] = [];
   orders.forEach((order) => {
     order.products.forEach((product) => {
-      if (product.vendorEmail === vendorEmail) {
-        vendorOrders.push({
-          productId: product.productId,
-          quantity: product.quantity,
-          pricePaid: product.pricePaid,
-        });
-      }
+      userOrders.push({
+        productId: product.productId,
+        quantity: product.quantity,
+        pricePaid: product.pricePaid,
+      });
     });
   });
   return Response.json({
-    message: vendorOrders,
+    message: userOrders,
     error: false,
     success: true,
   });
