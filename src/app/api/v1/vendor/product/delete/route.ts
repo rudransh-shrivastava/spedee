@@ -1,6 +1,7 @@
 import { authOptions } from "@/lib/auth";
 import { connectDB } from "@/lib/mongodb";
 import { deleteFile } from "@/lib/s3";
+import Cart from "@/models/Cart";
 import Product from "@/models/Product";
 import { getServerSession } from "next-auth";
 
@@ -39,6 +40,11 @@ export async function POST(req: Request) {
   console.log("deleting product files");
   await Promise.all(deleteFilePromises);
   console.log("deleting product");
+  // remove prodcut from cart
+  await Cart.updateMany(
+    { "products.productId": productId },
+    { $pull: { products: { productId } } }
+  );
   await Product.deleteOne({ _id: productId });
   return Response.json({ message: "Product deleted" });
 }

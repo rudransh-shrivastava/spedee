@@ -11,6 +11,7 @@ type OrderType = {
   products: {
     productId: string;
     quantity: number;
+    vendorEmail: string;
   }[];
   userEmail: string;
   shippingAddress: {
@@ -36,6 +37,7 @@ const OrderSchema = new mongoose.Schema<OrderInterface>({
     {
       productId: { type: String, required: true },
       quantity: { type: Number, required: true },
+      vendorEmail: { type: String, required: true },
     },
   ],
   userEmail: { type: String, required: true },

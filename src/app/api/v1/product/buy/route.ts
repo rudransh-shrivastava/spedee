@@ -47,9 +47,11 @@ export async function POST(req: NextRequest) {
     if (!matchedProduct) {
       return Response.json({ message: "Invalid product" }, { status: 400 });
     }
+    const vendorEmail = matchedProduct.vendorEmail;
     matchedProducts.push({
       product: matchedProduct,
       quantity: product.quantity,
+      vendorEmail,
     });
     // totalAmount += matchedProduct.priceInPaise * product.quantity;
   }
