@@ -20,6 +20,12 @@ async function getAllProducts(): Promise<ProductType[]> {
   return data.products;
 }
 
+async function getFilteredProducts(query: string): Promise<ProductType[]> {
+  const data = await getData(`api/v1/products${query}`);
+  console.log(data);
+  return data.products;
+}
+
 async function getVendorProducts(): Promise<ProductType[]> {
   const data = await getData("/api/v1/vendor/products");
   return data.products;
@@ -102,6 +108,10 @@ const queries = {
     queryFn: getAllProducts,
     queryKey: ["products"],
   },
+  filteredProducts: (query: string) => ({
+    queryFn: () => getFilteredProducts(query),
+    queryKey: ["products", query],
+  }),
   locations: (query: string) => ({
     queryFn: () => getLocations(query),
     queryKey: ["locations", query],

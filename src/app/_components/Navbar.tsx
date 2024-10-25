@@ -35,12 +35,16 @@ import { useLocationContext } from "@/app/_components/LocationProvider";
 import { useQuery } from "@tanstack/react-query";
 import { queries } from "../_data/queries";
 import { Error } from "@/components/Error";
+import { useRouter } from "next/navigation";
 
 export function Navbar() {
   const { data } = useSession();
   const { data: cartProducts } = useQuery(queries.cart);
-
   const [signingIn, setSigningIn] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const router = useRouter();
+
   return (
     <header className="sticky top-0 z-50">
       <nav className="mx-auto flex h-20 w-full max-w-[1600px] items-center gap-4 border-border/40 bg-background px-4 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -52,10 +56,25 @@ export function Navbar() {
         <div className="hidden shrink-0 items-center justify-center md:flex">
           <LocationDialog />
         </div>
-        <div className="relative mr-auto hidden h-10 w-full max-w-[25rem] shrink items-center justify-center bg-secondary md:flex">
-          <Search className="pointer-events-none absolute left-2 size-6 stroke-foreground/80" />
-          <Input className="border-none bg-transparent pl-10 shadow-none" />
-        </div>
+
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            if (searchQuery) {
+              router.push(`/search?query=${searchQuery}`);
+            }
+          }}
+          className="mr-auto hidden h-10 w-full max-w-[25rem] shrink bg-secondary md:flex"
+        >
+          <div className="relative w-full items-center justify-center md:flex">
+            <Search className="pointer-events-none absolute left-2 size-6 stroke-foreground/80" />
+            <Input
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="border-none bg-transparent pl-10 shadow-none"
+            />
+          </div>
+        </form>
         <div className="hidden items-center justify-center md:flex">
           <Button
             className="relative hover:bg-transparent"
