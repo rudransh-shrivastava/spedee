@@ -1,5 +1,6 @@
 import { authOptions } from "@/lib/auth";
 import { connectDB } from "@/lib/mongodb";
+import { getPublicImageUrl } from "@/lib/s3";
 import Order from "@/models/Order";
 import Product from "@/models/Product";
 import { getServerSession } from "next-auth";
@@ -42,7 +43,7 @@ export async function GET() {
         name: dbProduct.name,
         status: product.status,
         productId: product.productId,
-        image: dbProduct.variants[0].image,
+        image: getPublicImageUrl(dbProduct.variants[0].image),
         quantity: product.quantity,
         pricePaid: product.pricePaid,
       });
