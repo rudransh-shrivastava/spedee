@@ -17,13 +17,16 @@ export async function GET() {
   const cart = await Cart.findOne({
     userEmail,
   });
-  const cartProductsIds = cart?.items;
-  const productsPromises = cartProductsIds?.map(async (item) => {
+  if (!cart) {
+    return Response.json({ message: "Cart not found" }, { status: 404 });
+  }
+  const cartProductsIds = cart.items;
+  const productsPromises = cartProductsIds.map(async (item) => {
     const product = await Product.findById(item.productId);
     if (!product) {
       return Response.json({ message: "Product not found" }, { status: 404 });
     }
-    const productObject: ProductType = {
+    const productObject: ProductType & { selectedVariantId: string } = {
       id: product.id.toString(),
       name: product.name,
       description: product.description,
@@ -31,6 +34,7 @@ export async function GET() {
       category: product.category,
       bestSeller: product.bestSeller,
       bestSellerPriority: product.bestSellerPriority,
+      selectedVariantId: item.variantId,
       variants: product.variants.map((variant) => {
         return {
           attributes: variant.attributes,

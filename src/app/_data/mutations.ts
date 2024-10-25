@@ -86,7 +86,7 @@ async function deleteVendorProduct(productId: string) {
 }
 
 async function buyProduct(orderData: OrderDataType) {
-  const response = await axios.post("/api/v1/product/buy", orderData);
+  const response = await axios.post("/api/v1/order/create", orderData);
   return response.data;
 }
 
