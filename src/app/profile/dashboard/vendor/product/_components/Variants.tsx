@@ -136,6 +136,7 @@ export function Variants({
             setVariants([
               ...variants,
               {
+                id: `variant-${variants.length + 1}`, // NOTE:
                 attributes: attributes.reduce(
                   (acc, attribute) => ({
                     ...acc,

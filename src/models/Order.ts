@@ -1,5 +1,14 @@
 import mongoose, { Document, Model } from "mongoose";
+import { z } from "zod";
 
+export const addressZodSchema = z.object({
+  address: z
+    .string()
+    .min(3, { message: "Address must be at least 3 characters" }),
+  city: z.string().min(3, { message: "City must be at least 3 characters" }),
+  state: z.string().min(3, { message: "State must be at least 3 characters" }),
+  zip: z.string().min(6, { message: "Zip code must be at least 6 characters" }),
+});
 type OrderType = {
   id: string;
   name: string;
@@ -9,6 +18,7 @@ type OrderType = {
   paymentStatus: string;
   products: {
     productId: string;
+    variantId: string;
     quantity: number;
     vendorEmail: string;
     status: string;
@@ -36,6 +46,7 @@ const OrderSchema = new mongoose.Schema<OrderInterface>({
   products: [
     {
       productId: { type: String, required: true },
+      variantId: { type: String, required: true },
       quantity: { type: Number, required: true },
       vendorEmail: { type: String, required: true },
       status: { type: String, required: true },

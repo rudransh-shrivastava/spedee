@@ -1,6 +1,7 @@
 import mongoose, { Document, Model } from "mongoose";
 
 export type VariantType = {
+  id: string;
   attributes: Record<string, string>;
   stock: number;
   image: string;
@@ -24,7 +25,7 @@ interface ProductInterface extends Omit<ProductType, "id">, Document {
   vendorEmail: string;
 }
 
-const VariantSchema = new mongoose.Schema<VariantType>({
+const VariantSchema = new mongoose.Schema<Omit<VariantType, "id">>({
   attributes: { type: Map, of: String, required: true },
   stock: { type: Number, required: true },
   image: { type: String, required: true },

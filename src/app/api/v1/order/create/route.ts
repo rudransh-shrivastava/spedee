@@ -1,13 +1,12 @@
 import { authOptions } from "@/lib/auth";
 import { connectDB } from "@/lib/mongodb";
-import Order from "@/models/Order";
+import Order, { addressZodSchema } from "@/models/Order";
 import axios from "axios";
 import { getServerSession } from "next-auth";
 import crypto from "crypto";
 import z from "zod";
 import { NextRequest } from "next/server";
 import Product from "@/models/Product";
-import { addressZodSchema } from "../../user/default-address/update/route";
 
 const zodSchema = z.object({
   name: z.string().min(2, { message: "Name must be at least 2 characters" }),
@@ -18,6 +17,7 @@ const zodSchema = z.object({
   products: z.array(
     z.object({
       productId: z.string().min(1, { message: "Product ID is required" }),
+      variantId: z.string().min(1, { message: "Variant ID is required" }),
       quantity: z.number().min(1, { message: "Quantity must be at least 1" }),
       attributes: z.record(z.string()),
     })
@@ -56,20 +56,21 @@ export async function POST(req: NextRequest) {
         JSON.stringify(variant.attributes) ===
         JSON.stringify(product.attributes)
     );
-    const variantPrice =
-      matchedVariant?.salePriceInPaise ?? matchedVariant?.priceInPaise;
-    if (!variantPrice) {
+    if (!matchedVariant) {
       return Response.json({
-        message: "Invalid product",
+        message: "Invalid product variant",
         status: 400,
         error: true,
         success: false,
       });
     }
+    const variantPrice =
+      matchedVariant.salePriceInPaise ?? matchedVariant?.priceInPaise;
     const pricePaid = variantPrice * product.quantity;
     const vendorEmail = matchedProduct.vendorEmail;
     matchedProducts.push({
       productId: matchedProduct.id,
+      variantId: matchedVariant.id,
       quantity: product.quantity,
       vendorEmail,
       status: "PENDING",

@@ -23,6 +23,7 @@ export async function GET(req: NextRequest) {
     bestSellerPriority: product.bestSellerPriority,
     variants: product.variants.map((variant) => {
       return {
+        id: variant.id,
         attributes: variant.attributes,
         stock: variant.stock,
         priceInPaise: variant.priceInPaise,

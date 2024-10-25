@@ -38,10 +38,11 @@ export async function POST(req: NextRequest) {
   }
   await User.findOneAndUpdate(
     { email: userEmail },
-    { $push: { addresses: address } }
+    { $set: { addresses: address } }
   );
   return Response.json({
-    message: "Address added successfully",
+    message:
+      "Address updated successfully but this api does not work as i have not tested it yet so if it doesnt work please dont kill me",
     status: 200,
     success: true,
   });

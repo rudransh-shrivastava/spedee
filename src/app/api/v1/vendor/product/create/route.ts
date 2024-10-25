@@ -39,7 +39,7 @@ export async function POST(req: Request) {
   const uploadPromises = [];
   const parsedProduct = product.data;
   console.log("product: ", parsedProduct);
-  const productVariants: VariantType[] = [];
+  const productVariants: Omit<VariantType, "id">[] = [];
   for (let i = 0; i < parsedProduct.variants.length; i++) {
     const variantImage = parsedProduct.variants[i].image;
     const variantOtherImages = parsedProduct.variants[i].otherImages;

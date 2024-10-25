@@ -37,6 +37,7 @@ export async function GET() {
       selectedVariantId: item.variantId,
       variants: product.variants.map((variant) => {
         return {
+          id: variant.id,
           attributes: variant.attributes,
           stock: variant.stock,
           priceInPaise: variant.priceInPaise,

@@ -37,7 +37,7 @@ function HomePage() {
   );
 }
 
-export function BestSellers() {
+function BestSellers() {
   const { status, data: bestSellers } = useQuery(queries.allProducts);
 
   return (
