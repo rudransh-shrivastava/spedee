@@ -19,7 +19,7 @@ export function Cart() {
       <div className="flex w-full flex-col">
         {cartProducts ? (
           cartProducts.length === 0 ? (
-            <div className="py-10 text-center font-medium opacity-80">
+            <div className="py-10 text-center font-medium text-secondary-foreground">
               No Product in Cart
             </div>
           ) : (

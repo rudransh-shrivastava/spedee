@@ -75,7 +75,10 @@ function MyOrders({ orders }: { orders: OrderType[] }) {
               <div className="ml-auto flex flex-col items-center px-2">
                 <span>{order.pricePaid}</span>
               </div>
-              <div className="px-4 font-bold opacity-80"> {order.status}</div>
+              <div className="px-4 font-bold text-secondary-foreground">
+                {" "}
+                {order.status}
+              </div>
             </div>
           ))}
         </div>

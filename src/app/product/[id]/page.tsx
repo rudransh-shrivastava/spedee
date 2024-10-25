@@ -3,16 +3,35 @@
 import { queries } from "@/app/_data/queries";
 import { AddToCartButton } from "@/components/AddToCartButton";
 import { LoadingData } from "@/components/LoadingData";
-import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
 import { ProductType, VariantType } from "@/models/Product";
 import { useQuery } from "@tanstack/react-query";
-import { Star, ThumbsDown, ThumbsUp } from "lucide-react";
+import {
+  Check,
+  CopyIcon,
+  Share2,
+  Star,
+  ThumbsDown,
+  ThumbsUp,
+} from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 export default function ProductPage({
   params: { id },
@@ -128,13 +147,21 @@ function ProductComponent({ product }: { product: ProductType }) {
         </div>
       </div>
 
-      <div className="space-y-2 p-4">
-        <h1 className="text-3xl font-bold opacity-80">{product.name}</h1>
+      <div className="space-y-4 p-4">
+        <h1 className="flex justify-between gap-2 text-3xl font-bold text-secondary-foreground">
+          {product.name}
+          <ShareDialog
+            productName={product.name}
+            productLink={window.location.href}
+          />
+        </h1>
         <ProductPrice
           price={currentVariant.priceInPaise}
           salePrice={currentVariant.salePriceInPaise}
         />
-        <p className="font-medium text-foreground/60">{product?.description}</p>
+        <p className="font-medium text-secondary-foreground">
+          {product?.description}
+        </p>
         <ProductVariants
           switchVariant={switchVariant}
           attributes={product.attributes}
@@ -194,20 +221,20 @@ function ProductPrice({
         )}
       >
         {isSale && (
-          <span className="relative inline-block bg-opacity-80 text-2xl font-bold">
+          <span className="relative inline-block text-2xl font-bold text-secondary-foreground">
             &#8377;{salePrice}
           </span>
         )}
         <span
           className={cn(
             "relative inline-block px-1 text-2xl font-bold text-foreground",
-            isSale ? "text-lg opacity-55" : ""
+            isSale ? "text-lg opacity-75" : ""
           )}
         >
           {isSale && (
             <span
               className={cn(
-                "absolute left-0 top-[calc(50%-1px)] block h-0.5 w-[0%] bg-current",
+                "absolute left-0 top-[calc(50%-1px)] block h-[1.5px] w-[0%] bg-current",
                 isSale ? "w-full" : ""
               )}
             ></span>
@@ -253,9 +280,11 @@ function ProductVariants({
     }
 
     return (
-      <div key={attributeIndex} className="py-2">
-        <div className="text-lg font-bold opacity-70">Select {attribute}</div>
-        <div className="flex gap-2">
+      <div key={attributeIndex}>
+        <div className="text-xl font-bold text-secondary-foreground">
+          Select {attribute}
+        </div>
+        <div className="flex gap-2 py-2">
           {attributes[attribute].map((attbValue, attbValueIndex) => {
             const currentCheckedAttributes = {
               ...checkedAttributes,
@@ -322,12 +351,14 @@ function RatingsAndReviews() {
   return (
     <div className="pt-4">
       <div className="flex items-center justify-between">
-        <div className="text-xl font-bold opacity-80">Ratings and Reviews</div>
+        <div className="text-xl font-bold text-secondary-foreground">
+          Ratings and Reviews
+        </div>
         <Button variant="secondary">Rate</Button>
       </div>
       <div className="flex items-center p-4">
         <div className="flex w-max min-w-40 flex-col items-center gap-4 border-r-2 p-4">
-          <div className="flex items-center gap-2 opacity-80">
+          <div className="flex items-center gap-2 text-secondary-foreground">
             <span className="text-4xl">4.6</span>
             <Star fill="currentColor" className="size-8 text-primary" />
           </div>
@@ -357,7 +388,7 @@ function RatingsAndReviews() {
                   <span>4</span>
                   <Star className="size-4" />
                 </div>
-                <span className="divide-opacity-80 font-semibold">
+                <span className="font-semibold text-secondary-foreground">
                   Best product I have ever seen
                 </span>
               </div>
@@ -365,15 +396,15 @@ function RatingsAndReviews() {
                 Best product I have ever seen or will ever use buy it asap
               </div>
               <div className="flex items-center justify-between">
-                <span className="divide-opacity-80 text-sm">
+                <span className="text-sm text-secondary-foreground">
                   A random name you will not remember
                 </span>
                 <div>
-                  <Button variant="ghost" size="icon">
-                    <ThumbsUp className="size-5" />
+                  <Button variant="ghost" size="icon" className="rounded-full">
+                    <ThumbsUp className="size-5" strokeWidth={1.5} />
                   </Button>
-                  <Button variant="ghost" size="icon">
-                    <ThumbsDown className="size-5" />
+                  <Button variant="ghost" size="icon" className="rounded-full">
+                    <ThumbsDown className="size-5" strokeWidth={1.5} />
                   </Button>
                 </div>
               </div>
@@ -382,5 +413,69 @@ function RatingsAndReviews() {
         </div>
       </div>
     </div>
+  );
+}
+
+function ShareDialog({
+  productName,
+  productLink,
+}: {
+  productName: string;
+  productLink: string;
+}) {
+  const [copied, setCopied] = useState(false);
+  return (
+    <Dialog>
+      <DialogTrigger asChild>
+        <Button variant="ghost" size="icon" className="shrink-0 rounded-full">
+          <Share2 />
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>Share link</DialogTitle>
+          <DialogDescription>Share {productName}</DialogDescription>
+        </DialogHeader>
+        <div className="flex items-center space-x-2">
+          <div className="grid flex-1 gap-2">
+            <Label htmlFor="link" className="sr-only">
+              Link
+            </Label>
+            <Input id="link" defaultValue={productLink} readOnly />
+          </div>
+          <Button
+            type="submit"
+            size="icon"
+            onClick={() => {
+              navigator.clipboard
+                .writeText(productLink)
+                .then(() => {
+                  setCopied(true);
+                  setTimeout(() => {
+                    setCopied(false);
+                  }, 5000);
+                })
+                .catch((err) => {
+                  console.error("Failed to copy: ", err);
+                });
+            }}
+          >
+            <span className="sr-only">Copy</span>
+            {copied ? (
+              <Check className="size-5" />
+            ) : (
+              <CopyIcon className="size-4" />
+            )}
+          </Button>
+        </div>
+        <DialogFooter className="sm:justify-start">
+          <DialogClose asChild>
+            <Button type="button" variant="secondary">
+              Close
+            </Button>
+          </DialogClose>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
