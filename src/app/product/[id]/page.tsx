@@ -90,7 +90,7 @@ function ProductComponent({ product }: { product: ProductType }) {
     const variant = getVariantFromURLParams();
     setCurrentVariant(variant);
     setCurrentProductImage(variant.image);
-  }, [searchParams]);
+  }, [searchParams, getVariantFromURLParams]);
 
   const [currentProductImage, setCurrentProductImage] = useState(
     currentVariant.image

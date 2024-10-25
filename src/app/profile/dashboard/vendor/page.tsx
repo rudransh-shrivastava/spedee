@@ -29,7 +29,7 @@ export default function Page() {
   return (
     <div>
       <h1 className="mb-4 text-2xl">Dashboard</h1>
-      <Tabs defaultValue="products">
+      <Tabs defaultValue="orders">
         <TabsList className="shadow-none">
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="products">Products</TabsTrigger>

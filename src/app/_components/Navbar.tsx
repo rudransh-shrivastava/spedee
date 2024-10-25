@@ -269,7 +269,7 @@ function LocationDialog() {
           </DialogDescription>
         </DialogHeader>
         <div className="bg-secondary p-2 px-3">
-          <span className="self-start bg-secondary-foreground font-light text-secondary-foreground">
+          <span className="self-start font-light text-secondary-foreground">
             Location:{" "}
           </span>
           {locationName ? (

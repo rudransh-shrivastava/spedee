@@ -62,7 +62,7 @@ export function ProductCard({
             <span className="font-bold">
               &#8377;{product.variants[0].salePriceInPaise}
             </span>
-            <span className="text-sm text-gray-400 line-through">
+            <span className="text-sm text-secondary-foreground line-through">
               &#8377;{product.variants[0].priceInPaise}
             </span>
           </div>

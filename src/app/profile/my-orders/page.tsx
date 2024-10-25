@@ -54,8 +54,11 @@ function MyOrders({ orders }: { orders: OrderType[] }) {
         </div>
         <div className="px-4">
           <div className="text-2xl">My Orders</div>
-          {orders.map((order) => (
-            <div className={cn("flex items-center gap-2 border-b py-4")}>
+          {orders.map((order, i) => (
+            <div
+              className={cn("flex items-center gap-2 border-b py-4")}
+              key={i}
+            >
               <Link href={`/product/${order.productId}`}>
                 <div className="group/link flex items-center gap-2">
                   <div className="size-12">
@@ -76,7 +79,6 @@ function MyOrders({ orders }: { orders: OrderType[] }) {
                 <span>{order.pricePaid}</span>
               </div>
               <div className="px-4 font-bold text-secondary-foreground">
-                {" "}
                 {order.status}
               </div>
             </div>

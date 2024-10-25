@@ -1,6 +1,5 @@
 "use client";
 
-import { ProductType } from "@/models/Product";
 import { ColumnDef } from "@tanstack/react-table";
 import { MoreHorizontal } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -13,36 +12,60 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { DataTableColumnHeader } from "./DataTableColumnHeader";
+import Link from "next/link";
+import Image from "next/image";
 
 export type OrderType = {
-  id: string;
-  amount: number;
-  status: "pending" | "processing" | "success" | "failed";
-  products: [ProductType & { id: string }];
-  priority: "low" | "medium" | "high";
+  name: string;
+  status: string;
+  productId: string;
+  image: string;
+  quantity: number;
+  pricePaid: number;
 };
 
 export const columns: ColumnDef<OrderType>[] = [
   {
-    accessorKey: "id",
-    header: () => <div className="text-center">&#35;</div>,
-    cell: ({ row }) => {
-      const id = parseFloat(row.getValue("id"));
-      return <div className="text-center font-medium">{id}</div>;
-    },
+    accessorKey: "productId",
+    header: () => <div className="text-center">&#35; Product Id</div>,
+    cell: ({ row }) => (
+      <div className="text-center">{row.getValue("productId")}</div>
+    ),
   },
 
   {
-    accessorKey: "status",
-    header: "Status",
+    accessorKey: "name",
+    header: "Product",
+    cell: ({ row }) => (
+      <Link href={`/product/${row.getValue("productId")}`}>
+        <div className="group/link flex items-center gap-2">
+          <div className="size-12">
+            <Image
+              src={row.original.image}
+              width={48}
+              height={48}
+              alt=""
+              className="size-12 object-cover"
+            />
+          </div>
+          <span className="text-sm group-hover/link:underline">
+            {row.getValue("name")}
+          </span>
+        </div>
+      </Link>
+    ),
+    // <div className="">{row.getValue("name")}</div>,
   },
 
   {
-    accessorKey: "priority",
-    header: "Priority",
+    accessorKey: "quantity",
+    header: "Quantity",
+    cell: ({ row }) => (
+      <div className="text-center">{row.getValue("quantity")}</div>
+    ),
   },
   {
-    accessorKey: "amount",
+    accessorKey: "pricePaid",
     header: ({ column }) => (
       <DataTableColumnHeader
         className="justify-center"
@@ -51,10 +74,15 @@ export const columns: ColumnDef<OrderType>[] = [
       />
     ),
     cell: ({ row }) => {
-      const amount = parseFloat(row.getValue("amount"));
+      const amount = parseFloat(row.getValue("pricePaid"));
       return <div className="text-center font-medium">{amount}</div>;
     },
   },
+  {
+    accessorKey: "status",
+    header: "Status",
+  },
+
   {
     id: "actions",
     cell: ({ row }) => {
@@ -71,7 +99,7 @@ export const columns: ColumnDef<OrderType>[] = [
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
             <DropdownMenuItem
-              onClick={() => navigator.clipboard.writeText(payment.id)}
+              onClick={() => navigator.clipboard.writeText(payment.productId)}
             >
               Copy payment ID
             </DropdownMenuItem>
