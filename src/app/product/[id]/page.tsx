@@ -6,6 +6,7 @@ import { LoadingData } from "@/components/LoadingData";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { ProductType, VariantType } from "@/models/Product";
+import { AttributeType } from "@/types";
 import { useQuery } from "@tanstack/react-query";
 import Image from "next/image";
 import Link from "next/link";
@@ -43,14 +44,14 @@ function ProductComponent({ product }: { product: ProductType }) {
     [searchParams, pathname, router]
   );
 
-  const switchVariant = useCallback(
-    (variant: VariantType) => {
-      setCurrentVariant(variant);
-      setCurrentProductImage(variant.image);
-      updateVariantURLParams(variant);
-    },
-    [updateVariantURLParams]
-  );
+  // const switchVariant = useCallback(
+  //   (variant: VariantType) => {
+  //     setCurrentVariant(variant);
+  //     setCurrentProductImage(variant.image);
+  //     updateVariantURLParams(variant);
+  //   },
+  //   [updateVariantURLParams]
+  // );
 
   const [currentVariant, setCurrentVariant] = useState<VariantType>(
     product.variants[0]
@@ -124,7 +125,10 @@ function ProductComponent({ product }: { product: ProductType }) {
           salePrice={currentVariant.salePriceInPaise}
         />
         <p className="font-medium text-foreground/60">{product?.description}</p>
-        <ProductVariants />
+        <ProductVariants
+          attributes={product.attributes}
+          variants={product.variants}
+        />
         <div className="flex gap-2 py-2">
           <AddToCartButton product={product} className="w-full" />
           <Button className="w-full" asChild>
@@ -208,6 +212,27 @@ function ProductPrice({
   );
 }
 
-function ProductVariants() {
-  return "";
+function ProductVariants({
+  attributes,
+  variants,
+}: {
+  attributes: Record<string, string[]>;
+  variants: VariantType[];
+}) {
+  console.log(variants);
+  return Object.keys(attributes).map((attribute, attributeIndex) => (
+    <div key={attributeIndex} className="py-2">
+      <div className="text-lg font-bold opacity-70">Select {attribute}</div>
+      <div className="flex gap-2">
+        {attributes[attribute].map((attbValue, attbValueIndex) => (
+          <div
+            key={attbValueIndex}
+            className="flex size-16 cursor-pointer items-center justify-center rounded-full border"
+          >
+            {attbValue}
+          </div>
+        ))}
+      </div>
+    </div>
+  ));
 }
