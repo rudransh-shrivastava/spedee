@@ -83,7 +83,7 @@ function ProductCard({ product }: { product: ProductType & { id: string } }) {
     <div
       ref={elementRef}
       className={cn(
-        "group flex w-full max-w-[19rem] flex-col border p-4 transition-all duration-500",
+        "group flex w-full max-w-[19rem] flex-col border border-transparent p-4 transition-all duration-500 focus-within:border-border hover:border-border",
         isVisible ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0"
       )}
     >

@@ -43,7 +43,7 @@ export function Navbar() {
   const [signingIn, setSigningIn] = useState(false);
   return (
     <header className="sticky top-0 z-50">
-      <nav className="mx-auto flex h-20 w-full max-w-screen-xl items-center gap-4 border-border/40 bg-background px-4 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <nav className="mx-auto flex h-20 w-full max-w-[1600px] items-center gap-4 border-border/40 bg-background px-4 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <Link href="/" className="shrink-0">
           <div className="py-4">
             <Image src="/spedee-logo.png" alt="Logo" width={48} height={48} />
@@ -89,7 +89,7 @@ export function Navbar() {
                 />
                 <polyline
                   fill="none"
-                  points="654.42,265.75 648.84,199.75 
+                  points="654.42,265.75 648.84,199.75
 	310.29,199.75 309.41,199.75 303.83,265.75 "
                 />
               </svg>

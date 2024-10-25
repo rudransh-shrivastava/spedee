@@ -4,7 +4,7 @@ import Link from "next/link";
 export function Footer() {
   return (
     <footer className="sticky top-full w-full border-t">
-      <div className="mx-auto grid max-w-screen-xl grid-cols-1 gap-8 p-4 pb-8 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="mx-auto grid max-w-[1600px] grid-cols-1 gap-8 p-4 pb-8 sm:grid-cols-2 lg:grid-cols-4">
         <div className="py-10">
           <h3 className="flex h-12 items-center justify-center px-4 text-lg font-bold lg:justify-start">
             Spedee

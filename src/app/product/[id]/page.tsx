@@ -77,7 +77,7 @@ function ProductComponent({ product }: { product: ProductType }) {
   );
 
   return (
-    <div className="grid grid-cols-[34rem,auto]">
+    <div className="grid grid-cols-[34rem,auto] gap-4">
       <div className="sticky top-24 h-max">
         <div className="flex gap-4">
           <div className="flex flex-col gap-2">
