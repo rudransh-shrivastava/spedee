@@ -145,13 +145,14 @@ function ProductCard({
     productId: string
   ) => Promise<{ success: boolean; error: string }>;
 }) {
+  const variant = product.variants[0];
   return (
-    <div className="group flex w-full max-w-[19rem] flex-col border p-4">
+    <div className="group flex w-full max-w-[19rem] flex-col border border-transparent p-4 hover:border-border">
       <Link href={`/product/${product.id}`}>
         <div className="group/link overflow-hidden p-0">
           <div className="relative mx-auto flex size-[17rem] items-center justify-center overflow-hidden">
             <Image
-              src={product.image}
+              src={variant.image}
               alt={product.name}
               width={500}
               height={500}
@@ -164,9 +165,9 @@ function ProductCard({
         </div>
       </Link>
       <div className="flex items-center gap-2">
-        <span className="font-bold">&#8377;{product.salePriceInPaise}</span>
+        <span className="font-bold">&#8377;{variant.salePriceInPaise}</span>
         <span className="text-sm text-gray-400 line-through">
-          &#8377;{product.priceInPaise}
+          &#8377;{variant.priceInPaise}
         </span>
       </div>
       <div className="mt-auto flex flex-col gap-2 pt-4">

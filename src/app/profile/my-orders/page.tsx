@@ -4,17 +4,23 @@ import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 
 export default function Page() {
-  const { data } = useQuery({
+  const { data: orders } = useQuery({
     queryKey: ["my-orders"],
     queryFn: async () => {
       const response = await axios.get("/api/v1/orders");
-      return response.data;
+      return response.data.message;
     },
   });
-  console.log(JSON.stringify(data || "NO ORDERS", null, 2));
-  return <MyOrders />;
+  return orders && <MyOrders orders={orders} />;
 }
 
-function MyOrders() {
-  return "adsf";
+function MyOrders({ orders }: { orders: any }) {
+  return (
+    <div>
+      <div className="text-2xl">My Orders</div>
+      <pre>
+        <code>{JSON.stringify(orders || [], null, 2)}</code>
+      </pre>
+    </div>
+  );
 }
