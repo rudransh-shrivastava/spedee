@@ -7,20 +7,18 @@ import crypto from "crypto";
 import z from "zod";
 import { NextRequest } from "next/server";
 import Product from "@/models/Product";
+import { addressZodSchema } from "../../user/default-address/update/route";
 
 const zodSchema = z.object({
-  name: z.string(),
-  phone: z.string(),
-  shippingAddress: z.object({
-    address: z.string(),
-    city: z.string(),
-    state: z.string(),
-    zip: z.string(),
-  }),
+  name: z.string().min(2, { message: "Name must be at least 2 characters" }),
+  phone: z
+    .string()
+    .min(10, { message: "Phone number must be at least 10 characters" }),
+  shippingAddress: addressZodSchema,
   products: z.array(
     z.object({
-      productId: z.string(),
-      quantity: z.number(),
+      productId: z.string().min(1, { message: "Product ID is required" }),
+      quantity: z.number().min(1, { message: "Quantity must be at least 1" }),
       attributes: z.record(z.string()),
     })
   ),
