@@ -45,32 +45,33 @@ function ProductComponent({ product }: { product: ProductType }) {
     [searchParams, pathname, router]
   );
 
-  // const switchVariant = useCallback(
-  //   (variant: VariantType) => {
-  //     setCurrentVariant(variant);
-  //     setCurrentProductImage(variant.image);
-  //     updateVariantURLParams(variant);
-  //   },
-  //   [updateVariantURLParams]
-  // );
+  const getVariantFromURLParams = useCallback(() => {
+    const matchedVariant = product.variants.find((variant) => {
+      const attributes = variant.attributes;
+      return Object.keys(product.attributes).every((key) => {
+        return attributes[key] === searchParams.get(key);
+      });
+    });
+    if (matchedVariant) return matchedVariant;
+    return product.variants[0];
+  }, [product, searchParams]);
 
   const [currentVariant, setCurrentVariant] = useState<VariantType>(
     product.variants[0]
   );
 
+  const switchVariant = useCallback(
+    (variant: VariantType) => {
+      updateVariantURLParams(variant);
+    },
+    [updateVariantURLParams]
+  );
+
   useEffect(() => {
-    setCurrentVariant(() => {
-      const currentVariant = product.variants.find((variant) => {
-        const attributes = variant.attributes;
-        Object.keys(product.attributes).every((key) => {
-          return attributes[key] === searchParams.get(key);
-        });
-      });
-      if (currentVariant) return currentVariant;
-      updateVariantURLParams(product.variants[0]);
-      return product.variants[0];
-    });
-  }, [product, searchParams, updateVariantURLParams]);
+    const variant = getVariantFromURLParams();
+    setCurrentVariant(variant);
+    setCurrentProductImage(variant.image);
+  }, [searchParams]);
 
   const [currentProductImage, setCurrentProductImage] = useState(
     currentVariant.image
@@ -135,8 +136,10 @@ function ProductComponent({ product }: { product: ProductType }) {
         />
         <p className="font-medium text-foreground/60">{product?.description}</p>
         <ProductVariants
+          switchVariant={switchVariant}
           attributes={product.attributes}
           variants={product.variants}
+          currentVariant={currentVariant}
         />
         <RatingsAndReviews />
       </div>
@@ -219,26 +222,100 @@ function ProductPrice({
 function ProductVariants({
   attributes,
   variants,
+  currentVariant,
+  switchVariant,
 }: {
   attributes: Record<string, string[]>;
   variants: VariantType[];
+  currentVariant: VariantType;
+  switchVariant: (variant: VariantType) => void;
 }) {
-  console.log(variants);
-  return Object.keys(attributes).map((attribute, attributeIndex) => (
-    <div key={attributeIndex} className="py-2">
-      <div className="text-lg font-bold opacity-70">Select {attribute}</div>
-      <div className="flex gap-2">
-        {attributes[attribute].map((attbValue, attbValueIndex) => (
-          <div
-            key={attbValueIndex}
-            className="flex size-16 cursor-pointer items-center justify-center rounded-full border"
-          >
-            {attbValue}
-          </div>
-        ))}
+  const doesProductVariantExist = useCallback(
+    (attributeValues: Record<string, string>) => {
+      return variants.some((variant) => {
+        const x = Object.keys(attributeValues).every((key) => {
+          return variant.attributes[key] === attributeValues[key];
+        });
+        return x;
+      });
+    },
+    [variants]
+  );
+
+  let checkedAttributes: { [key: string]: string } = {};
+
+  return Object.keys(attributes).map((attribute, attributeIndex) => {
+    if (currentVariant.attributes[attribute]) {
+      checkedAttributes = {
+        ...checkedAttributes,
+        [attribute]: currentVariant.attributes[attribute],
+      };
+    }
+
+    return (
+      <div key={attributeIndex} className="py-2">
+        <div className="text-lg font-bold opacity-70">Select {attribute}</div>
+        <div className="flex gap-2">
+          {attributes[attribute].map((attbValue, attbValueIndex) => {
+            const currentCheckedAttributes = {
+              ...checkedAttributes,
+              [attribute]: attbValue,
+            };
+            const variantExists = !doesProductVariantExist(
+              currentCheckedAttributes
+            );
+            return (
+              <div
+                key={attbValueIndex}
+                onClick={() => {
+                  if (variantExists) return;
+                  const checkedAttributesAndCurrentAttributes = {
+                    ...currentVariant.attributes,
+                    ...currentCheckedAttributes,
+                  };
+                  // try to get a variant with current selected attributes + the attribute we clicked
+                  let varaint = variants.find((variant) => {
+                    return Object.keys(
+                      checkedAttributesAndCurrentAttributes
+                    ).every((key) => {
+                      return (
+                        variant.attributes[key] ===
+                        checkedAttributesAndCurrentAttributes[key]
+                      );
+                    });
+                  });
+                  if (!varaint) {
+                    // just get any variant with the attribute we clicked and attributes above it
+                    varaint = variants.find((variant) => {
+                      return Object.keys(currentCheckedAttributes).every(
+                        (key) => {
+                          return (
+                            variant.attributes[key] ===
+                            currentCheckedAttributes[key]
+                          );
+                        }
+                      );
+                    });
+                  }
+                  switchVariant(varaint || currentVariant);
+                }}
+                className={cn(
+                  "flex size-16 cursor-pointer items-center justify-center rounded-full border",
+                  {
+                    "cursor-not-allowed opacity-50": variantExists,
+                    "border-primary":
+                      currentVariant.attributes[attribute] === attbValue,
+                  }
+                )}
+              >
+                {attbValue}
+              </div>
+            );
+          })}
+        </div>
       </div>
-    </div>
-  ));
+    );
+  });
 }
 
 function RatingsAndReviews() {

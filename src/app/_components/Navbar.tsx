@@ -67,7 +67,10 @@ export function Navbar() {
           className="mr-auto hidden h-10 w-full max-w-[25rem] shrink bg-secondary md:flex"
         >
           <div className="relative w-full items-center justify-center md:flex">
-            <Search className="pointer-events-none absolute left-2 size-6 stroke-foreground/80" />
+            <Search
+              className="pointer-events-none absolute left-2 size-6 stroke-foreground/80"
+              strokeWidth={1.5}
+            />
             <Input
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
