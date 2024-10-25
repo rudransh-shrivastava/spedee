@@ -9,6 +9,7 @@ import { ProductType, VariantType } from "@/models/Product";
 import { useQuery } from "@tanstack/react-query";
 import {
   Check,
+  ChevronRight,
   CopyIcon,
   Share2,
   Star,
@@ -32,6 +33,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import BackButton from "@/components/BackButton";
 
 export default function ProductPage({
   params: { id },
@@ -98,6 +100,11 @@ function ProductComponent({ product }: { product: ProductType }) {
 
   return (
     <div className="grid grid-cols-[34rem,auto] gap-4">
+      <div className="col-span-2 flex items-center gap-2 text-sm text-secondary-foreground">
+        <BackButton />
+        Home <ChevronRight className="size-4" />
+        {product.category}
+      </div>
       <div className="sticky top-24 h-max">
         <div className="flex gap-4">
           <div className="flex flex-col gap-2">
@@ -129,7 +136,7 @@ function ProductComponent({ product }: { product: ProductType }) {
               );
             })}
           </div>
-          <div className="relative size-[25rem] overflow-hidden">
+          <div className="relative size-[25rem] overflow-hidden bg-secondary">
             <Image
               src={currentProductImage}
               width={500}
@@ -139,15 +146,15 @@ function ProductComponent({ product }: { product: ProductType }) {
             />
           </div>
         </div>
-        <div className="flex gap-2 p-8">
-          <AddToCartButton product={product} className="w-full" />
-          <Button className="w-full" asChild>
+        <div className="flex gap-2 py-4">
+          <AddToCartButton product={product} className="h-10 w-full" />
+          <Button className="h-10 w-full" asChild>
             <Link href={`/product/${product.id}/checkout`}>Buy Now</Link>
           </Button>
         </div>
       </div>
 
-      <div className="space-y-4 p-4">
+      <div className="space-y-2 p-4 pt-0">
         <h1 className="flex justify-between gap-2 text-3xl font-bold text-secondary-foreground">
           {product.name}
           <ShareDialog
