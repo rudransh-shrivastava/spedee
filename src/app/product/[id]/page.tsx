@@ -4,10 +4,11 @@ import { queries } from "@/app/_data/queries";
 import { AddToCartButton } from "@/components/AddToCartButton";
 import { LoadingData } from "@/components/LoadingData";
 import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
 import { ProductType, VariantType } from "@/models/Product";
-import { AttributeType } from "@/types";
 import { useQuery } from "@tanstack/react-query";
+import { Star, ThumbsDown, ThumbsUp } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
@@ -77,44 +78,52 @@ function ProductComponent({ product }: { product: ProductType }) {
 
   return (
     <div className="grid grid-cols-[34rem,auto]">
-      <div className="flex gap-4">
-        <div className="flex flex-col gap-2">
-          <ProductImageCard
-            alt={product.name}
-            url={currentVariant.image}
-            className={
-              currentVariant.image === currentProductImage
-                ? "border-primary"
-                : ""
-            }
-            onMouseOver={() => {
-              setCurrentProductImage(currentVariant.image);
-            }}
-          />
-          {currentVariant.otherImages.map((otherImage, index) => {
-            return (
-              <ProductImageCard
-                alt={product.name}
-                url={otherImage}
-                className={
-                  otherImage === currentProductImage ? "border-primary" : ""
-                }
-                onMouseOver={() => {
-                  setCurrentProductImage(otherImage);
-                }}
-                key={index}
-              />
-            );
-          })}
+      <div className="sticky top-24 h-max">
+        <div className="flex gap-4">
+          <div className="flex flex-col gap-2">
+            <ProductImageCard
+              alt={product.name}
+              url={currentVariant.image}
+              className={
+                currentVariant.image === currentProductImage
+                  ? "border-primary"
+                  : ""
+              }
+              onMouseOver={() => {
+                setCurrentProductImage(currentVariant.image);
+              }}
+            />
+            {currentVariant.otherImages.map((otherImage, index) => {
+              return (
+                <ProductImageCard
+                  alt={product.name}
+                  url={otherImage}
+                  className={
+                    otherImage === currentProductImage ? "border-primary" : ""
+                  }
+                  onMouseOver={() => {
+                    setCurrentProductImage(otherImage);
+                  }}
+                  key={index}
+                />
+              );
+            })}
+          </div>
+          <div className="relative size-[25rem] overflow-hidden">
+            <Image
+              src={currentProductImage}
+              width={500}
+              height={500}
+              alt={product.name}
+              className="absolute block size-full object-contain object-center"
+            />
+          </div>
         </div>
-        <div className="relative size-[25rem] overflow-hidden">
-          <Image
-            src={currentProductImage}
-            width={500}
-            height={500}
-            alt={product.name}
-            className="absolute block size-full object-contain object-center"
-          />
+        <div className="flex gap-2 p-8">
+          <AddToCartButton product={product} className="w-full" />
+          <Button className="w-full" asChild>
+            <Link href={`/product/${product.id}/checkout`}>Buy Now</Link>
+          </Button>
         </div>
       </div>
 
@@ -129,12 +138,7 @@ function ProductComponent({ product }: { product: ProductType }) {
           attributes={product.attributes}
           variants={product.variants}
         />
-        <div className="flex gap-2 py-2">
-          <AddToCartButton product={product} className="w-full" />
-          <Button className="w-full" asChild>
-            <Link href={`/product/${product.id}/checkout`}>Buy Now</Link>
-          </Button>
-        </div>
+        <RatingsAndReviews />
       </div>
     </div>
   );
@@ -235,4 +239,71 @@ function ProductVariants({
       </div>
     </div>
   ));
+}
+
+function RatingsAndReviews() {
+  return (
+    <div className="pt-4">
+      <div className="flex items-center justify-between">
+        <div className="text-xl font-bold opacity-80">Ratings and Reviews</div>
+        <Button variant="secondary">Rate</Button>
+      </div>
+      <div className="flex items-center p-4">
+        <div className="flex w-max min-w-40 flex-col items-center gap-4 border-r-2 p-4">
+          <div className="flex items-center gap-2 opacity-80">
+            <span className="text-4xl">4.6</span>
+            <Star fill="currentColor" className="size-8 text-primary" />
+          </div>
+          <span className="text-center">10,756 Ratings</span>
+        </div>
+        <div className="w-full">
+          {[0, 0, 0, 0, 0].map((_, i) => (
+            <div className="flex w-full items-center gap-2 p-1 px-4" key={i}>
+              <div className="flex items-center gap-1">
+                <span>{i + 1}</span>
+                <Star className="size-4" />
+              </div>
+              <div className="w-full">
+                <Progress value={10 + i * 5} className="rounded-none" />
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div>
+        <div>
+          {[0, 0, 0, 0, 0].map((_, i) => (
+            <div className="border-t p-4" key={i}>
+              <div className="flex items-center gap-2">
+                <div className="flex w-max items-center gap-1 bg-secondary px-3 py-1">
+                  <span>4</span>
+                  <Star className="size-4" />
+                </div>
+                <span className="divide-opacity-80 font-semibold">
+                  Best product I have ever seen
+                </span>
+              </div>
+              <div className="pt-2">
+                Best product I have ever seen or will ever use buy it asap
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="divide-opacity-80 text-sm">
+                  A random name you will not remember
+                </span>
+                <div>
+                  <Button variant="ghost" size="icon">
+                    <ThumbsUp className="size-5" />
+                  </Button>
+                  <Button variant="ghost" size="icon">
+                    <ThumbsDown className="size-5" />
+                  </Button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
 }
