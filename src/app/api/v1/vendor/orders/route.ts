@@ -25,7 +25,6 @@ export async function GET() {
   await connectDB();
   const vendorEmail = session.user.email;
   const orders = await Order.find({ "products.vendorEmail": vendorEmail });
-  console.log(orders);
   // TODO: remove type from here
   type VendorOrder = {
     name: string;
@@ -36,9 +35,10 @@ export async function GET() {
     pricePaid: number;
   };
   // TODO: exact variant return and status return correct
+
   const vendorOrders: VendorOrder[] = [];
-  orders.forEach((order) => {
-    order.products.forEach(async (product) => {
+  for (const order of orders) {
+    for (const product of order.products) {
       if (product.vendorEmail === vendorEmail) {
         const dbProduct = await Product.findById(product.productId);
         if (!dbProduct) {
@@ -58,8 +58,8 @@ export async function GET() {
           pricePaid: product.pricePaid,
         });
       }
-    });
-  });
+    }
+  }
   return Response.json({
     message: vendorOrders,
     error: false,

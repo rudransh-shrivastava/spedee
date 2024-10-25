@@ -17,7 +17,6 @@ export async function GET() {
   await connectDB();
   const userEmail = session.user.email;
   const orders = await Order.find({ userEmail });
-  const userOrders: UserOrder[] = [];
   // TODO: remove type from here
   type UserOrder = {
     name: string;
@@ -27,8 +26,9 @@ export async function GET() {
     quantity: number;
     pricePaid: number;
   };
-  orders.forEach((order) => {
-    order.products.forEach(async (product) => {
+  const userOrders: UserOrder[] = [];
+  for (const order of orders) {
+    for (const product of order.products) {
       const dbProduct = await Product.findById(product.productId);
       if (!dbProduct) {
         return Response.json({
@@ -46,8 +46,8 @@ export async function GET() {
         quantity: product.quantity,
         pricePaid: product.pricePaid,
       });
-    });
-  });
+    }
+  }
   return Response.json({
     message: userOrders,
     error: false,
