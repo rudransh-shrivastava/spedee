@@ -63,7 +63,7 @@ export default function Page({ params: { id } }: { params: { id: string } }) {
       >
         <div className="flex flex-col pb-4 pl-10">
           <div className="flex py-4">
-            {[0, 0, 0, 0, 0].map((_, index) => (
+            {Array.from({ length: 5 }).map((_, index) => (
               <Button
                 key={index}
                 variant="ghost"

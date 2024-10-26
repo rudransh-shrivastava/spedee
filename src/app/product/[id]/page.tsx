@@ -34,6 +34,13 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import BackButton from "@/components/BackButton";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
 
 export default function ProductPage({
   params: { id },
@@ -116,36 +123,55 @@ function ProductComponent({ product }: { product: ProductType }) {
       </div>
       <div className="sticky top-24 h-max">
         <div className="flex gap-4">
-          <div className="flex flex-col gap-2">
-            <ProductImageCard
-              alt={product.name}
-              url={currentVariant.image}
-              className={
-                currentVariant.image === currentProductImage
-                  ? "border-primary"
-                  : ""
-              }
-              onMouseOver={() => {
-                setCurrentProductImage(currentVariant.image);
-              }}
-            />
-            {currentVariant.otherImages.map((otherImage, index) => {
-              return (
-                <ProductImageCard
-                  alt={product.name}
-                  url={otherImage}
-                  className={
-                    otherImage === currentProductImage ? "border-primary" : ""
-                  }
-                  onMouseOver={() => {
-                    setCurrentProductImage(otherImage);
-                  }}
-                  key={index}
-                />
-              );
-            })}
+          <div className="py-8">
+            <Carousel orientation="vertical">
+              <CarouselPrevious
+                className="-top-14 h-20 w-8 rounded-none border-none p-0"
+                variant="ghost"
+              />
+              <CarouselContent className="mt-0 max-h-[calc(28rem-4rem)]">
+                <CarouselItem>
+                  <ProductImageCard
+                    alt={product.name}
+                    url={currentVariant.image}
+                    className={
+                      currentVariant.image === currentProductImage
+                        ? "border-primary"
+                        : ""
+                    }
+                    onMouseOver={() => {
+                      setCurrentProductImage(currentVariant.image);
+                    }}
+                  />
+                </CarouselItem>
+
+                {currentVariant.otherImages.map((otherImage, index) => {
+                  return (
+                    <CarouselItem>
+                      <ProductImageCard
+                        alt={product.name}
+                        url={otherImage}
+                        className={
+                          otherImage === currentProductImage
+                            ? "border-primary"
+                            : ""
+                        }
+                        onMouseOver={() => {
+                          setCurrentProductImage(otherImage);
+                        }}
+                        key={index}
+                      />
+                    </CarouselItem>
+                  );
+                })}
+              </CarouselContent>
+              <CarouselNext
+                className="-bottom-14 h-20 w-8 rounded-none p-0"
+                variant="ghost"
+              />
+            </Carousel>
           </div>
-          <div className="relative size-[25rem] overflow-hidden bg-secondary">
+          <div className="relative size-[28rem] overflow-hidden bg-secondary">
             <Image
               src={currentProductImage}
               width={500}
@@ -203,7 +229,7 @@ function ProductImageCard({
   return (
     <div
       className={cn(
-        "w-32 shrink-0 overflow-hidden border-2 p-3 transition-colors",
+        "w-20 shrink-0 overflow-hidden border-2 transition-colors",
         className
       )}
       {...props}
@@ -212,7 +238,7 @@ function ProductImageCard({
         src={url}
         width={500}
         height={500}
-        className="size-28 object-contain object-center"
+        className="size-20 object-contain object-center"
         alt={alt}
       />
     </div>
@@ -385,7 +411,7 @@ function RatingsAndReviews() {
           <span className="text-center">10,756 Ratings</span>
         </div>
         <div className="w-full">
-          {[0, 0, 0, 0, 0].map((_, i) => (
+          {Array.from({ length: 5 }).map((_, i) => (
             <div className="flex w-full items-center gap-2 p-1 px-4" key={i}>
               <div className="flex items-center gap-1">
                 <span>{i + 1}</span>
@@ -401,7 +427,7 @@ function RatingsAndReviews() {
 
       <div>
         <div>
-          {[0, 0, 0, 0, 0].map((_, i) => (
+          {Array.from({ length: 5 }).map((_, i) => (
             <div className="border-t p-4" key={i}>
               <div className="flex items-center gap-2">
                 <div className="flex w-max items-center gap-1 bg-secondary px-3 py-1">
