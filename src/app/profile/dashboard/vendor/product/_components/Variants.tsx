@@ -22,6 +22,7 @@ import {
 import { Pin, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { productFormDataSchemaErrorType } from "@/zod-schema/product-zod-schema";
+import Image from "next/image";
 
 export function Variants({
   variants,
@@ -409,10 +410,12 @@ function DragAndDropImageUploader({
             className="group/link relative flex flex-col items-center justify-center"
           >
             <div className="size-[17rem] overflow-hidden border">
-              <img
+              <Image
                 key={imageIndex}
                 src={URL.createObjectURL(image)}
                 alt={`Selected ${imageIndex}`}
+                width={300}
+                height={300}
                 className={cn("h-full w-full object-contain object-top")}
               />
             </div>

@@ -147,7 +147,7 @@ function ProductComponent({ product }: { product: ProductType }) {
 
                 {currentVariant.otherImages.map((otherImage, index) => {
                   return (
-                    <CarouselItem>
+                    <CarouselItem key={index}>
                       <ProductImageCard
                         alt={product.name}
                         url={otherImage}
@@ -159,7 +159,6 @@ function ProductComponent({ product }: { product: ProductType }) {
                         onMouseOver={() => {
                           setCurrentProductImage(otherImage);
                         }}
-                        key={index}
                       />
                     </CarouselItem>
                   );
