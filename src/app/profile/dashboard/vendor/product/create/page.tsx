@@ -28,7 +28,9 @@ export default function CreateProductPage() {
     <>
       <div className="flex items-center gap-2 pb-8 pt-4">
         <BackButton />
-        <h1 className="text-2xl">Add a Product</h1>
+        <h1 className="text-2xl font-semibold text-secondary-foreground">
+          Add a Product
+        </h1>
       </div>
       <ProductForm
         saving={createProductMutation.status === "pending"}

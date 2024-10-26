@@ -53,7 +53,9 @@ function MyOrders({ orders }: { orders: OrderType[] }) {
           </div>
         </div>
         <div className="px-4">
-          <div className="text-2xl">My Orders</div>
+          <div className="text-2xl font-semibold text-secondary-foreground">
+            My Orders
+          </div>
           {orders.map((order, i) => (
             <div
               className={cn("flex items-center gap-2 border-b py-4")}

@@ -14,7 +14,7 @@ import { z, ZodFormattedError } from "zod";
 import { ProductType } from "@/models/Product";
 import { LoadingData } from "@/components/LoadingData";
 
-export const addressZodSchema = z.object({
+const addressZodSchema = z.object({
   address: z
     .string()
     .min(3, { message: "Address must be at least 3 characters" }),
@@ -112,7 +112,7 @@ function Checkout({
       console.log(result.error.format());
       console.log(JSON.stringify(product, null, 2));
     }
-  }, [buyProductMutation, orderData]);
+  }, [buyProductMutation, orderData, product]);
 
   return (
     <div className="grid h-full gap-4 lg:flex lg:flex-row-reverse">

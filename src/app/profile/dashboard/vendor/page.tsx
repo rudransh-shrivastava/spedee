@@ -28,7 +28,9 @@ import { LoadingData } from "@/components/LoadingData";
 export default function Page() {
   return (
     <div>
-      <h1 className="mb-4 text-2xl">Dashboard</h1>
+      <h1 className="mb-4 text-2xl font-semibold text-secondary-foreground">
+        Dashboard
+      </h1>
       <Tabs defaultValue="orders">
         <TabsList className="shadow-none">
           <TabsTrigger value="overview">Overview</TabsTrigger>

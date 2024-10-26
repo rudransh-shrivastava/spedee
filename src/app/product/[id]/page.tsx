@@ -96,7 +96,12 @@ function ProductComponent({ product }: { product: ProductType }) {
     }
     setCurrentVariant(variant);
     setCurrentProductImage(variant.image);
-  }, [searchParams, getVariantFromURLParams]);
+  }, [
+    searchParams,
+    getVariantFromURLParams,
+    product.variants,
+    updateVariantURLParams,
+  ]);
 
   const [currentProductImage, setCurrentProductImage] = useState(
     currentVariant.image
@@ -232,7 +237,7 @@ function ProductPrice({
         )}
       >
         {isSale && (
-          <span className="relative inline-block text-2xl font-bold text-secondary-foreground">
+          <span className="relative inline-block text-2xl font-semibold text-secondary-foreground">
             &#8377;{salePrice}
           </span>
         )}
@@ -365,7 +370,11 @@ function RatingsAndReviews() {
         <div className="text-xl font-bold text-secondary-foreground">
           Ratings and Reviews
         </div>
-        <Button variant="secondary">Rate</Button>
+        <Button variant="secondary" asChild>
+          <Link href="/product/[id]/review" as="/product/1/review">
+            Rate
+          </Link>
+        </Button>
       </div>
       <div className="flex items-center p-4">
         <div className="flex w-max min-w-40 flex-col items-center gap-4 border-r-2 p-4">

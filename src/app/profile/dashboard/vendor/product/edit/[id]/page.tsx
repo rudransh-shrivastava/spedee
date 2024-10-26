@@ -19,7 +19,9 @@ export default function EditProductPage({
     <>
       <div className="flex items-center gap-2 pb-8 pt-4">
         <BackButton />
-        <h1 className="text-2xl">Edit Product</h1>
+        <h1 className="text-2xl font-semibold text-secondary-foreground">
+          Edit Product
+        </h1>
       </div>
       <LoadingData status={status}>
         {product && (

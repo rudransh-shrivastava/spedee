@@ -6,7 +6,9 @@ import { Categories } from "./_components/Categories";
 export default function AdminDashboardPage() {
   return (
     <div>
-      <h1 className="mb-4 text-2xl">Dashboard</h1>
+      <h1 className="mb-4 text-2xl font-semibold text-secondary-foreground">
+        Dashboard
+      </h1>
       <Tabs defaultValue="categories">
         <TabsList>
           <TabsTrigger value="attributes">Attributes</TabsTrigger>

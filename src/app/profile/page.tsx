@@ -11,7 +11,9 @@ export default function Page() {
   const { data } = useSession();
   return data && data.user ? (
     <div>
-      <h1 className="text-2xl">Hii {data?.user.name}, How are you today</h1>
+      <h1 className="text-2xl font-semibold text-secondary-foreground">
+        Hii {data?.user.name}, How are you today
+      </h1>
       <div className="mt-4 flex flex-wrap items-center gap-4 border p-4">
         <div>
           {data.user.image && (
@@ -65,7 +67,9 @@ export default function Page() {
     </div>
   ) : (
     <div>
-      <h1 className="text-2xl">Hii, Please Login</h1>
+      <h1 className="text-2xl font-semibold text-secondary-foreground">
+        Hii, Please Login
+      </h1>
     </div>
   );
 }
