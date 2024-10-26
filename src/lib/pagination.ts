@@ -14,15 +14,14 @@ export async function paginatedResults<T>(
   model: Model<T>,
   page: number,
   limit: number,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  constraints?: any
+  constraints: Record<string, unknown> = {}
 ): Promise<PaginatedResults<T>> {
   const startIndex = (page - 1) * limit;
   const endIndex = page * limit;
 
   const results: PaginatedResults<T> = { results: [] };
 
-  if (endIndex < (await model.countDocuments().exec())) {
+  if (endIndex < (await model.countDocuments(constraints).exec())) {
     results.next = {
       page: page + 1,
       limit: limit,

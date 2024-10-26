@@ -22,6 +22,7 @@ const zodSchema = z.object({
       attributes: z.record(z.string()),
     })
   ),
+  coupon: z.string().optional(),
 });
 
 export async function POST(req: NextRequest) {
@@ -36,7 +37,7 @@ export async function POST(req: NextRequest) {
     return Response.json({ message: "Invalid data", error: result.error });
   }
 
-  const { name, phone, shippingAddress, products } = result.data;
+  const { name, phone, shippingAddress, products, coupon } = result.data;
   const userEmail = session.user.email;
   const matchedProducts = [];
   let totalAmount = 5000;

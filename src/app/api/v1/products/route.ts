@@ -11,8 +11,18 @@ export async function GET(req: NextRequest) {
 
   const page = parseInt(searchParams.get("page") as string) || 1;
   const limit = parseInt(searchParams.get("limit") as string) || 10;
+  const search = (searchParams.get("search") as string) || "";
 
-  const results = await paginatedResults(Product, page, limit);
+  const constraints = search
+    ? {
+        $or: [
+          { name: { $regex: search, $options: "i" } },
+          { description: { $regex: search, $options: "i" } },
+        ],
+      }
+    : {};
+
+  const results = await paginatedResults(Product, page, limit, constraints);
 
   const products: (ProductType & { id: string })[] = results.results.map(
     (product): ProductType & { id: string } => {
