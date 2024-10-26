@@ -1,4 +1,5 @@
 import { authOptions } from "@/lib/auth";
+import { connectDB } from "@/lib/mongodb";
 import Coupon, { CouponZodSchema } from "@/models/Coupon";
 import { getServerSession } from "next-auth";
 import { NextRequest } from "next/server";
@@ -21,6 +22,7 @@ export async function POST(req: NextRequest) {
       error: true,
     });
   }
+  await connectDB();
   const data = await req.json();
   const coupon = CouponZodSchema.safeParse(data);
   if (!coupon.success) {

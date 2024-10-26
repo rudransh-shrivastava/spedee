@@ -1,3 +1,4 @@
+import { convertCategoryIdtoCategory } from "@/lib/category";
 import { connectDB } from "@/lib/mongodb";
 import { getPublicImageUrl } from "@/lib/s3";
 import Product, { ProductType } from "@/models/Product";
@@ -13,12 +14,13 @@ export async function GET(req: NextRequest) {
   if (!product) {
     return Response.json({ message: "Product not found" }, { status: 404 });
   }
-  const productObject: ProductType = {
+  const productObject: ProductType & { categoryId: string } = {
     id: product.id.toString(),
     name: product.name,
     description: product.description,
     attributes: product.attributes,
-    category: product.category,
+    category: await convertCategoryIdtoCategory(product.category),
+    categoryId: product.category,
     bestSeller: product.bestSeller,
     bestSellerPriority: product.bestSellerPriority,
     variants: product.variants.map((variant) => {

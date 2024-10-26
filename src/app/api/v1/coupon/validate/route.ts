@@ -1,4 +1,5 @@
 import { authOptions } from "@/lib/auth";
+import { connectDB } from "@/lib/mongodb";
 import Coupon from "@/models/Coupon";
 import { getServerSession } from "next-auth";
 import { NextRequest } from "next/server";
@@ -15,6 +16,7 @@ export async function GET(req: NextRequest) {
       success: false,
     });
   }
+  await connectDB();
   const { searchParams } = new URL(req.url);
   const productId = searchParams.get("productId");
   const categoryId = searchParams.get("categoryId");
