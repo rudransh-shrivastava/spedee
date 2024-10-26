@@ -1,21 +1,46 @@
 "use client";
 
+import { LoadingData } from "@/components/LoadingData";
 import { Checkbox } from "@/components/ui/checkbox";
 import { cn } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import Image from "next/image";
 import Link from "next/link";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
 
 export default function Page() {
-  const { data: orders } = useQuery({
+  // const { data: ordersData, status: ordersStatus } = useQuery({
+  //   queryKey: ["my-orders"],
+  //   queryFn: async () => {
+  //     const response = await axios.get("/api/v1/orders");
+  //     console.log(response.data.data.results);
+  //     return response.data.data;
+  //   },
+  // });
+
+  const { data: ordersData, status: ordersStatus } = useQuery({
     queryKey: ["my-orders"],
     queryFn: async () => {
       const response = await axios.get("/api/v1/orders");
-      return response.data.message;
+      console.log(response.data.data.results);
+      return response.data.data;
     },
   });
-  return orders && <MyOrders orders={orders} />;
+
+  return (
+    <LoadingData status={ordersStatus}>
+      {ordersData ? <MyOrders orders={ordersData.results} /> : ""}
+    </LoadingData>
+  );
 }
 
 type OrderType = {
@@ -85,6 +110,22 @@ function MyOrders({ orders }: { orders: OrderType[] }) {
               </div>
             </div>
           ))}
+          <Pagination>
+            <PaginationContent>
+              <PaginationItem>
+                <PaginationPrevious href="#" />
+              </PaginationItem>
+              <PaginationItem>
+                <PaginationLink href="#">1</PaginationLink>
+              </PaginationItem>
+              <PaginationItem>
+                <PaginationEllipsis />
+              </PaginationItem>
+              <PaginationItem>
+                <PaginationNext href="#" />
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
         </div>
       </div>
     </div>

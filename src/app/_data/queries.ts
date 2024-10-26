@@ -15,14 +15,13 @@ async function getProduct(id: string): Promise<ProductType> {
   return data.product;
 }
 
-async function getAllProducts(): Promise<ProductType[]> {
-  const data = await getData("api/v1/products");
-  return data.products;
+async function getAllProducts(): Promise<{ results: ProductType[] }> {
+  const response = await getData("/api/v1/products");
+  return response.data;
 }
 
 async function getFilteredProducts(query: string): Promise<ProductType[]> {
-  const data = await getData(`api/v1/products${query}`);
-  console.log(data);
+  const data = await getData(`/api/v1/products${query}`);
   return data.products;
 }
 

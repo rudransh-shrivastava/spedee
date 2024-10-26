@@ -38,13 +38,13 @@ function HomePage() {
 }
 
 function BestSellers() {
-  const { status, data: bestSellers } = useQuery(queries.allProducts);
+  const { status, data: allProducts } = useQuery(queries.allProducts);
 
   return (
     <LoadingData status={[status]}>
       <div className="flex flex-wrap justify-center gap-2 py-4 sm:justify-center xl:justify-start">
-        {bestSellers
-          ? bestSellers.map((product, index) => (
+        {allProducts
+          ? allProducts.results.map((product, index) => (
               <ProductCard key={index} product={product} />
             ))
           : ""}

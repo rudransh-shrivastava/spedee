@@ -74,7 +74,9 @@ export function Attributes() {
 
   return (
     <LoadingData status={status}>
-      <h1 className="mb-4 px-4 text-xl">Attributes</h1>
+      <h2 className="mb-4 px-4 text-xl font-medium text-secondary-foreground">
+        Attributes
+      </h2>
       {attributes && (
         <>
           <div className="space-y-2">

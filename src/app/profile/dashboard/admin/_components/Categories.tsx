@@ -111,7 +111,9 @@ export function Categories() {
 
   return (
     <div>
-      <h1 className="mb-4 px-4 text-xl">Categories</h1>
+      <h2 className="mb-4 px-4 text-xl font-medium text-secondary-foreground">
+        Categories
+      </h2>
       <div>
         <LoadingData status={status}>
           {categories &&
