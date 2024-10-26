@@ -1,14 +1,22 @@
 import { connectDB } from "@/lib/mongodb";
+import { paginatedResults } from "@/lib/pagination";
 import { getPublicImageUrl } from "@/lib/s3";
 import Product from "@/models/Product";
 import { ProductType } from "@/models/Product";
+import { NextRequest } from "next/server";
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   await connectDB();
+  const { searchParams } = new URL(req.url);
 
-  const data = await Product.find({ bestSeller: true });
+  const page = parseInt(searchParams.get("page") as string) || 1;
+  const limit = parseInt(searchParams.get("limit") as string) || 10;
 
-  const products: (ProductType & { id: string })[] = data.map(
+  const results = await paginatedResults(Product, page, limit, {
+    bestSeller: true,
+  });
+
+  const products: (ProductType & { id: string })[] = results.results.map(
     (product): ProductType & { id: string } => {
       return {
         id: product.id.toString(),
@@ -32,6 +40,6 @@ export async function GET() {
       };
     }
   );
-
-  return Response.json({ products });
+  const data = { ...results, results: products };
+  return Response.json({ data, success: true, error: false });
 }
