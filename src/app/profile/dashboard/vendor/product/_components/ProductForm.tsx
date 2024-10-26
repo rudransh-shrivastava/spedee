@@ -227,7 +227,9 @@ function FormGroup({ children }: { children: React.ReactNode }) {
 
 function FormError({ error }: { error?: { _errors: string[] } | undefined }) {
   return error ? (
-    <div className="col-start-2 text-destructive">{error._errors[0]}</div>
+    <div className="col-start-2 text-sm text-destructive">
+      {error._errors[0]}
+    </div>
   ) : (
     ""
   );

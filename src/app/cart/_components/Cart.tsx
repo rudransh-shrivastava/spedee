@@ -13,7 +13,7 @@ import { AddToCartButton } from "@/components/AddToCartButton";
 
 export function Cart() {
   const { status, data: cartProducts } = useQuery(queries.cart);
-
+  console.log(JSON.stringify(cartProducts, null, 2));
   return (
     <LoadingData status={status}>
       <div className="flex w-full flex-col">

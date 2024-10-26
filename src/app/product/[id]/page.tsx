@@ -74,7 +74,7 @@ function ProductComponent({ product }: { product: ProductType }) {
       });
     });
     if (matchedVariant) return matchedVariant;
-    return product.variants[0];
+    return null;
   }, [product, searchParams]);
 
   const [currentVariant, setCurrentVariant] = useState<VariantType>(
@@ -89,7 +89,11 @@ function ProductComponent({ product }: { product: ProductType }) {
   );
 
   useEffect(() => {
-    const variant = getVariantFromURLParams();
+    let variant = getVariantFromURLParams();
+    if (!variant) {
+      variant = product.variants[0];
+      updateVariantURLParams(variant);
+    }
     setCurrentVariant(variant);
     setCurrentProductImage(variant.image);
   }, [searchParams, getVariantFromURLParams]);

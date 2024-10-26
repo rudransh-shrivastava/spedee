@@ -14,19 +14,26 @@ import { z, ZodFormattedError } from "zod";
 import { ProductType } from "@/models/Product";
 import { LoadingData } from "@/components/LoadingData";
 
+export const addressZodSchema = z.object({
+  address: z
+    .string()
+    .min(3, { message: "Address must be at least 3 characters" }),
+  city: z.string().min(3, { message: "City must be at least 3 characters" }),
+  state: z.string().min(3, { message: "State must be at least 3 characters" }),
+  zip: z.string().min(6, { message: "Zip code must be at least 6 characters" }),
+});
+
 const zodSchema = z.object({
-  name: z.string(),
-  phone: z.string(),
-  shippingAddress: z.object({
-    address: z.string(),
-    city: z.string(),
-    state: z.string(),
-    zip: z.string(),
-  }),
+  name: z.string().min(2, { message: "Name must be at least 2 characters" }),
+  phone: z
+    .string()
+    .min(10, { message: "Phone number must be at least 10 characters" }),
+  shippingAddress: addressZodSchema,
   products: z.array(
     z.object({
-      productId: z.string(),
-      quantity: z.number(),
+      productId: z.string().min(1, { message: "Product ID is required" }),
+      variantId: z.string().min(1, { message: "Variant ID is required" }),
+      quantity: z.number().min(1, { message: "Quantity must be at least 1" }),
       attributes: z.record(z.string()),
     })
   ),
@@ -83,6 +90,7 @@ function Checkout({
         productId: product.id,
         quantity: quantity || 1,
         attributes: prod.product.variants[0].attributes,
+        variantId: "",
       },
     ],
   });
@@ -93,6 +101,7 @@ function Checkout({
     const result = zodSchema.safeParse(orderData);
     if (result.success) {
       setErrors({ _errors: [] });
+      console.log("Success");
       buyProductMutation.mutate(orderData, {
         onSuccess: (data: unknown) => {
           console.log(data);
@@ -100,6 +109,8 @@ function Checkout({
       });
     } else {
       setErrors(result.error.format());
+      console.log(result.error.format());
+      console.log(JSON.stringify(product, null, 2));
     }
   }, [buyProductMutation, orderData]);
 
@@ -135,96 +146,107 @@ function LeftPan({
     <div className="grid w-full gap-4">
       <div className="w-full rounded-lg border p-4">
         <h2>Address</h2>
-        <div className="grid grid-cols-[20ch,auto] items-center gap-2 p-4">
-          <Label>Name</Label>
-          <Input
-            value={orderData.name}
-            onChange={(e) => {
-              setOrderData((prev) => ({ ...prev, name: e.target.value }));
-            }}
-          />
-          <FormError error={errors.name} />
-          <Label>Phone</Label>
-          <Input
-            value={orderData.phone}
-            onChange={(e) => {
-              setOrderData((prev) => ({ ...prev, phone: e.target.value }));
-            }}
-          />
-          <FormError error={errors.phone} />
-          <Label>Address</Label>
-          <Input
-            value={orderData.shippingAddress.address}
-            onChange={(e) => {
-              setOrderData((prev) => ({
-                ...prev,
-                shippingAddress: {
-                  ...prev.shippingAddress,
-                  address: e.target.value,
-                },
-              }));
-            }}
-          />
-          <FormError error={errors.shippingAddress?.address} />
-          <Label>Pincode</Label>
-          <Input
-            value={orderData.shippingAddress.zip}
-            onChange={(e) => {
-              setOrderData((prev) => ({
-                ...prev,
-                shippingAddress: {
-                  ...prev.shippingAddress,
-                  zip: e.target.value,
-                },
-              }));
-            }}
-          />
-          <FormError error={errors.shippingAddress?.zip} />
-          <Label>City</Label>
-          <Input
-            value={orderData.shippingAddress.city}
-            onChange={(e) => {
-              setOrderData((prev) => ({
-                ...prev,
-                shippingAddress: {
-                  ...prev.shippingAddress,
-                  city: e.target.value,
-                },
-              }));
-            }}
-          />
-          <FormError error={errors.shippingAddress?.city} />
-          <Label>State</Label>
-          <Input
-            value={orderData.shippingAddress.state}
-            onChange={(e) => {
-              setOrderData((prev) => ({
-                ...prev,
-                shippingAddress: {
-                  ...prev.shippingAddress,
-                  state: e.target.value,
-                },
-              }));
-            }}
-          />
-          <FormError error={errors.shippingAddress?.state} />
+        <div className="p-4">
+          <FormGroup>
+            <Label>Name</Label>
+            <Input
+              value={orderData.name}
+              onChange={(e) => {
+                setOrderData((prev) => ({ ...prev, name: e.target.value }));
+              }}
+            />
+            <FormError error={errors.name} />
+          </FormGroup>
+          <FormGroup>
+            <Label>Phone</Label>
+            <Input
+              value={orderData.phone}
+              onChange={(e) => {
+                setOrderData((prev) => ({ ...prev, phone: e.target.value }));
+              }}
+            />
+            <FormError error={errors.phone} />
+          </FormGroup>
+          <FormGroup>
+            <Label>Address</Label>
+            <Input
+              value={orderData.shippingAddress.address}
+              onChange={(e) => {
+                setOrderData((prev) => ({
+                  ...prev,
+                  shippingAddress: {
+                    ...prev.shippingAddress,
+                    address: e.target.value,
+                  },
+                }));
+              }}
+            />
+
+            <FormError error={errors.shippingAddress?.address} />
+          </FormGroup>
+
+          <FormGroup>
+            <Label>Pincode</Label>
+            <Input
+              value={orderData.shippingAddress.zip}
+              onChange={(e) => {
+                setOrderData((prev) => ({
+                  ...prev,
+                  shippingAddress: {
+                    ...prev.shippingAddress,
+                    zip: e.target.value,
+                  },
+                }));
+              }}
+            />
+            <FormError error={errors.shippingAddress?.zip} />
+          </FormGroup>
+          <FormGroup>
+            <Label>City</Label>
+            <Input
+              value={orderData.shippingAddress.city}
+              onChange={(e) => {
+                setOrderData((prev) => ({
+                  ...prev,
+                  shippingAddress: {
+                    ...prev.shippingAddress,
+                    city: e.target.value,
+                  },
+                }));
+              }}
+            />
+            <FormError error={errors.shippingAddress?.city} />
+          </FormGroup>
+          <FormGroup>
+            <Label>State</Label>
+            <Input
+              value={orderData.shippingAddress.state}
+              onChange={(e) => {
+                setOrderData((prev) => ({
+                  ...prev,
+                  shippingAddress: {
+                    ...prev.shippingAddress,
+                    state: e.target.value,
+                  },
+                }));
+              }}
+            />
+            <FormError error={errors.shippingAddress?.state} />
+          </FormGroup>
         </div>
       </div>
       <div className="w-full rounded-lg border p-4">
         <h2>Payment Options</h2>
         <div className="pt-4">
-          <RadioGroup defaultValue="option-one">
-            <Label htmlFor="option-one" asChild>
-              <div className="flex items-center space-x-2 rounded-lg border p-4">
-                <RadioGroupItem value="option-one" id="option-one" />
-                <span>Phonepe UPI</span>
-              </div>
-            </Label>
-            <Label htmlFor="option-two" asChild>
-              <div className="flex items-center space-x-2 rounded-lg border p-4">
-                <RadioGroupItem value="option-two" id="option-two" />
-                <span>Nahi Pata</span>
-              </div>
+          <RadioGroup defaultValue="option-phone-pe">
+            <Label
+              htmlFor="option-phone-pe"
+              className="flex cursor-pointer items-center space-x-2 rounded-lg border p-4"
+            >
+              <RadioGroupItem value="option-phone-pe" id="option-phone-pe" />
+              <span>
+                Credit & Debit cards / Wallet / UPI (Powered by PhonePe)
+              </span>
             </Label>
           </RadioGroup>
         </div>
@@ -369,14 +391,6 @@ function RightPan({
           <span>Delivery Fee</span>
           <span>{100}</span>
         </div>
-        <div className="flex justify-between py-1 text-sm font-light text-foreground/75">
-          <span>Platform Fee</span>
-          <span>{100}</span>
-        </div>
-        <div className="flex justify-between py-1 text-sm font-light text-foreground/75">
-          <span>GST</span>
-          <span>{100}</span>
-        </div>
         <div className="mt-2 flex justify-between border-t py-1 font-medium">
           <span>Total Payable</span>
           <span>{100}</span>
@@ -388,9 +402,19 @@ function RightPan({
   );
 }
 
+function FormGroup({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="grid items-center gap-1 py-2 md:grid-cols-[25ch,1fr] md:gap-x-4">
+      {children}
+    </div>
+  );
+}
+
 function FormError({ error }: { error: { _errors: string[] } | undefined }) {
   return error ? (
-    <div className="text-sm text-destructive">{error._errors[0]}</div>
+    <div className="col-start-2 text-sm text-destructive">
+      {error._errors[0]}
+    </div>
   ) : (
     ""
   );
