@@ -35,6 +35,5 @@ export async function GET(req: NextRequest) {
       };
     }),
   };
-
   return Response.json({ product: productObject });
 }
