@@ -31,7 +31,7 @@ export async function GET(req: NextRequest) {
           { description: { $regex: search, $options: "i" } },
         ],
       }
-    : {};
+    : {vendorEmail};
 
   const results = await paginatedResults(Product, page, limit, constraints);
 
