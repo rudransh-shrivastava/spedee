@@ -10,8 +10,8 @@ import { Star } from "lucide-react";
 import { useState } from "react";
 import { z, ZodFormattedError } from "zod";
 
-const reviewSchema = z.object({
-  prouctId: z.string({
+export const reviewZodSchema = z.object({
+  productId: z.string({
     required_error: "Product ID is required.",
     invalid_type_error: "Product ID must be a string.",
   }),
@@ -29,7 +29,7 @@ const reviewSchema = z.object({
     .min(10, "Review description must be at least 10 characters long."),
 });
 
-type ErrorType = ZodFormattedError<z.infer<typeof reviewSchema>>;
+type ErrorType = ZodFormattedError<z.infer<typeof reviewZodSchema>>;
 
 export default function Page({ params: { id } }: { params: { id: string } }) {
   const [stars, setStars] = useState(0);
@@ -53,7 +53,7 @@ export default function Page({ params: { id } }: { params: { id: string } }) {
       <form
         onSubmit={(e) => {
           e.preventDefault();
-          const result = reviewSchema.safeParse(review);
+          const result = reviewZodSchema.safeParse(review);
           if (result.success) {
             setErrors({ _errors: [] });
           } else {

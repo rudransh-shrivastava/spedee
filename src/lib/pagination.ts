@@ -1,4 +1,5 @@
 import { Model } from "mongoose";
+import { connectDB } from "./mongodb";
 interface PaginatedResults<T> {
   next?: {
     page: number;
@@ -16,6 +17,7 @@ export async function paginatedResults<T>(
   limit: number,
   constraints: Record<string, unknown> = {}
 ): Promise<PaginatedResults<T>> {
+  await connectDB();
   const startIndex = (page - 1) * limit;
   const endIndex = page * limit;
 
