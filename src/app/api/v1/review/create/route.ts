@@ -51,6 +51,8 @@ export async function POST(req: NextRequest) {
     });
   }
   const userEmail = session.user.email;
+  result.data.name = session.user.name as string;
+
   const review = {
     ...result.data,
     userEmail,
