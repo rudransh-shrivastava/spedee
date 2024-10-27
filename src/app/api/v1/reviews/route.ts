@@ -1,5 +1,7 @@
+import { authOptions } from "@/lib/auth";
 import { paginatedResults } from "@/lib/pagination";
-import Review from "@/models/Review";
+import Review, { ReviewType } from "@/models/Review";
+import { getServerSession } from "next-auth";
 import { NextRequest } from "next/server";
 
 export async function GET(req: NextRequest) {
@@ -30,8 +32,11 @@ export async function GET(req: NextRequest) {
         productId,
       };
   const results = await paginatedResults(Review, page, limit, constraints);
-
-  const reviews = results.results.map((review) => {
+  const session = await getServerSession(authOptions);
+  const userEmail = session?.user.email || "";
+  const reviews: ReviewType[] = results.results.map((review) => {
+    const isLiked = review.likes.includes(userEmail);
+    const isDisliked = review.dislikes.includes(userEmail);
     return {
       id: review.id,
       productId: review.productId,
@@ -39,6 +44,10 @@ export async function GET(req: NextRequest) {
       name: review.name,
       reviewTitle: review.reviewTitle,
       reviewDescription: review.reviewDescription,
+      likeCount: review.likeCount,
+      isLiked,
+      dislikeCount: review.dislikeCount,
+      isDisliked,
       createdAt: review.createdAt,
       updatedAt: review.updatedAt,
     };

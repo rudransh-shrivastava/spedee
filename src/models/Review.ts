@@ -10,14 +10,21 @@ import z from "zod";
 
 type ReviewZodSchemaType = z.infer<typeof reviewZodSchema>;
 
-interface ReviewType extends ReviewZodSchemaType {
+export interface ReviewType extends ReviewZodSchemaType {
   id: string;
-  userEmail: string;
+  likeCount: number;
+  isLiked: boolean;
+  isDisliked: boolean;
+  dislikeCount: number;
   createdAt: Date;
   updatedAt: Date;
 }
 
-interface ReviewInterface extends Omit<ReviewType, "id">, Document {}
+interface ReviewInterface extends Omit<ReviewType, "id">, Document {
+  userEmail: string;
+  likes: string[];
+  dislikes: string[];
+}
 
 const ReviewSchema = new mongoose.Schema<ReviewInterface>(
   {
@@ -43,6 +50,22 @@ const ReviewSchema = new mongoose.Schema<ReviewInterface>(
     },
     userEmail: {
       type: String,
+      required: true,
+    },
+    likes: {
+      type: [String],
+      default: [],
+    },
+    likeCount: {
+      type: Number,
+      required: true,
+    },
+    dislikes: {
+      type: [String],
+      default: [],
+    },
+    dislikeCount: {
+      type: Number,
       required: true,
     },
   },

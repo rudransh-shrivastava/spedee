@@ -1,5 +1,6 @@
 import { reviewZodSchema } from "@/app/product/[id]/review/page";
 import { authOptions } from "@/lib/auth";
+import { connectDB } from "@/lib/mongodb";
 import Review from "@/models/Review";
 import axios from "axios";
 import { getServerSession } from "next-auth";
@@ -27,6 +28,7 @@ export async function POST(req: NextRequest) {
       error: true,
     });
   }
+  await connectDB();
   const existingReview = await Review.findOne({
     productId,
     userEmail: session.user.email,
@@ -53,6 +55,8 @@ export async function POST(req: NextRequest) {
   const review = {
     ...result.data,
     userEmail,
+    likeCount: 0,
+    dislikeCount: 0,
   };
   await Review.create(review);
   return Response.json({ data: review, success: true, error: false });
