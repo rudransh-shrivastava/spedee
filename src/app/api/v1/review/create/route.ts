@@ -1,7 +1,6 @@
-import { reviewZodSchema } from "@/app/product/[id]/review/page";
 import { authOptions } from "@/lib/auth";
 import { connectDB } from "@/lib/mongodb";
-import Review from "@/models/Review";
+import Review, { reviewZodSchema } from "@/models/Review";
 import axios from "axios";
 import { getServerSession } from "next-auth";
 import { NextRequest } from "next/server";

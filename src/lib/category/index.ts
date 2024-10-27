@@ -18,6 +18,7 @@ export async function convertCategoryIdtoCategory(
 
 function searchCategory(
   categoryId: string,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   categories: any[],
   categoryList: string[]
 ): boolean {

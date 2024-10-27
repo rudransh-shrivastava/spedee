@@ -28,7 +28,8 @@ export const CouponZodSchema = z.object({
 type CouponErrorsType = ZodFormattedError<z.infer<typeof CouponZodSchema>>;
 
 export default function Coupons() {
-  const { data: products, status: productStatus } = useQuery({
+  // data: products removed
+  const { status: productStatus } = useQuery({
     ...queries.filteredProducts(""),
   });
 
@@ -126,12 +127,12 @@ function FormGroup({ children }: { children: React.ReactNode }) {
   );
 }
 
-function FormError({ error }: { error: { _errors: string[] } | undefined }) {
-  return error ? (
-    <div className="col-start-2 text-sm text-destructive">
-      {error._errors[0]}
-    </div>
-  ) : (
-    ""
-  );
-}
+// function FormError({ error }: { error: { _errors: string[] } | undefined }) {
+//   return error ? (
+//     <div className="col-start-2 text-sm text-destructive">
+//       {error._errors[0]}
+//     </div>
+//   ) : (
+//     ""
+//   );
+// }

@@ -38,6 +38,7 @@ export async function POST(req: NextRequest) {
   }
 
   const { name, phone, shippingAddress, products, coupon } = result.data;
+  console.log(coupon);
   const userEmail = session.user.email;
   const matchedProducts = [];
   let totalAmount = 5000;
