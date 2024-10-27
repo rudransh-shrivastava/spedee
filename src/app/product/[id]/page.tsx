@@ -6,7 +6,7 @@ import { LoadingData } from "@/components/LoadingData";
 import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
 import { ProductType, VariantType } from "@/models/Product";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   Check,
   ChevronRight,
@@ -42,6 +42,7 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel";
 import { ReviewType } from "@/models/Review";
+import axios from "axios";
 
 export default function ProductPage({
   params: { id },
@@ -408,6 +409,59 @@ function RatingsAndReviews({
   productId: string;
   reviews: PaginatedData<ReviewType>;
 }) {
+  const queryClient = useQueryClient();
+
+  const updateReview = useCallback(
+    (id: string, cb: (prevReview: ReviewType) => ReviewType) => {
+      queryClient.setQueryData(
+        queries.reviews(productId).queryKey,
+        (prev: PaginatedData<ReviewType>) => ({
+          ...prev,
+          results: prev.results.map((r) => {
+            if (r.id !== id) return r;
+            return cb(r);
+          }),
+        })
+      );
+    },
+    [queryClient]
+  );
+
+  const reactReview = useCallback(
+    (id: string, reaction: "like" | "dislike") => {
+      updateReview(id, (prevReview) => {
+        let newR = { ...prevReview };
+        switch (reaction) {
+          case "like":
+            newR = { ...newR, likeCount: newR.likeCount + 1, isLiked: true };
+            if (newR.isDisliked) {
+              newR = {
+                ...newR,
+                dislikeCount: newR.dislikeCount - 1,
+                isDisliked: false,
+              };
+            }
+            break;
+          case "dislike":
+            newR = {
+              ...newR,
+              dislikeCount: newR.dislikeCount + 1,
+              isDisliked: true,
+            };
+            if (newR.isLiked) {
+              newR = {
+                ...newR,
+                likeCount: newR.likeCount - 1,
+                isLiked: false,
+              };
+            }
+        }
+        return newR;
+      });
+    },
+    [queryClient, reviews]
+  );
+
   return (
     <div className="pt-4">
       <div className="flex items-center justify-between">
@@ -444,54 +498,96 @@ function RatingsAndReviews({
       <div>
         <div>
           {reviews.results.map((review, i) => (
-            <div className="border-t p-4" key={i}>
-              <div className="flex items-center gap-2">
-                <div className="flex w-max items-center gap-1 bg-secondary px-3 py-1">
-                  <span>{review.rating}</span>
-                  <Star className="size-4" />
-                </div>
-                <span className="font-semibold text-secondary-foreground">
-                  {review.reviewTitle}
-                </span>
-              </div>
-              <div className="pt-2">{review.reviewDescription}</div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-secondary-foreground">
-                  {review.name}
-                </span>
-                <div className="flex gap-1">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="w-auto min-w-9 gap-1 px-2"
-                  >
-                    <ThumbsUp
-                      className={cn(
-                        "size-5 shrink-0 stroke-secondary-foreground",
-                        { "fill-secondary-foreground": review.isLiked }
-                      )}
-                      strokeWidth={1.5}
-                    />
-                    <span className="">{review.likeCount}</span>
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="w-auto min-w-9 gap-1 px-2"
-                  >
-                    <ThumbsDown
-                      className={cn(
-                        "size-5 shrink-0 stroke-secondary-foreground",
-                        { "fill-secondary-foreground": review.isDisliked }
-                      )}
-                      strokeWidth={1.5}
-                    />
-                    <span className="">{review.dislikeCount}</span>
-                  </Button>
-                </div>
-              </div>
-            </div>
+            <ReviewCard key={i} review={review} reactReview={reactReview} />
           ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ReviewCard({
+  review,
+  reactReview,
+}: {
+  review: ReviewType;
+  reactReview: (id: string, reaction: "like" | "dislike") => void;
+}) {
+  const likeReviewMutation = useMutation({
+    mutationFn: (reviewId: string) => {
+      return axios.post(`/api/v1/review/like`, { reviewId });
+    },
+  });
+
+  const disLikeReviewMutation = useMutation({
+    mutationFn: (reviewId: string) => {
+      return axios.post(`/api/v1/review/dislike`, { reviewId });
+    },
+  });
+
+  return (
+    <div className="border-t p-4">
+      <div className="flex items-center gap-2">
+        <div className="flex w-max items-center gap-1 bg-secondary px-3 py-1">
+          <span>{review.rating}</span>
+          <Star className="size-4" />
+        </div>
+        <span className="font-semibold text-secondary-foreground">
+          {review.reviewTitle}
+        </span>
+      </div>
+      <div className="pt-2">{review.reviewDescription}</div>
+      <div className="flex items-center justify-between">
+        <span className="text-sm text-secondary-foreground">{review.name}</span>
+        <div className="flex gap-1">
+          <Button
+            variant="ghost"
+            size="icon"
+            disabled={
+              review.isLiked ||
+              likeReviewMutation.isPending ||
+              disLikeReviewMutation.isPending
+            }
+            className={cn("w-auto min-w-9 gap-1 px-2", {
+              "disabled:opacity-100": review.isLiked,
+            })}
+            onClick={() => {
+              likeReviewMutation.mutate(review.id);
+              reactReview(review.id, "like");
+            }}
+          >
+            <ThumbsUp
+              className={cn("size-5 shrink-0 stroke-secondary-foreground", {
+                "fill-primary stroke-primary": review.isLiked,
+              })}
+              strokeWidth={1.5}
+            />
+            <span className="">{review.likeCount}</span>
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            disabled={
+              review.isDisliked ||
+              likeReviewMutation.isPending ||
+              disLikeReviewMutation.isPending
+            }
+            className={cn("w-auto min-w-9 gap-1 px-2", {
+              "disabled:opacity-100": review.isDisliked,
+            })}
+            onClick={() => {
+              disLikeReviewMutation.mutate(review.id);
+              reactReview(review.id, "dislike");
+            }}
+          >
+            <ThumbsDown
+              className={cn("size-5 shrink-0 stroke-secondary-foreground", {
+                "fill-primary stroke-primary": review.isDisliked,
+              })}
+              strokeWidth={1.5}
+            />
+            <span className="">{review.dislikeCount}</span>
+          </Button>
         </div>
       </div>
     </div>
