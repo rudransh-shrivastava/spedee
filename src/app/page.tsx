@@ -32,14 +32,15 @@ function HomePage() {
           </div>
         </div>
       </div>
-      <BestSellers />
+      <Products />
     </>
   );
 }
 
-function BestSellers() {
-  const { status, data: allProducts } = useQuery(queries.allProducts);
-
+function Products() {
+  const { status, data: allProducts } = useQuery(
+    queries.allProducts({ page: 1 })
+  );
   return (
     <LoadingData status={[status]}>
       <div className="flex flex-wrap justify-center gap-2 py-4 sm:justify-center xl:justify-start">

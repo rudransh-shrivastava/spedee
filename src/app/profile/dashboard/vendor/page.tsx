@@ -26,54 +26,23 @@ import { toast } from "sonner";
 import { LoadingData } from "@/components/LoadingData";
 
 export default function Page() {
+  return <VendorDashboard />;
+}
+
+function VendorDashboard() {
   return (
     <div>
       <h1 className="mb-4 text-2xl font-semibold text-secondary-foreground">
         Dashboard
       </h1>
-      <Tabs defaultValue="orders">
+      <Tabs defaultValue="products">
         <TabsList className="shadow-none">
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="products">Products</TabsTrigger>
           <TabsTrigger value="orders">Orders</TabsTrigger>
         </TabsList>
         <TabsContent value="overview">
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 lg:grid-cols-5">
-            <div>
-              <div className="pb-2">
-                <div>Total Revenue</div>
-              </div>
-              <div>
-                <div className="text-2xl font-bold">+12,234</div>
-                <p className="text-xs text-muted-foreground">
-                  +19% from last month
-                </p>
-              </div>
-            </div>
-            <div>
-              <div className="pb-2">
-                <div>Products</div>
-              </div>
-              <div>
-                <div className="text-2xl font-bold">17</div>
-                <p className="text-xs text-muted-foreground">
-                  +19% from last month
-                </p>
-              </div>
-            </div>
-
-            <div>
-              <div className="pb-2">
-                <div>Sales</div>
-              </div>
-              <div>
-                <div className="text-2xl font-bold">88</div>
-                <p className="text-xs text-muted-foreground">
-                  +19% from last month
-                </p>
-              </div>
-            </div>
-          </div>
+          <VendorDashboardOverview />
         </TabsContent>
         <TabsContent value="products">
           <VendorProducts />
@@ -86,8 +55,45 @@ export default function Page() {
   );
 }
 
+function VendorDashboardOverview() {
+  return (
+    <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 lg:grid-cols-5">
+      <div>
+        <div className="pb-2">
+          <div>Total Revenue</div>
+        </div>
+        <div>
+          <div className="text-2xl font-bold">+12,234</div>
+          <p className="text-xs text-muted-foreground">+19% from last month</p>
+        </div>
+      </div>
+      <div>
+        <div className="pb-2">
+          <div>Products</div>
+        </div>
+        <div>
+          <div className="text-2xl font-bold">17</div>
+          <p className="text-xs text-muted-foreground">+19% from last month</p>
+        </div>
+      </div>
+
+      <div>
+        <div className="pb-2">
+          <div>Sales</div>
+        </div>
+        <div>
+          <div className="text-2xl font-bold">88</div>
+          <p className="text-xs text-muted-foreground">+19% from last month</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function VendorProducts() {
-  const { status, data: vendorProducts } = useQuery(queries.vendorProducts);
+  const { status, data: vendorProducts } = useQuery(
+    queries.vendorProducts({ page: 1 })
+  );
   const deleteProductMutation = useMutation(mutations.deleteVendorProduct);
   const queryClient = useQueryClient();
 
@@ -98,7 +104,7 @@ function VendorProducts() {
           onSuccess: () => {
             resolve({ success: true, error: "" });
             queryClient.setQueryData(
-              queries.vendorProducts.queryKey,
+              queries.vendorProducts({ page: 1 }).queryKey,
               (prev: ProductType[]) =>
                 prev.filter((product) => product.id !== productId)
             );
@@ -113,10 +119,10 @@ function VendorProducts() {
   );
 
   return (
-    <div className="flex min-h-[16rem] flex-wrap gap-4 py-4">
+    <div className="flex min-h-[16rem] flex-wrap justify-center gap-2 py-4 sm:justify-center xl:justify-start">
       <LoadingData status={status}>
         <Button
-          className="h-auto min-h-[24rem] w-full max-w-[16rem] flex-col gap-2 bg-card text-card-foreground"
+          className="h-auto min-h-[24rem] w-full max-w-[19rem] flex-col gap-2 bg-card text-card-foreground"
           variant="ghost"
           asChild
         >
@@ -126,7 +132,7 @@ function VendorProducts() {
           </Link>
         </Button>
         {vendorProducts &&
-          vendorProducts.map((product, index) => (
+          vendorProducts.results.map((product, index) => (
             <ProductCard
               key={index}
               product={product}

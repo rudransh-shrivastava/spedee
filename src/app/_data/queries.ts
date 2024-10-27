@@ -4,6 +4,12 @@ import axios from "axios";
 import { ProductType } from "@/models/Product";
 import { AttributeType, CategoryTree } from "@/types";
 
+type PaginatedData<T> = {
+  results: T[];
+  next?: { page: 2; limit: 10 };
+  previous?: { page: 2; limit: 10 };
+};
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function getData(url: string): Promise<any> {
   const response = await axios.get(url);
@@ -15,8 +21,10 @@ async function getProduct(id: string): Promise<ProductType> {
   return data.product;
 }
 
-async function getAllProducts(): Promise<{ results: ProductType[] }> {
-  const response = await getData("/api/v1/products");
+async function getAllProducts(
+  page?: number
+): Promise<PaginatedData<ProductType>> {
+  const response = await getData(`/api/v1/products?page=${page}`);
   return response.data;
 }
 
@@ -25,9 +33,13 @@ async function getFilteredProducts(query: string): Promise<ProductType[]> {
   return data.products;
 }
 
-async function getVendorProducts(): Promise<ProductType[]> {
-  const data = await getData("/api/v1/vendor/products");
-  return data.products;
+async function getVendorProducts({
+  page,
+}: {
+  page?: number;
+}): Promise<PaginatedData<ProductType>> {
+  const response = await getData(`/api/v1/vendor/products?page=${page}`);
+  return response.data;
 }
 
 async function getBestSellerProducts(): Promise<ProductType[]> {
@@ -39,6 +51,7 @@ async function getCart(): Promise<
   { product: ProductType; quantity: number }[]
 > {
   const data = await getData("/api/v1/cart");
+  console.log(data);
   return data.items;
 }
 
@@ -95,18 +108,18 @@ const queries = {
     queryFn: getCategories,
     queryKey: ["categories"],
   },
-  vendorProducts: {
-    queryFn: getVendorProducts,
-    queryKey: ["products", "vendor"],
-  },
+  vendorProducts: ({ page }: { page?: number }) => ({
+    queryFn: () => getVendorProducts({ page: page }),
+    queryKey: ["products", "vendor", page],
+  }),
   product: (id: string) => ({
     queryFn: () => getProduct(id),
     queryKey: ["products", id],
   }),
-  allProducts: {
-    queryFn: getAllProducts,
-    queryKey: ["products"],
-  },
+  allProducts: ({ page }: { page?: number }) => ({
+    queryFn: () => getAllProducts(page),
+    queryKey: ["products", page],
+  }),
   filteredProducts: (query: string) => ({
     queryFn: () => getFilteredProducts(query),
     queryKey: ["products", query],

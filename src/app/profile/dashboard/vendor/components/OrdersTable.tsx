@@ -7,7 +7,7 @@ export default function OrdersTable() {
   const { data } = useQuery({
     queryFn: async () => {
       const x = await axios.get("/api/v1/vendor/orders");
-      return x.data.message;
+      return x.data.data;
     },
     queryKey: ["orders", "vendor"],
   });
