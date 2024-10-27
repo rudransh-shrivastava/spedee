@@ -1,4 +1,5 @@
 import { authOptions } from "@/lib/auth";
+import { connectDB } from "@/lib/mongodb";
 import { paginatedResults } from "@/lib/pagination";
 import Review, { ReviewType } from "@/models/Review";
 import { getServerSession } from "next-auth";
@@ -52,16 +53,28 @@ export async function GET(req: NextRequest) {
       updatedAt: review.updatedAt,
     };
   });
-  const stats = {
-    totalRatings: 10034,
-    averageRating: parseFloat((4.5).toFixed(1)),
-    ratings: {
-      1: 100,
-      2: 200,
-      3: 300,
-      4: 400,
-      5: 500,
+  await connectDB();
+  const totalRatings = await Review.countDocuments({ productId });
+  const ratingsMap = await Review.aggregate([
+    { $match: { productId } },
+    {
+      $group: {
+        _id: "$rating",
+        count: { $sum: 1 },
+      },
     },
+  ]);
+  const ratings = Object.fromEntries(
+    ratingsMap.map((rating) => [rating._id, rating.count])
+  );
+  const averageRating = ratingsMap.reduce(
+    (acc, rating) => acc + (rating._id * rating.count) / totalRatings,
+    0
+  );
+  const stats = {
+    totalRatings,
+    averageRating: parseFloat(averageRating.toFixed(1)),
+    ratings,
   };
   const data = { ...results, results: reviews };
   return Response.json({ data, stats, success: true, error: false });
