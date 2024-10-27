@@ -12,6 +12,7 @@ async function createProduct(product: FormData) {
 async function updateCart(data: {
   productId: string;
   quantity: number;
+  variantId: string;
 }): Promise<{ data: { success: boolean; error: boolean; message?: string } }> {
   return axios.post("/api/v1/cart/update", { ...data });
 }

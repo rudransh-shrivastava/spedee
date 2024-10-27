@@ -57,7 +57,7 @@ function AddToCart({
   const queryClient = useQueryClient();
   const productQuantity =
     cartProducts?.find((p) => p.product.id === product.id)?.quantity || 0;
-
+  const variantId = product.variants[0].id;
   const updateCartMutation = useMutation(mutations.updateCart);
 
   const updateQuantity = useCallback(
@@ -115,6 +115,7 @@ function AddToCart({
             {
               productId: product.id,
               quantity: productQuantity - 1,
+              variantId,
             },
             {
               onSuccess: () => {
@@ -137,6 +138,7 @@ function AddToCart({
             {
               productId: product.id,
               quantity: productQuantity + 1,
+              variantId,
             },
             {
               onSuccess: () => {
@@ -159,6 +161,7 @@ function AddToCart({
           {
             productId: product.id,
             quantity: 1,
+            variantId,
           },
           {
             onSuccess: () => {

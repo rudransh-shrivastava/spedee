@@ -101,7 +101,6 @@ function Checkout({
     const result = zodSchema.safeParse(orderData);
     if (result.success) {
       setErrors({ _errors: [] });
-      console.log("Success");
       buyProductMutation.mutate(orderData, {
         onSuccess: (data: unknown) => {
           console.log(data);
@@ -110,7 +109,6 @@ function Checkout({
     } else {
       setErrors(result.error.format());
       console.log(result.error.format());
-      console.log(JSON.stringify(product, null, 2));
     }
   }, [buyProductMutation, orderData, product]);
 
@@ -267,35 +265,10 @@ function RightPan({
   product: ProductType;
   cartProducts: { product: ProductType; quantity: number }[];
 }) {
-  const queryClient = useQueryClient();
-
-  const updateCartMutation = useMutation(mutations.updateCart);
-
-  const setProductQuantity = useCallback(
-    (id: string, quantity: number) => {
-      queryClient.setQueryData(
-        queries.cart.queryKey,
-        cartProducts?.map((p) => (p.product.id === id ? { ...p, quantity } : p))
-      );
-      queryClient.invalidateQueries({
-        queryKey: queries.cart.queryKey,
-        exact: true,
-      });
-    },
-    [cartProducts, queryClient]
-  );
-
   return product ? (
     <div className="shrink-0 rounded-lg border p-4">
       {orderData.products[0].quantity > 0 ? (
-        <div
-          className={cn(
-            "flex items-center gap-2 p-2",
-            updateCartMutation.status === "pending"
-              ? "pointer-events-none opacity-50"
-              : ""
-          )}
-        >
+        <div className={cn("flex items-center gap-2 p-2")}>
           <div className="size-12 rounded-lg bg-secondary shadow">
             <Image
               src={product.variants[0].image}
@@ -306,61 +279,7 @@ function RightPan({
             />
           </div>
           <span className="text-sm">{product.name}</span>
-          {orderData.products[0].quantity > 0 && (
-            <div className="ml-auto flex h-9 items-center overflow-hidden rounded-lg border bg-background">
-              <Button
-                className="rounded-r-none px-2 text-2xl font-medium leading-none"
-                variant="ghost"
-                disabled={updateCartMutation.status === "pending"}
-                onClick={() => {
-                  updateCartMutation.mutate(
-                    {
-                      productId: product.id,
-                      quantity: orderData.products[0].quantity - 1,
-                    },
-                    {
-                      onSuccess: (res) => {
-                        if (!res.data.error) {
-                          setProductQuantity(
-                            product.id,
-                            orderData.products[0].quantity - 1
-                          );
-                        }
-                      },
-                    }
-                  );
-                }}
-              >
-                -
-              </Button>
-              <span className="px-2">{orderData.products[0].quantity}</span>
-              <Button
-                className="rounded-l-none px-2 text-lg font-medium leading-none"
-                variant="ghost"
-                disabled={updateCartMutation.status === "pending"}
-                onClick={() => {
-                  updateCartMutation.mutate(
-                    {
-                      productId: product.id,
-                      quantity: orderData.products[0].quantity + 1,
-                    },
-                    {
-                      onSuccess: (res) => {
-                        if (!res.data.error) {
-                          setProductQuantity(
-                            product.id,
-                            orderData.products[0].quantity + 1
-                          );
-                        }
-                      },
-                    }
-                  );
-                }}
-              >
-                +
-              </Button>
-            </div>
-          )}
+          {/* TODO: Add to Card Button */}
           <div className="flex flex-col items-center px-2">
             <span>
               {product.variants[0].priceInPaise *

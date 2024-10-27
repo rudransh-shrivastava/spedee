@@ -69,7 +69,7 @@ function CartItemCard({
   product,
   quantity,
 }: {
-  product: ProductType;
+  product: ProductType & { selectedVariantId: string };
   quantity: number;
 }) {
   const updateCartMutation = useMutation(mutations.updateCart);

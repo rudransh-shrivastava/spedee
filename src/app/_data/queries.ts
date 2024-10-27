@@ -48,10 +48,9 @@ async function getBestSellerProducts(): Promise<ProductType[]> {
 }
 
 async function getCart(): Promise<
-  { product: ProductType; quantity: number }[]
+  { product: ProductType & { selectedVariantId: string }; quantity: number }[]
 > {
   const data = await getData("/api/v1/cart");
-  console.log(data);
   return data.items;
 }
 

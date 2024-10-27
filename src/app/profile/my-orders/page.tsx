@@ -18,20 +18,10 @@ import {
 } from "@/components/ui/pagination";
 
 export default function Page() {
-  // const { data: ordersData, status: ordersStatus } = useQuery({
-  //   queryKey: ["my-orders"],
-  //   queryFn: async () => {
-  //     const response = await axios.get("/api/v1/orders");
-  //     console.log(response.data.data.results);
-  //     return response.data.data;
-  //   },
-  // });
-
   const { data: ordersData, status: ordersStatus } = useQuery({
     queryKey: ["my-orders"],
     queryFn: async () => {
       const response = await axios.get("/api/v1/orders");
-      console.log(response.data.data.results);
       return response.data.data;
     },
   });
