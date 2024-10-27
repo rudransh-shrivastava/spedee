@@ -32,6 +32,8 @@ export function ProductCard({
     return () => observer.disconnect();
   }, []);
 
+  const variant = product.variants[0];
+
   return (
     <div
       ref={elementRef}
@@ -44,7 +46,7 @@ export function ProductCard({
         <div className="group/link overflow-hidden p-0">
           <div className="relative mx-auto flex size-[17rem] items-center justify-center overflow-hidden">
             <Image
-              src={product.variants[0].image}
+              src={variant.image}
               alt={product.name}
               width={500}
               height={500}
@@ -59,14 +61,12 @@ export function ProductCard({
       <div className="mt-auto">
         <div className="flex flex-wrap items-center justify-between gap-2 py-4">
           <div className="flex items-center gap-2">
-            <span className="font-bold">
-              &#8377;{product.variants[0].salePriceInPaise}
-            </span>
+            <span className="font-bold">&#8377;{variant.salePriceInPaise}</span>
             <span className="text-sm text-secondary-foreground line-through">
-              &#8377;{product.variants[0].priceInPaise}
+              &#8377;{variant.priceInPaise}
             </span>
           </div>
-          <AddToCartButton product={product} />
+          <AddToCartButton product={product} variantId={variant.id} />
         </div>
         <Button variant="secondary" className="w-full" asChild>
           <Link href={`/product/${product.id}/checkout`}>Buy Now</Link>

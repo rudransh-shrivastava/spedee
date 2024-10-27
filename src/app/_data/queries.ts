@@ -3,6 +3,7 @@
 import axios from "axios";
 import { ProductType } from "@/models/Product";
 import { AttributeType, CategoryTree } from "@/types";
+import { CartFrontendType } from "../cart/_components/Cart";
 
 type PaginatedData<T> = {
   results: T[];
@@ -47,9 +48,7 @@ async function getBestSellerProducts(): Promise<ProductType[]> {
   return data.products;
 }
 
-async function getCart(): Promise<
-  { product: ProductType & { selectedVariantId: string }; quantity: number }[]
-> {
+async function getCart(): Promise<CartFrontendType[]> {
   const data = await getData("/api/v1/cart");
   return data.items;
 }

@@ -181,7 +181,11 @@ function ProductComponent({ product }: { product: ProductType }) {
           </div>
         </div>
         <div className="flex gap-2 py-4">
-          <AddToCartButton product={product} className="h-10 w-full" />
+          <AddToCartButton
+            product={product}
+            variantId={currentVariant.id}
+            className="h-10 w-full"
+          />
           <Button className="h-10 w-full" asChild>
             <Link href={`/product/${product.id}/checkout`}>Buy Now</Link>
           </Button>

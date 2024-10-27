@@ -14,7 +14,9 @@ async function updateCart(data: {
   quantity: number;
   variantId: string;
 }): Promise<{ data: { success: boolean; error: boolean; message?: string } }> {
-  return axios.post("/api/v1/cart/update", { ...data });
+  const response = await axios.post("/api/v1/cart/update", { ...data });
+  console.log(response);
+  return response;
 }
 
 async function createAttribute(

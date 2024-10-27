@@ -6,6 +6,7 @@ import { mutations } from "@/app/_data/mutations";
 import { useCallback } from "react";
 import { cn } from "@/lib/utils";
 import { Minus, Plus } from "lucide-react";
+import { CartFrontendType } from "@/app/cart/_components/Cart";
 
 type AddToCartButtonVariants = "primary" | "outline";
 
@@ -13,8 +14,10 @@ export function AddToCartButton({
   product,
   variant = "primary",
   className,
+  variantId,
 }: {
   product: ProductType;
+  variantId: string;
   variant?: AddToCartButtonVariants;
   className?: string;
 }) {
@@ -37,6 +40,7 @@ export function AddToCartButton({
           product={product}
           cartProducts={cartProducts}
           variant={variant}
+          variantId={variantId}
         />
       )}
     </div>
@@ -46,18 +50,23 @@ export function AddToCartButton({
 function AddToCart({
   cartProducts,
   product,
-  variant,
+  variantId,
   className,
+  variant,
 }: {
-  cartProducts: { product: ProductType; quantity: number }[];
+  cartProducts: CartFrontendType[];
   product: ProductType;
+  variantId: string;
   variant: AddToCartButtonVariants;
   className?: string;
 }) {
   const queryClient = useQueryClient();
+  const productInCart = cartProducts?.find((p) => p.product.id === product.id);
   const productQuantity =
-    cartProducts?.find((p) => p.product.id === product.id)?.quantity || 0;
-  const variantId = product.variants[0].id;
+    productInCart && productInCart.variantId === variantId
+      ? productInCart.quantity
+      : 0;
+
   const updateCartMutation = useMutation(mutations.updateCart);
 
   const updateQuantity = useCallback(
@@ -69,7 +78,7 @@ function AddToCart({
         queryClient.setQueryData(
           queries.cart.queryKey,
           (data: { product: ProductType; quantity: number }[]) => {
-            return [...data, { product, quantity: cb(0) }];
+            return [...data, { product, quantity: cb(0), variantId }];
           }
         );
         return;
@@ -86,7 +95,9 @@ function AddToCart({
         queries.cart.queryKey,
         (data: { product: ProductType; quantity: number }[]) => {
           return data.map((p) =>
-            p.product.id === product.id ? { ...p, quantity: cb(p.quantity) } : p
+            p.product.id === product.id
+              ? { ...p, quantity: cb(p.quantity), variantId }
+              : p
           );
         }
       );

@@ -11,8 +11,15 @@ import { LoadingData } from "@/components/LoadingData";
 import Link from "next/link";
 import { AddToCartButton } from "@/components/AddToCartButton";
 
+export type CartFrontendType = {
+  product: ProductType;
+  quantity: number;
+  variantId: string;
+};
+
 export function Cart() {
   const { status, data: cartProducts } = useQuery(queries.cart);
+  console.log("cartProducts", cartProducts);
   return (
     <LoadingData status={status}>
       <div className="flex w-full flex-col">
@@ -22,8 +29,13 @@ export function Cart() {
               No Product in Cart
             </div>
           ) : (
-            cartProducts.map(({ product, quantity }, index) => (
-              <CartItemCard quantity={quantity} key={index} product={product} />
+            cartProducts.map(({ product, quantity, variantId }, index) => (
+              <CartItemCard
+                quantity={quantity}
+                key={index}
+                product={product}
+                variantId={variantId}
+              />
             ))
           )
         ) : (
@@ -65,14 +77,10 @@ export function Cart() {
   );
 }
 
-function CartItemCard({
-  product,
-  quantity,
-}: {
-  product: ProductType & { selectedVariantId: string };
-  quantity: number;
-}) {
+function CartItemCard({ product, quantity, variantId }: CartFrontendType) {
   const updateCartMutation = useMutation(mutations.updateCart);
+  const variant =
+    product.variants.find((v) => v.id === variantId) || product.variants[0];
   return quantity > 0 ? (
     <div
       className={cn(
@@ -86,7 +94,7 @@ function CartItemCard({
         <div className="group/link flex items-center gap-2">
           <div className="size-12">
             <Image
-              src={product.variants[0].image}
+              src={variant.image}
               width={48}
               height={48}
               alt=""
@@ -99,12 +107,16 @@ function CartItemCard({
         </div>
       </Link>
       <div className="ml-auto flex flex-col items-center px-2">
-        <span>{product.variants[0].priceInPaise * quantity}</span>
+        <span>{variant.priceInPaise * quantity}</span>
         <span className="text-sm text-foreground/75 line-through">
-          {product.variants[0].salePriceInPaise * quantity}
+          {variant.salePriceInPaise * quantity}
         </span>
       </div>
-      <AddToCartButton product={product} variant="outline" />
+      <AddToCartButton
+        product={product}
+        variant="outline"
+        variantId={variant.id}
+      />
     </div>
   ) : (
     ""
