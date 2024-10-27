@@ -167,7 +167,7 @@ export async function POST(req: NextRequest) {
   return Response.json({
     message: "Payment initiated (?)",
     url: null,
-    success: true,
+    success: false,
   });
 }
 function generatedTranscId() {

@@ -21,7 +21,7 @@ export async function POST(req: NextRequest) {
   await connectDB();
   const data = await req.json();
   const cartItem = CartItemZodSchema.safeParse(data);
-  console.log(data);
+  console.log("backend: ", cartItem.data);
 
   if (!cartItem.success) {
     return Response.json({ message: cartItem.error, error: true });
@@ -42,7 +42,7 @@ export async function POST(req: NextRequest) {
     return Response.json({ message: "Item added to cart", success: true });
   }
   const existingItem = cart.items.find(
-    (item: { productId: string }) => item.productId === cartItem.data.productId
+    (item: { variantId: string }) => item.variantId === cartItem.data.variantId
   );
   // if exisitng item is found, update the quantity
   // if quantity is 0, remove the item
@@ -54,7 +54,7 @@ export async function POST(req: NextRequest) {
       // Remove the item if the quantity is 0
       await Cart.findOneAndUpdate(
         { userEmail },
-        { $pull: { items: { productId: cartItem.data.productId } } }
+        { $pull: { items: { variantId: cartItem.data.variantId } } }
       );
       return Response.json({
         message: "Item removed from cart",
@@ -63,7 +63,7 @@ export async function POST(req: NextRequest) {
     } else {
       // Update the quantity
       await Cart.findOneAndUpdate(
-        { userEmail, "items.productId": cartItem.data.productId },
+        { userEmail, "items.variantId": cartItem.data.variantId },
         { $set: { "items.$.quantity": cartItem.data.quantity } }
       );
       return Response.json({
