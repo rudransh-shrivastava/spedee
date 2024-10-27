@@ -137,4 +137,5 @@ body {
 
 * {
   scrollbar-color: hsl(var(--accent-foreground) / 0.25) hsl(var(--background));
+  scroll-behavior: smooth;
 }

@@ -531,8 +531,9 @@ function RatingsAndReviews({
               </Link>
             </Button>
           )}
+          <div className="mx-auto">{reviewPage}</div>
           {nextPageLink && (
-            <Button variant="outline" className="ml-auto gap-1 pr-1" asChild>
+            <Button variant="outline" className="gap-1 pr-1" asChild>
               <Link href={nextPageLink + "#reviews"}>
                 <span>Next</span>
                 <ChevronRight />
