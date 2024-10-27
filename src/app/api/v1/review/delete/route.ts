@@ -34,12 +34,19 @@ export async function POST(req: NextRequest) {
       error: true,
     });
   }
-   if (review.userEmail !== userEmail || session.user.role !== "admin") {
-     return Response.json({
-       message: "Unauthorized",
-       status: 401,
-       success: false,
-       error: true,
-     });
-   }
+  if (review.userEmail !== userEmail || session.user.role !== "admin") {
+    return Response.json({
+      message: "Unauthorized",
+      status: 401,
+      success: false,
+      error: true,
+    });
+  }
+  await Review.findByIdAndDelete(reviewId);
+  return Response.json({
+    message: "Review deleted successfully",
+    status: 200,
+    success: true,
+    error: false,
+  });
 }

@@ -26,7 +26,7 @@ export async function GET() {
     if (!product) {
       return Response.json({ message: "Product not found" }, { status: 404 });
     }
-    const productObject: ProductType & { selectedVariantId: string } = {
+    const productObject: ProductType = {
       id: product.id.toString(),
       name: product.name,
       description: product.description,
@@ -34,7 +34,6 @@ export async function GET() {
       category: product.category,
       bestSeller: product.bestSeller,
       bestSellerPriority: product.bestSellerPriority,
-      selectedVariantId: item.variantId,
       variants: product.variants.map((variant) => {
         return {
           id: variant.id,
@@ -47,7 +46,11 @@ export async function GET() {
         };
       }),
     };
-    return { product: productObject, quantity: item.quantity };
+    return {
+      product: productObject,
+      quantity: item.quantity,
+      variantId: item.variantId,
+    };
   });
   const products = await Promise.all(productsPromises!);
   const cartData = {
