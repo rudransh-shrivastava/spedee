@@ -1,6 +1,6 @@
 "use client";
 
-import { queries } from "@/app/_data/queries";
+import { PaginatedData, queries } from "@/app/_data/queries";
 import { AddToCartButton } from "@/components/AddToCartButton";
 import { LoadingData } from "@/components/LoadingData";
 import { Progress } from "@/components/ui/progress";
@@ -41,6 +41,7 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
+import { ReviewType } from "@/models/Review";
 
 export default function ProductPage({
   params: { id },
@@ -109,6 +110,10 @@ function ProductComponent({ product }: { product: ProductType }) {
     product.variants,
     updateVariantURLParams,
   ]);
+
+  const { data: reviews, status: reviewsStatus } = useQuery(
+    queries.reviews(product.id)
+  );
 
   const [currentProductImage, setCurrentProductImage] = useState(
     currentVariant.image
@@ -213,7 +218,11 @@ function ProductComponent({ product }: { product: ProductType }) {
           variants={product.variants}
           currentVariant={currentVariant}
         />
-        <RatingsAndReviews productId={product.id} />
+        <LoadingData status={reviewsStatus}>
+          {reviews && (
+            <RatingsAndReviews productId={product.id} reviews={reviews} />
+          )}
+        </LoadingData>
       </div>
     </div>
   );
@@ -392,7 +401,13 @@ function ProductVariants({
   });
 }
 
-function RatingsAndReviews({ productId }: { productId: string }) {
+function RatingsAndReviews({
+  productId,
+  reviews,
+}: {
+  productId: string;
+  reviews: PaginatedData<ReviewType>;
+}) {
   return (
     <div className="pt-4">
       <div className="flex items-center justify-between">
@@ -428,30 +443,50 @@ function RatingsAndReviews({ productId }: { productId: string }) {
 
       <div>
         <div>
-          {Array.from({ length: 5 }).map((_, i) => (
+          {reviews.results.map((review, i) => (
             <div className="border-t p-4" key={i}>
               <div className="flex items-center gap-2">
                 <div className="flex w-max items-center gap-1 bg-secondary px-3 py-1">
-                  <span>4</span>
+                  <span>{review.rating}</span>
                   <Star className="size-4" />
                 </div>
                 <span className="font-semibold text-secondary-foreground">
-                  Best product I have ever seen
+                  {review.reviewTitle}
                 </span>
               </div>
-              <div className="pt-2">
-                Best product I have ever seen or will ever use buy it asap
-              </div>
+              <div className="pt-2">{review.reviewDescription}</div>
               <div className="flex items-center justify-between">
                 <span className="text-sm text-secondary-foreground">
-                  A random name you will not remember
+                  {review.name}
                 </span>
-                <div>
-                  <Button variant="ghost" size="icon" className="rounded-full">
-                    <ThumbsUp className="size-5" strokeWidth={1.5} />
+                <div className="flex gap-1">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="w-auto min-w-9 gap-1 px-2"
+                  >
+                    <ThumbsUp
+                      className={cn(
+                        "size-5 shrink-0 stroke-secondary-foreground",
+                        { "fill-secondary-foreground": review.isLiked }
+                      )}
+                      strokeWidth={1.5}
+                    />
+                    <span className="">{review.likeCount}</span>
                   </Button>
-                  <Button variant="ghost" size="icon" className="rounded-full">
-                    <ThumbsDown className="size-5" strokeWidth={1.5} />
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="w-auto min-w-9 gap-1 px-2"
+                  >
+                    <ThumbsDown
+                      className={cn(
+                        "size-5 shrink-0 stroke-secondary-foreground",
+                        { "fill-secondary-foreground": review.isDisliked }
+                      )}
+                      strokeWidth={1.5}
+                    />
+                    <span className="">{review.dislikeCount}</span>
                   </Button>
                 </div>
               </div>

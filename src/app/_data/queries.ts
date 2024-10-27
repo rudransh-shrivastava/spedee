@@ -4,8 +4,9 @@ import axios from "axios";
 import { ProductType } from "@/models/Product";
 import { AttributeType, CategoryTree } from "@/types";
 import { CartFrontendType } from "../cart/_components/Cart";
+import { ReviewType } from "@/models/Review";
 
-type PaginatedData<T> = {
+export type PaginatedData<T> = {
   results: T[];
   next?: { page: 2; limit: 10 };
   previous?: { page: 2; limit: 10 };
@@ -25,6 +26,11 @@ async function getProduct(id: string): Promise<ProductType> {
 async function getIsPurchased(id: string): Promise<{ purchased: boolean }> {
   const res = await getData(`/api/v1/product/purchased?productId=${id}`);
   return res;
+}
+
+async function getReviews(id: string): Promise<PaginatedData<ReviewType>> {
+  const res = await getData(`/api/v1/reviews?productId=${id}`);
+  return res.data;
 }
 
 async function getAllProducts(
@@ -122,6 +128,10 @@ const queries = {
   isPurchased: (id: string) => ({
     queryFn: () => getIsPurchased(id),
     queryKey: ["product", id, "purchased"],
+  }),
+  reviews: (id: string) => ({
+    queryFn: () => getReviews(id),
+    queryKey: ["product", id, "reviews"],
   }),
   allProducts: ({ page }: { page?: number }) => ({
     queryFn: () => getAllProducts(page),
