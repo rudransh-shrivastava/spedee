@@ -22,6 +22,11 @@ async function getProduct(id: string): Promise<ProductType> {
   return data.product;
 }
 
+async function getIsPurchased(id: string): Promise<{ purchased: boolean }> {
+  const res = await getData(`/api/v1/product/purchased?productId=${id}`);
+  return res;
+}
+
 async function getAllProducts(
   page?: number
 ): Promise<PaginatedData<ProductType>> {
@@ -113,6 +118,10 @@ const queries = {
   product: (id: string) => ({
     queryFn: () => getProduct(id),
     queryKey: ["products", id],
+  }),
+  isPurchased: (id: string) => ({
+    queryFn: () => getIsPurchased(id),
+    queryKey: ["product", id, "purchased"],
   }),
   allProducts: ({ page }: { page?: number }) => ({
     queryFn: () => getAllProducts(page),

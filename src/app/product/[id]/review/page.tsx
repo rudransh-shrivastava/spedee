@@ -1,22 +1,67 @@
 "use client";
 
+import { queries } from "@/app/_data/queries";
 import BackButton from "@/components/BackButton";
+import { LoadingData } from "@/components/LoadingData";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
-import { reviewZodSchema } from "@/models/Review";
+import { useQuery } from "@tanstack/react-query";
+import axios from "axios";
 import { Star } from "lucide-react";
 import { useState } from "react";
 import { z, ZodFormattedError } from "zod";
 
+const reviewZodSchema = z.object({
+  productId: z.string({
+    required_error: "Product ID is required.",
+    invalid_type_error: "Product ID must be a string.",
+  }),
+  rating: z
+    .number()
+    .min(1, "Rating must be at least 1.")
+    .max(5, "Rating must be at most 5.")
+    .refine((val) => Number.isInteger(val), "Rating must be an integer."),
+  name: z.string().min(3, "Name must be at least 3 characters long."),
+  reviewTitle: z
+    .string()
+    .min(3, "Review title must be at least 3 characters long."),
+  reviewDescription: z
+    .string()
+    .min(10, "Review description must be at least 10 characters long."),
+});
+
 type ErrorType = ZodFormattedError<z.infer<typeof reviewZodSchema>>;
 
 export default function Page({ params: { id } }: { params: { id: string } }) {
+  const { data, status } = useQuery(queries.isPurchased(id));
+
+  return (
+    <div>
+      <h1 className="flex items-center gap-2 text-2xl font-semibold text-secondary-foreground">
+        <BackButton />
+        Rate the Product
+      </h1>
+      <LoadingData status={status}>
+        {data && !data.purchased ? (
+          <ReviewForm productId={id} />
+        ) : (
+          <div className="py-2 pl-12 text-lg text-secondary-foreground">
+            Please Purhase The Product first
+          </div>
+        )}
+      </LoadingData>
+    </div>
+  );
+}
+
+function ReviewForm({ productId }: { productId: string }) {
   const [stars, setStars] = useState(0);
+  console.log(productId);
   const [review, setReview] = useState({
-    prouctId: id,
+    productId: productId,
     rating: 0,
     name: "",
     reviewTitle: "",
@@ -27,94 +72,90 @@ export default function Page({ params: { id } }: { params: { id: string } }) {
   });
 
   return (
-    <div>
-      <h1 className="flex items-center gap-2 text-2xl font-semibold text-secondary-foreground">
-        <BackButton />
-        Rate the Product
-      </h1>
-      <form
-        onSubmit={(e) => {
-          e.preventDefault();
-          const result = reviewZodSchema.safeParse(review);
-          if (result.success) {
-            setErrors({ _errors: [] });
-          } else {
-            setErrors(result.error.format());
+    <form
+      onSubmit={(e) => {
+        e.preventDefault();
+        const result = reviewZodSchema.safeParse(review);
+        if (result.success) {
+          setErrors({ _errors: [] });
+          const response = axios.post("/api/v1/review/create", result.data);
+        } else {
+          console.log(result.error.format());
+          setErrors(result.error.format());
+        }
+      }}
+    >
+      <div className="flex flex-col pb-4 pl-10">
+        <div className="flex py-4">
+          {Array.from({ length: 5 }).map((_, index) => (
+            <Button
+              key={index}
+              variant="ghost"
+              className="flex items-center gap-1 hover:bg-transparent"
+              size="icon"
+              onMouseOver={() => setStars(index + 1)}
+              onMouseLeave={() => setStars(review.rating)}
+              onClick={(e) => {
+                e.preventDefault();
+                setReview({ ...review, rating: index + 1 });
+              }}
+            >
+              <Star
+                strokeWidth={1.5}
+                className={cn(
+                  "stroke-primary",
+                  index < stars ? "fill-primary" : "fill-transparent"
+                )}
+              />
+            </Button>
+          ))}
+        </div>
+        <FormError error={errors.rating} className="pl-3" />
+      </div>
+      <FormGroup>
+        <Label className="flex h-9 items-center" htmlFor="name">
+          Name
+        </Label>
+        <Input
+          type="text"
+          id="name"
+          value={review.name}
+          onChange={(e) => setReview({ ...review, name: e.target.value })}
+        />
+        <FormError error={errors.name} />
+      </FormGroup>
+      <FormGroup>
+        <Label className="flex h-9 items-center" htmlFor="reviewTitle">
+          Review Title
+        </Label>
+        <Input
+          type="text"
+          id="reviewTitle"
+          value={review.reviewTitle}
+          onChange={(e) =>
+            setReview({ ...review, reviewTitle: e.target.value })
           }
-        }}
-      >
-        <div className="flex flex-col pb-4 pl-10">
-          <div className="flex py-4">
-            {Array.from({ length: 5 }).map((_, index) => (
-              <Button
-                key={index}
-                variant="ghost"
-                className="flex items-center gap-1 hover:bg-transparent"
-                size="icon"
-                onMouseOver={() => setStars(index + 1)}
-                onMouseLeave={() => setStars(review.rating)}
-                onClick={(e) => {
-                  e.preventDefault();
-                  setReview({ ...review, rating: index + 1 });
-                }}
-              >
-                <Star
-                  strokeWidth={1.5}
-                  className={cn(
-                    "stroke-primary",
-                    index < stars ? "fill-primary" : "fill-transparent"
-                  )}
-                />
-              </Button>
-            ))}
-          </div>
-          <FormError error={errors.rating} className="pl-3" />
-        </div>
-        <FormGroup>
-          <Label className="flex h-9 items-center" htmlFor="name">
-            Name
-          </Label>
-          <Input
-            type="text"
-            id="name"
-            value={review.name}
-            onChange={(e) => setReview({ ...review, name: e.target.value })}
-          />
-          <FormError error={errors.name} />
-        </FormGroup>
-        <FormGroup>
-          <Label className="flex h-9 items-center" htmlFor="reviewTitle">
-            Review Title
-          </Label>
-          <Input
-            type="text"
-            id="reviewTitle"
-            value={review.reviewTitle}
-            onChange={(e) =>
-              setReview({ ...review, reviewTitle: e.target.value })
-            }
-          />
-          <FormError error={errors.reviewTitle} />
-        </FormGroup>
-        <FormGroup>
-          <Label className="flex h-9 items-center" htmlFor="reviewDescription">
-            Review Description
-          </Label>
-          <Textarea
-            id="reviewDescription"
-            className="min-h-20"
-            value={review.reviewDescription}
-            onChange={(e) =>
-              setReview({ ...review, reviewDescription: e.target.value })
-            }
-          />
-          <FormError error={errors.reviewDescription} />
-        </FormGroup>
-        <div className="flex justify-end py-4">
-          <Button type="submit">Submit</Button>
-        </div>
-      </form>
-    </div>
+        />
+        <FormError error={errors.reviewTitle} />
+      </FormGroup>
+      <FormGroup>
+        <Label className="flex h-9 items-center" htmlFor="reviewDescription">
+          Review Description
+        </Label>
+        <Textarea
+          id="reviewDescription"
+          className="min-h-20"
+          value={review.reviewDescription}
+          onChange={(e) =>
+            setReview({ ...review, reviewDescription: e.target.value })
+          }
+        />
+        <FormError error={errors.reviewDescription} />
+      </FormGroup>
+      <div className="flex justify-end py-4">
+        <Button type="submit">Submit</Button>
+      </div>
+    </form>
   );
 }
 

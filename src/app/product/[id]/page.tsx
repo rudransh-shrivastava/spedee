@@ -213,7 +213,7 @@ function ProductComponent({ product }: { product: ProductType }) {
           variants={product.variants}
           currentVariant={currentVariant}
         />
-        <RatingsAndReviews />
+        <RatingsAndReviews productId={product.id} />
       </div>
     </div>
   );
@@ -392,7 +392,7 @@ function ProductVariants({
   });
 }
 
-function RatingsAndReviews() {
+function RatingsAndReviews({ productId }: { productId: string }) {
   return (
     <div className="pt-4">
       <div className="flex items-center justify-between">
@@ -400,9 +400,7 @@ function RatingsAndReviews() {
           Ratings and Reviews
         </div>
         <Button variant="secondary" asChild>
-          <Link href="/product/[id]/review" as="/product/1/review">
-            Rate
-          </Link>
+          <Link href={`/product/${productId}/review`}>Rate</Link>
         </Button>
       </div>
       <div className="flex items-center p-4">
