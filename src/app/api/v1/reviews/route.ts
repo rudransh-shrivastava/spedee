@@ -52,7 +52,17 @@ export async function GET(req: NextRequest) {
       updatedAt: review.updatedAt,
     };
   });
-
+  const stats = {
+    totalRatings: 10034,
+    averageRating: parseFloat((4.5).toFixed(1)),
+    ratings: {
+      1: 100,
+      2: 200,
+      3: 300,
+      4: 400,
+      5: 500,
+    },
+  };
   const data = { ...results, results: reviews };
-  return Response.json({ data, success: true, error: false });
+  return Response.json({ data, stats, success: true, error: false });
 }
