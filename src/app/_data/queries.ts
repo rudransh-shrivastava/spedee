@@ -28,8 +28,11 @@ async function getIsPurchased(id: string): Promise<{ purchased: boolean }> {
   return res;
 }
 
-async function getReviews(id: string): Promise<PaginatedData<ReviewType>> {
-  const res = await getData(`/api/v1/reviews?productId=${id}`);
+async function getReviews(
+  id: string,
+  page?: number
+): Promise<PaginatedData<ReviewType>> {
+  const res = await getData(`/api/v1/reviews?productId=${id}&page=${page}`);
   return res.data;
 }
 
@@ -129,9 +132,9 @@ const queries = {
     queryFn: () => getIsPurchased(id),
     queryKey: ["product", id, "purchased"],
   }),
-  reviews: (id: string) => ({
-    queryFn: () => getReviews(id),
-    queryKey: ["product", id, "reviews"],
+  reviews: (id: string, page?: number) => ({
+    queryFn: () => getReviews(id, page),
+    queryKey: ["product", id, "reviews", page],
   }),
   allProducts: ({ page }: { page?: number }) => ({
     queryFn: () => getAllProducts(page),

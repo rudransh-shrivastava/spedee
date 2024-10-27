@@ -9,6 +9,7 @@ import { ProductType, VariantType } from "@/models/Product";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   Check,
+  ChevronLeft,
   ChevronRight,
   CopyIcon,
   Share2,
@@ -112,8 +113,10 @@ function ProductComponent({ product }: { product: ProductType }) {
     updateVariantURLParams,
   ]);
 
+  const reviewPageParam = searchParams.get("reviewPage");
+  const reviewPage = reviewPageParam ? parseInt(reviewPageParam) : 1;
   const { data: reviews, status: reviewsStatus } = useQuery(
-    queries.reviews(product.id)
+    queries.reviews(product.id, reviewPage)
   );
 
   const [currentProductImage, setCurrentProductImage] = useState(
@@ -221,7 +224,11 @@ function ProductComponent({ product }: { product: ProductType }) {
         />
         <LoadingData status={reviewsStatus}>
           {reviews && (
-            <RatingsAndReviews productId={product.id} reviews={reviews} />
+            <RatingsAndReviews
+              reviewPage={reviewPage}
+              productId={product.id}
+              reviews={reviews}
+            />
           )}
         </LoadingData>
       </div>
@@ -405,16 +412,18 @@ function ProductVariants({
 function RatingsAndReviews({
   productId,
   reviews,
+  reviewPage,
 }: {
   productId: string;
   reviews: PaginatedData<ReviewType>;
+  reviewPage: number;
 }) {
   const queryClient = useQueryClient();
 
   const updateReview = useCallback(
     (id: string, cb: (prevReview: ReviewType) => ReviewType) => {
       queryClient.setQueryData(
-        queries.reviews(productId).queryKey,
+        queries.reviews(productId, reviewPage).queryKey,
         (prev: PaginatedData<ReviewType>) => ({
           ...prev,
           results: prev.results.map((r) => {
@@ -462,8 +471,22 @@ function RatingsAndReviews({
     [queryClient, reviews]
   );
 
+  const searchParams = useSearchParams();
+  const pathName = usePathname();
+  const currentParams = new URLSearchParams(searchParams.toString());
+  let nextPageLink = "";
+  let previousPageLink = "";
+  if (reviews.next) {
+    currentParams.set("reviewPage", reviews.next.page.toString());
+    nextPageLink = `${pathName}?${currentParams.toString()}`;
+  }
+  if (reviews.previous) {
+    currentParams.set("reviewPage", reviews.previous.page.toString());
+    previousPageLink = `${pathName}?${currentParams.toString()}`;
+  }
+
   return (
-    <div className="pt-4">
+    <div className="scroll-m-20 pt-4" id="reviews">
       <div className="flex items-center justify-between">
         <div className="text-xl font-bold text-secondary-foreground">
           Ratings and Reviews
@@ -496,10 +519,26 @@ function RatingsAndReviews({
       </div>
 
       <div>
-        <div>
-          {reviews.results.map((review, i) => (
-            <ReviewCard key={i} review={review} reactReview={reactReview} />
-          ))}
+        {reviews.results.map((review, i) => (
+          <ReviewCard key={i} review={review} reactReview={reactReview} />
+        ))}
+        <div className="flex w-full items-center py-2">
+          {previousPageLink && (
+            <Button variant="outline" className="gap-1 pl-1" asChild>
+              <Link href={previousPageLink + "#reviews"}>
+                <ChevronLeft />
+                <span>Previous</span>
+              </Link>
+            </Button>
+          )}
+          {nextPageLink && (
+            <Button variant="outline" className="ml-auto gap-1 pr-1" asChild>
+              <Link href={nextPageLink + "#reviews"}>
+                <span>Next</span>
+                <ChevronRight />
+              </Link>
+            </Button>
+          )}
         </div>
       </div>
     </div>
