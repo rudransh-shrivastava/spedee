@@ -115,7 +115,7 @@ function ProductComponent({ product }: { product: ProductType }) {
 
   const reviewPageParam = searchParams.get("reviewPage");
   const reviewPage = reviewPageParam ? parseInt(reviewPageParam) : 1;
-  const { data: reviews, status: reviewsStatus } = useQuery(
+  const { data: reviewData, status: reviewsStatus } = useQuery(
     queries.reviews(product.id, reviewPage)
   );
 
@@ -223,11 +223,11 @@ function ProductComponent({ product }: { product: ProductType }) {
           currentVariant={currentVariant}
         />
         <LoadingData status={reviewsStatus}>
-          {reviews && (
+          {reviewData && (
             <RatingsAndReviews
               reviewPage={reviewPage}
               productId={product.id}
-              reviews={reviews}
+              reviews={reviewData}
             />
           )}
         </LoadingData>
@@ -411,11 +411,24 @@ function ProductVariants({
 
 function RatingsAndReviews({
   productId,
-  reviews,
+  reviews: { data: reviews, stats },
   reviewPage,
 }: {
   productId: string;
-  reviews: PaginatedData<ReviewType>;
+  reviews: {
+    data: PaginatedData<ReviewType>;
+    stats: {
+      totalRatings: number;
+      averageRating: number;
+      ratings: {
+        1: number;
+        2: number;
+        3: number;
+        4: number;
+        5: number;
+      };
+    };
+  };
   reviewPage: number;
 }) {
   const queryClient = useQueryClient();
@@ -498,22 +511,19 @@ function RatingsAndReviews({
       <div className="flex items-center p-4">
         <div className="flex w-max min-w-40 flex-col items-center gap-4 border-r-2 p-4">
           <div className="flex items-center gap-2 text-secondary-foreground">
-            <span className="text-4xl">4.6</span>
+            <span className="text-4xl">{stats.averageRating}</span>
             <Star fill="currentColor" className="size-8 text-primary" />
           </div>
-          <span className="text-center">10,756 Ratings</span>
+          <span className="text-center">{stats.totalRatings} Ratings</span>
         </div>
-        <div className="w-full">
-          {Array.from({ length: 5 }).map((_, i) => (
-            <div className="flex w-full items-center gap-2 p-1 px-4" key={i}>
-              <div className="flex items-center gap-1">
-                <span>{i + 1}</span>
-                <Star className="size-4" />
-              </div>
-              <div className="w-full">
-                <Progress value={10 + i * 5} className="rounded-none" />
-              </div>
-            </div>
+        <div className="grid w-full grid-cols-[2rem,auto,max-content] items-center gap-2 p-1 px-4">
+          {Object.entries(stats.ratings).map(([rating, ratingValue], i) => (
+            <RatingProgressBar
+              key={i}
+              rating={rating}
+              ratingValue={ratingValue}
+              totalRatings={stats.totalRatings}
+            />
           ))}
         </div>
       </div>
@@ -531,7 +541,7 @@ function RatingsAndReviews({
               </Link>
             </Button>
           )}
-          <div className="mx-auto">{reviewPage}</div>
+          <div className="mx-auto">Page {reviewPage}</div>
           {nextPageLink && (
             <Button variant="outline" className="gap-1 pr-1" asChild>
               <Link href={nextPageLink + "#reviews"}>
@@ -543,6 +553,30 @@ function RatingsAndReviews({
         </div>
       </div>
     </div>
+  );
+}
+
+function RatingProgressBar({
+  rating,
+  ratingValue,
+  totalRatings,
+}: {
+  rating: string;
+  ratingValue: number;
+  totalRatings: number;
+}) {
+  return (
+    <>
+      <div className="flex items-center gap-1">
+        <span>{rating}</span>
+        <Star className="size-4" />
+      </div>
+      <Progress
+        value={(100 * ratingValue) / totalRatings}
+        className="rounded-none"
+      />
+      <span>{ratingValue}</span>
+    </>
   );
 }
 

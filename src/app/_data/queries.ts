@@ -31,9 +31,22 @@ async function getIsPurchased(id: string): Promise<{ purchased: boolean }> {
 async function getReviews(
   id: string,
   page?: number
-): Promise<PaginatedData<ReviewType>> {
+): Promise<{
+  data: PaginatedData<ReviewType>;
+  stats: {
+    totalRatings: number;
+    averageRating: number;
+    ratings: {
+      1: number;
+      2: number;
+      3: number;
+      4: number;
+      5: number;
+    };
+  };
+}> {
   const res = await getData(`/api/v1/reviews?productId=${id}&page=${page}`);
-  return res.data;
+  return res;
 }
 
 async function getAllProducts(
