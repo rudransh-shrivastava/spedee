@@ -19,7 +19,6 @@ export type CartFrontendType = {
 
 export function Cart() {
   const { status, data: cartProducts } = useQuery(queries.cart);
-  console.log("cartProducts", cartProducts);
   return (
     <LoadingData status={status}>
       <div className="flex w-full flex-col">
@@ -90,7 +89,7 @@ function CartItemCard({ product, quantity, variantId }: CartFrontendType) {
           : ""
       )}
     >
-      <Link href={`/product/${product.id}`}>
+      <Link href={`/product/${product.id.split("-")[0]}`}>
         <div className="group/link flex items-center gap-2">
           <div className="size-12">
             <Image

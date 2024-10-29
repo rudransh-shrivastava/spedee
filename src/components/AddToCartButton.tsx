@@ -124,7 +124,7 @@ function AddToCart({
         onClick={() => {
           updateCartMutation.mutate(
             {
-              productId: product.id,
+              productId: product.id.split("-")[0],
               quantity: productQuantity - 1,
               variantId,
             },
@@ -147,7 +147,7 @@ function AddToCart({
         onClick={() => {
           updateCartMutation.mutate(
             {
-              productId: product.id,
+              productId: product.id.split("-")[0],
               quantity: productQuantity + 1,
               variantId,
             },
@@ -170,7 +170,7 @@ function AddToCart({
       onClick={() => {
         updateCartMutation.mutate(
           {
-            productId: product.id,
+            productId: product.id.split("-")[0],
             quantity: 1,
             variantId,
           },
