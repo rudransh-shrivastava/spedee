@@ -89,7 +89,7 @@ function CartItemCard({ product, quantity, variantId }: CartFrontendType) {
           : ""
       )}
     >
-      <Link href={`/product/${product.id.split("-")[0]}`}>
+      <Link href={`/product/${product.id}`}>
         <div className="group/link flex items-center gap-2">
           <div className="size-12">
             <Image
