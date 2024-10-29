@@ -437,16 +437,35 @@ function RatingsAndReviews({
     (id: string, cb: (prevReview: ReviewType) => ReviewType) => {
       queryClient.setQueryData(
         queries.reviews(productId, reviewPage).queryKey,
-        (prev: PaginatedData<ReviewType>) => ({
-          ...prev,
-          results: prev.results.map((r) => {
-            if (r.id !== id) return r;
-            return cb(r);
-          }),
-        })
+        (prev: {
+          data: PaginatedData<ReviewType>;
+          stats: {
+            totalRatings: number;
+            averageRating: number;
+            ratings: {
+              1: number;
+              2: number;
+              3: number;
+              4: number;
+              5: number;
+            };
+          };
+        }) => {
+          console.log(prev);
+          return {
+            ...prev,
+            data: {
+              ...prev.data,
+              results: prev.data.results.map((r) => {
+                if (r.id !== id) return r;
+                return cb(r);
+              }),
+            },
+          };
+        }
       );
     },
-    [queryClient]
+    [queryClient, productId, reviewPage]
   );
 
   const reactReview = useCallback(
@@ -481,7 +500,7 @@ function RatingsAndReviews({
         return newR;
       });
     },
-    [queryClient, reviews]
+    [queryClient, reviews, updateReview]
   );
 
   const searchParams = useSearchParams();

@@ -1,16 +1,18 @@
 "use client";
 
+import { mutations } from "@/app/_data/mutations";
 import { queries } from "@/app/_data/queries";
 import BackButton from "@/components/BackButton";
+import Loader from "@/components/Loader";
 import { LoadingData } from "@/components/LoadingData";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
-import { useQuery } from "@tanstack/react-query";
-import axios from "axios";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Star } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { z, ZodFormattedError } from "zod";
 
@@ -59,7 +61,6 @@ export default function Page({ params: { id } }: { params: { id: string } }) {
 
 function ReviewForm({ productId }: { productId: string }) {
   const [stars, setStars] = useState(0);
-  console.log(productId);
   const [review, setReview] = useState({
     productId: productId,
     rating: 0,
@@ -71,6 +72,9 @@ function ReviewForm({ productId }: { productId: string }) {
     _errors: [],
   });
 
+  const postReviewMutation = useMutation(mutations.postReview);
+  const queryClient = useQueryClient();
+  const router = useRouter();
   return (
     <form
       onSubmit={(e) => {
@@ -78,9 +82,22 @@ function ReviewForm({ productId }: { productId: string }) {
         const result = reviewZodSchema.safeParse(review);
         if (result.success) {
           setErrors({ _errors: [] });
-          const response = axios.post("/api/v1/review/create", result.data);
+          postReviewMutation.mutate(review, {
+            onSuccess: () => {
+              setReview({
+                productId: productId,
+                rating: 0,
+                name: "",
+                reviewTitle: "",
+                reviewDescription: "",
+              });
+              queryClient.invalidateQueries({
+                queryKey: queries.reviews(productId).queryKey,
+              });
+              router.back();
+            },
+          });
         } else {
-          console.log(result.error.format());
           setErrors(result.error.format());
         }
       }}
@@ -93,6 +110,7 @@ function ReviewForm({ productId }: { productId: string }) {
               variant="ghost"
               className="flex items-center gap-1 hover:bg-transparent"
               size="icon"
+              disabled={postReviewMutation.isPending}
               onMouseOver={() => setStars(index + 1)}
               onMouseLeave={() => setStars(review.rating)}
               onClick={(e) => {
@@ -119,6 +137,7 @@ function ReviewForm({ productId }: { productId: string }) {
         <Input
           type="text"
           id="name"
+          disabled={postReviewMutation.isPending}
           value={review.name}
           onChange={(e) => setReview({ ...review, name: e.target.value })}
         />
@@ -131,6 +150,7 @@ function ReviewForm({ productId }: { productId: string }) {
         <Input
           type="text"
           id="reviewTitle"
+          disabled={postReviewMutation.isPending}
           value={review.reviewTitle}
           onChange={(e) =>
             setReview({ ...review, reviewTitle: e.target.value })
@@ -143,8 +163,9 @@ function ReviewForm({ productId }: { productId: string }) {
           Review Description
         </Label>
         <Textarea
-          id="reviewDescription"
           className="min-h-20"
+          id="reviewDescription"
+          disabled={postReviewMutation.isPending}
           value={review.reviewDescription}
           onChange={(e) =>
             setReview({ ...review, reviewDescription: e.target.value })
@@ -153,7 +174,14 @@ function ReviewForm({ productId }: { productId: string }) {
         <FormError error={errors.reviewDescription} />
       </FormGroup>
       <div className="flex justify-end py-4">
-        <Button type="submit">Submit</Button>
+        <Button type="submit" disabled={postReviewMutation.isPending}>
+          <span className={cn({ "opacity-0": postReviewMutation.isPending })}>
+            Submit
+          </span>
+          {postReviewMutation.isPending && (
+            <Loader className="absolute size-6" />
+          )}
+        </Button>
       </div>
     </form>
   );

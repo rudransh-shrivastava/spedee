@@ -93,6 +93,17 @@ async function buyProduct(orderData: OrderDataType) {
   return response.data;
 }
 
+async function createReview(reviewData: {
+  productId: string;
+  rating: number;
+  name: string;
+  reviewTitle: string;
+  reviewDescription: string;
+}) {
+  const response = await axios.post("/api/v1/review/create", reviewData);
+  return response.data;
+}
+
 const mutations = {
   createProduct: {
     mutationFn: createProduct,
@@ -120,6 +131,9 @@ const mutations = {
   },
   buyProduct: {
     mutationFn: buyProduct,
+  },
+  postReview: {
+    mutationFn: createReview,
   },
 };
 
