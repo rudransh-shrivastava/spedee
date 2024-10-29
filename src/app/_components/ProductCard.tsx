@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 import { AddToCartButton } from "@/components/AddToCartButton";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
+import useProductPath from "../product/[id]/_components/useProductPath";
 
 export function ProductCard({
   product,
@@ -34,6 +35,11 @@ export function ProductCard({
 
   const variant = product.variants[0];
 
+  const productPath = useProductPath({
+    id: product.id,
+    variant,
+  });
+
   return (
     <div
       ref={elementRef}
@@ -42,7 +48,7 @@ export function ProductCard({
         isVisible ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0"
       )}
     >
-      <Link href={`/product/${product.id}`}>
+      <Link href={productPath}>
         <div className="group/link overflow-hidden p-0">
           <div className="relative mx-auto flex size-[17rem] items-center justify-center overflow-hidden">
             <Image

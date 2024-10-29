@@ -10,6 +10,7 @@ import { mutations } from "@/app/_data/mutations";
 import { LoadingData } from "@/components/LoadingData";
 import Link from "next/link";
 import { AddToCartButton } from "@/components/AddToCartButton";
+import useProductPath from "@/app/product/[id]/_components/useProductPath";
 
 export type CartFrontendType = {
   product: ProductType;
@@ -80,6 +81,10 @@ function CartItemCard({ product, quantity, variantId }: CartFrontendType) {
   const updateCartMutation = useMutation(mutations.updateCart);
   const variant =
     product.variants.find((v) => v.id === variantId) || product.variants[0];
+  const productPath = useProductPath({
+    id: product.id,
+    variant,
+  });
   return quantity > 0 ? (
     <div
       className={cn(
@@ -89,7 +94,7 @@ function CartItemCard({ product, quantity, variantId }: CartFrontendType) {
           : ""
       )}
     >
-      <Link href={`/product/${product.id}`}>
+      <Link href={productPath}>
         <div className="group/link flex items-center gap-2">
           <div className="size-12">
             <Image

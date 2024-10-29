@@ -39,7 +39,7 @@ function HomePage() {
 
 function Products() {
   const { status, data: allProducts } = useQuery(
-    queries.allProducts({ page: 1 })
+    queries.allProducts({ page: 2 })
   );
   return (
     <LoadingData status={[status]}>

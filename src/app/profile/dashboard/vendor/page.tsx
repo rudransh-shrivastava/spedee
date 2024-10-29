@@ -24,6 +24,7 @@ import { mutations } from "@/app/_data/mutations";
 import { useCallback } from "react";
 import { toast } from "sonner";
 import { LoadingData } from "@/components/LoadingData";
+import useProductPath from "@/app/product/[id]/_components/useProductPath";
 
 export default function Page() {
   return <VendorDashboard />;
@@ -154,9 +155,10 @@ function ProductCard({
   ) => Promise<{ success: boolean; error: string }>;
 }) {
   const variant = product.variants[0];
+  const productPath = useProductPath({ id: product.id, variant });
   return (
     <div className="group flex w-full max-w-[19rem] flex-col border border-transparent p-4 hover:border-border">
-      <Link href={`/product/${product.id}`}>
+      <Link href={productPath}>
         <div className="group/link overflow-hidden p-0">
           <div className="relative mx-auto flex size-[17rem] items-center justify-center overflow-hidden">
             <Image

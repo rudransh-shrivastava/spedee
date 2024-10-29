@@ -19,7 +19,7 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -62,19 +62,6 @@ export default function ProductPage({
 
 function ProductComponent({ product }: { product: ProductType }) {
   const searchParams = useSearchParams();
-  const pathname = usePathname();
-  const router = useRouter();
-
-  const updateVariantURLParams = useCallback(
-    (variant: VariantType) => {
-      const currentParams = new URLSearchParams(searchParams.toString());
-      Object.keys(variant.attributes).forEach((key) => {
-        currentParams.set(key, variant.attributes[key]);
-      });
-      router.push(`${pathname}?${currentParams.toString()}`);
-    },
-    [searchParams, pathname, router]
-  );
 
   const getVariantFromURLParams = useCallback(() => {
     const matchedVariant = product.variants.find((variant) => {
@@ -87,24 +74,11 @@ function ProductComponent({ product }: { product: ProductType }) {
     return null;
   }, [product, searchParams]);
 
-  const [currentVariant, setCurrentVariant] = useState<VariantType>(
-    product.variants[0]
-  );
+  const currentVariant = getVariantFromURLParams() || product.variants[0];
 
   useEffect(() => {
-    let variant = getVariantFromURLParams();
-    if (!variant) {
-      variant = product.variants[0];
-      updateVariantURLParams(variant);
-    }
-    setCurrentVariant(variant);
-    setCurrentProductImage(variant.image);
-  }, [
-    searchParams,
-    getVariantFromURLParams,
-    product.variants,
-    updateVariantURLParams,
-  ]);
+    setCurrentProductImage(currentVariant.image);
+  }, [currentVariant]);
 
   const reviewPageParam = searchParams.get("reviewPage");
   const reviewPage = reviewPageParam ? parseInt(reviewPageParam) : 1;
