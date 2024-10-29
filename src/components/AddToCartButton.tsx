@@ -102,7 +102,7 @@ function AddToCart({
         }
       );
     },
-    [queryClient, cartProducts, product]
+    [queryClient, cartProducts, product, variantId]
   );
 
   return productQuantity > 0 ? (

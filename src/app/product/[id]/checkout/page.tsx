@@ -110,7 +110,7 @@ function Checkout({
       setErrors(result.error.format());
       console.log(result.error.format());
     }
-  }, [buyProductMutation, orderData, product]);
+  }, [buyProductMutation, orderData]);
 
   return (
     <div className="grid h-full gap-4 lg:flex lg:flex-row-reverse">

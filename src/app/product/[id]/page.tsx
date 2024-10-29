@@ -91,13 +91,6 @@ function ProductComponent({ product }: { product: ProductType }) {
     product.variants[0]
   );
 
-  const switchVariant = useCallback(
-    (variant: VariantType) => {
-      updateVariantURLParams(variant);
-    },
-    [updateVariantURLParams]
-  );
-
   useEffect(() => {
     let variant = getVariantFromURLParams();
     if (!variant) {
@@ -217,7 +210,6 @@ function ProductComponent({ product }: { product: ProductType }) {
           {product?.description}
         </p>
         <ProductVariants
-          switchVariant={switchVariant}
           attributes={product.attributes}
           variants={product.variants}
           currentVariant={currentVariant}
@@ -312,12 +304,10 @@ function ProductVariants({
   attributes,
   variants,
   currentVariant,
-  switchVariant,
 }: {
   attributes: Record<string, string[]>;
   variants: VariantType[];
   currentVariant: VariantType;
-  switchVariant: (variant: VariantType) => void;
 }) {
   const doesProductVariantExist = useCallback(
     (attributeValues: Record<string, string>) => {
@@ -332,6 +322,9 @@ function ProductVariants({
   );
 
   let checkedAttributes: { [key: string]: string } = {};
+
+  const searchParams = useSearchParams();
+  const pathName = usePathname();
 
   return Object.keys(attributes).map((attribute, attributeIndex) => {
     if (currentVariant.attributes[attribute]) {
@@ -352,55 +345,65 @@ function ProductVariants({
               ...checkedAttributes,
               [attribute]: attbValue,
             };
-            const variantExists = !doesProductVariantExist(
+
+            let variantLink = "";
+            const variantDoesntExist = !doesProductVariantExist(
               currentCheckedAttributes
             );
-            return (
-              <div
-                key={attbValueIndex}
-                onClick={() => {
-                  if (variantExists) return;
-                  const checkedAttributesAndCurrentAttributes = {
-                    ...currentVariant.attributes,
-                    ...currentCheckedAttributes,
-                  };
-                  // try to get a variant with current selected attributes + the attribute we clicked
-                  let varaint = variants.find((variant) => {
-                    return Object.keys(
-                      checkedAttributesAndCurrentAttributes
-                    ).every((key) => {
-                      return (
-                        variant.attributes[key] ===
-                        checkedAttributesAndCurrentAttributes[key]
-                      );
-                    });
-                  });
-                  if (!varaint) {
-                    // just get any variant with the attribute we clicked and attributes above it
-                    varaint = variants.find((variant) => {
-                      return Object.keys(currentCheckedAttributes).every(
-                        (key) => {
-                          return (
-                            variant.attributes[key] ===
-                            currentCheckedAttributes[key]
-                          );
-                        }
-                      );
-                    });
+            if (!variantDoesntExist) {
+              const checkedAttributesAndCurrentAttributes = {
+                ...currentVariant.attributes,
+                ...currentCheckedAttributes,
+              };
+              // try to get a variant with current selected attributes + the attribute we clicked
+              let variant = variants.find((variant) => {
+                return Object.keys(checkedAttributesAndCurrentAttributes).every(
+                  (key) => {
+                    return (
+                      variant.attributes[key] ===
+                      checkedAttributesAndCurrentAttributes[key]
+                    );
                   }
-                  switchVariant(varaint || currentVariant);
-                }}
+                );
+              });
+              if (!variant) {
+                // just get any variant with the attribute we clicked and attributes above it
+                variant = variants.find((variant) => {
+                  return Object.keys(currentCheckedAttributes).every((key) => {
+                    return (
+                      variant.attributes[key] === currentCheckedAttributes[key]
+                    );
+                  });
+                });
+              }
+
+              const currentParams = new URLSearchParams(
+                searchParams.toString()
+              );
+              if (variant) {
+                Object.keys(variant.attributes).forEach((key) => {
+                  currentParams.set(key, variant.attributes[key]);
+                });
+                variantLink = `${pathName}?${currentParams.toString()}`;
+              }
+            }
+
+            return (
+              <Link
+                href={variantLink || "#"}
+                key={attbValueIndex}
+                onClick={() => {}}
                 className={cn(
                   "flex size-16 cursor-pointer items-center justify-center rounded-full border",
                   {
-                    "cursor-not-allowed opacity-50": variantExists,
+                    "cursor-not-allowed opacity-50": variantDoesntExist,
                     "border-primary":
                       currentVariant.attributes[attribute] === attbValue,
                   }
                 )}
               >
                 {attbValue}
-              </div>
+              </Link>
             );
           })}
         </div>
@@ -451,7 +454,6 @@ function RatingsAndReviews({
             };
           };
         }) => {
-          console.log(prev);
           return {
             ...prev,
             data: {
@@ -500,7 +502,7 @@ function RatingsAndReviews({
         return newR;
       });
     },
-    [queryClient, reviews, updateReview]
+    [updateReview]
   );
 
   const searchParams = useSearchParams();
