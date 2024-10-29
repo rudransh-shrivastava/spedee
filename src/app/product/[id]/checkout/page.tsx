@@ -6,13 +6,15 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import Image from "next/image";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { z, ZodFormattedError } from "zod";
 import { ProductType } from "@/models/Product";
 import { LoadingData } from "@/components/LoadingData";
+import { ProductVariants } from "../_components/ProductVariants";
+import { useSearchParams } from "next/navigation";
 
 const addressZodSchema = z.object({
   address: z
@@ -43,38 +45,19 @@ export type OrderDataType = z.infer<typeof zodSchema>;
 type OrderDataErrorType = ZodFormattedError<z.infer<typeof zodSchema>>;
 
 export default function Page({ params: { id } }: { params: { id: string } }) {
-  const { status: cartQueryStatus, data: cartProducts } = useQuery(
-    queries.cart
-  );
   const { data: product, status: productQueryStatus } = useQuery(
     queries.product(id)
   );
 
   return (
-    <LoadingData status={[cartQueryStatus, productQueryStatus]}>
-      {product && cartProducts && (
-        <Checkout product={product} cartProducts={cartProducts} />
-      )}
+    <LoadingData status={[productQueryStatus]}>
+      {product && <Checkout product={product} />}
     </LoadingData>
   );
 }
 
-function Checkout({
-  product,
-  cartProducts,
-}: {
-  product: ProductType;
-  cartProducts: { product: ProductType; quantity: number }[];
-}) {
+function Checkout({ product }: { product: ProductType }) {
   const buyProductMutation = useMutation(mutations.buyProduct);
-  let quantity = 0;
-  const prod = cartProducts.find((cartProduct) => {
-    return cartProduct.product.id === product.id;
-  }) || { product, quantity: 1 };
-
-  if (prod) {
-    quantity = prod.quantity;
-  }
 
   const [orderData, setOrderData] = useState({
     name: "",
@@ -88,8 +71,8 @@ function Checkout({
     products: [
       {
         productId: product.id,
-        quantity: quantity || 1,
-        attributes: prod.product.variants[0].attributes,
+        quantity: 1,
+        attributes: product.variants[0].attributes,
         variantId: "",
       },
     ],
@@ -123,7 +106,12 @@ function Checkout({
       <RightPan
         orderData={orderData}
         product={product}
-        cartProducts={cartProducts}
+        updateVariant={(variantId: string) => {
+          setOrderData((prev) => ({
+            ...prev,
+            products: [{ ...prev.products[0], variantId }],
+          }));
+        }}
       />
     </div>
   );
@@ -259,41 +247,63 @@ function LeftPan({
 function RightPan({
   orderData,
   product,
-  cartProducts,
+  updateVariant,
 }: {
   orderData: OrderDataType;
   product: ProductType;
-  cartProducts: { product: ProductType; quantity: number }[];
+  updateVariant: (variantId: string) => void;
 }) {
+  const searchParams = useSearchParams();
+
+  const getVariantFromURLParams = useCallback(() => {
+    const matchedVariant = product.variants.find((variant) => {
+      const attributes = variant.attributes;
+      return Object.keys(product.attributes).every((key) => {
+        return attributes[key] === searchParams.get(key);
+      });
+    });
+    if (matchedVariant) return matchedVariant;
+    return null;
+  }, [product, searchParams]);
+
+  const currentVariant = getVariantFromURLParams() || product.variants[0];
+
+  useEffect(() => {
+    updateVariant(currentVariant.id);
+  }, [searchParams]);
+
   return product ? (
     <div className="shrink-0 rounded-lg border p-4">
-      {orderData.products[0].quantity > 0 ? (
-        <div className={cn("flex items-center gap-2 p-2")}>
-          <div className="size-12 rounded-lg bg-secondary shadow">
-            <Image
-              src={product.variants[0].image}
-              width={48}
-              height={48}
-              alt=""
-              className="size-12 rounded-lg"
-            />
-          </div>
-          <span className="text-sm">{product.name}</span>
-          {/* TODO: Add to Card Button */}
-          <div className="flex flex-col items-center px-2">
-            <span>
-              {product.variants[0].priceInPaise *
-                orderData.products[0].quantity}
-            </span>
-            <span className="text-sm text-secondary-foreground line-through">
-              {product.variants[0].salePriceInPaise *
-                orderData.products[0].quantity}
-            </span>
-          </div>
+      <div className={cn("p-2")}>
+        <div className="size-12 rounded-lg bg-secondary shadow">
+          <Image
+            src={product.variants[0].image}
+            width={48}
+            height={48}
+            alt=""
+            className="size-12 rounded-lg"
+          />
         </div>
-      ) : (
-        ""
-      )}
+        <span className="text-sm">{product.name}</span>
+        <div className="space-y-2 pt-4">
+          <ProductVariants
+            attributes={product.attributes}
+            variants={product.variants}
+            currentVariant={currentVariant}
+          />
+        </div>
+
+        {/* TODO: Add to Card Button */}
+        <div className="mt-2 flex flex-col items-end px-2">
+          <span>
+            {product.variants[0].priceInPaise * orderData.products[0].quantity}
+          </span>
+          <span className="text-sm text-secondary-foreground line-through">
+            {product.variants[0].salePriceInPaise *
+              orderData.products[0].quantity}
+          </span>
+        </div>
+      </div>
       <div className="mt-4 text-sm">Coupon Code &#40;if any&#41;</div>
       <div className="flex gap-1">
         <Input /> <Button>Apply</Button>
