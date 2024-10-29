@@ -27,7 +27,7 @@ export async function GET() {
       return Response.json({ message: "Product not found" }, { status: 404 });
     }
     const productObject: ProductType = {
-      id: `${product.id}-${item.variantId}`,
+      id: product.id,
       name: product.name,
       description: product.description,
       attributes: product.attributes,
