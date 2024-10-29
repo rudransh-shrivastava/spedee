@@ -7,6 +7,7 @@ import crypto from "crypto";
 import z from "zod";
 import { NextRequest } from "next/server";
 import Product from "@/models/Product";
+import Coupon from "@/models/Coupon";
 
 const zodSchema = z.object({
   name: z.string().min(2, { message: "Name must be at least 2 characters" }),
@@ -38,21 +39,25 @@ export async function POST(req: NextRequest) {
   }
 
   const { name, phone, shippingAddress, products, coupon } = result.data;
-  console.log(coupon);
+
   const userEmail = session.user.email;
   const matchedProducts = [];
-  let totalAmount = 5000;
-  // TODO: Implement sale price, coupons, discounts, etc.
+  let totalAmount = 0;
+  // TODO: Implement sale price, coupons, etc.
+  const productIds = [];
+  const categoryIds = [];
   for (const product of products) {
     const matchedProduct = await Product.findById(product.productId);
     if (!matchedProduct) {
       return Response.json({
-        message: "Invalid product",
+        message: `Invalid productId ${product.productId}`,
         status: 400,
         error: true,
         success: false,
       });
     }
+    productIds.push(matchedProduct.id);
+    categoryIds.push(matchedProduct.category);
     const matchedVariant = matchedProduct.variants.find(
       (variant) =>
         JSON.stringify(variant.attributes) ===
@@ -60,7 +65,7 @@ export async function POST(req: NextRequest) {
     );
     if (!matchedVariant) {
       return Response.json({
-        message: "Invalid product variant",
+        message: `Invalid product variantId ${product.variantId}`,
         status: 400,
         error: true,
         success: false,
@@ -82,6 +87,24 @@ export async function POST(req: NextRequest) {
   }
   if (!matchedProducts) {
     return Response.json({ message: "Invalid product" }, { status: 400 });
+  }
+  if (coupon) {
+    const dbCoupon = await Coupon.findOne({
+      code: coupon,
+      isActive: true,
+    });
+    if (dbCoupon && dbCoupon.discountType == "fixed") {
+      productIds.forEach((productId) => {
+        if (dbCoupon.productIds?.includes(productId)) {
+          totalAmount -= dbCoupon.discount;
+        }
+      });
+      categoryIds.forEach((categoryId) => {
+        if (dbCoupon.categoryIds?.includes(categoryId)) {
+          totalAmount -= dbCoupon.discount;
+        }
+      });
+    }
   }
   const priceInPaise = totalAmount;
   const transactionId = generatedTranscId();

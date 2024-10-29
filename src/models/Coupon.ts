@@ -4,7 +4,7 @@ import z from "zod";
 export const CouponZodSchema = z.object({
   code: z.string(),
   discount: z.number(),
-  discountType: z.enum(["percentage", "fixed", "delivery-free"]),
+  discountType: z.enum(["fixed"]),
   productIds: z.array(z.string()).optional(),
   categoryIds: z.array(z.string()).optional(),
   isActive: z.boolean(),
