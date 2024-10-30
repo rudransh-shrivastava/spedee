@@ -129,6 +129,7 @@ export function ProductForm({
             <Label>Name</Label>
             <Input
               value={product.name}
+              disabled={saving}
               onChange={(e) => {
                 setProduct((p) => ({ ...p, name: e.target.value }));
               }}
@@ -139,6 +140,7 @@ export function ProductForm({
             <Label>Description</Label>
             <Textarea
               className="h-20"
+              disabled={saving}
               value={product.description}
               onChange={(e) => {
                 setProduct((p) => ({ ...p, description: e.target.value }));
@@ -151,6 +153,7 @@ export function ProductForm({
             <div className="flex items-center gap-8">
               <Switch
                 checked={product.bestSeller}
+                disabled={saving}
                 onCheckedChange={(e) => {
                   setProduct((p) => ({
                     ...p,
@@ -160,7 +163,7 @@ export function ProductForm({
               />
               <Input
                 value={product.bestSellerPriority}
-                disabled={!product.bestSeller}
+                disabled={!product.bestSeller || saving}
                 className="w-full max-w-[200px]"
                 onChange={(e) => {
                   setProduct((p) => ({
@@ -178,6 +181,7 @@ export function ProductForm({
             <Label>Category</Label>
             <div>
               <Category
+                disabled={saving}
                 value={product.category}
                 setValue={(category) => {
                   setProduct((p) => ({
@@ -190,6 +194,7 @@ export function ProductForm({
             <FormError error={productErrors.category} />
           </FormGroup>
           <Variants
+            disabled={saving}
             updateAttributes={updateAttributes}
             attributesServer={attributesServer}
             variants={product.variants}

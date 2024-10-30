@@ -53,7 +53,7 @@ async function getAllProducts(
   page?: number
 ): Promise<PaginatedData<ProductType>> {
   const response = await getData(`/api/v1/products?page=${page}&limit=20`);
-  return response.data;
+  return response.data || { results: [] };
 }
 
 async function getFilteredProducts(query: string): Promise<ProductType[]> {

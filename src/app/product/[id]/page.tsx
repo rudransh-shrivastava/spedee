@@ -45,6 +45,7 @@ import {
 import { ReviewType } from "@/models/Review";
 import axios from "axios";
 import { ProductVariants } from "./_components/ProductVariants";
+import useProductPath from "./_components/useProductPath";
 
 export default function ProductPage({
   params: { id },
@@ -90,6 +91,11 @@ function ProductComponent({ product }: { product: ProductType }) {
   const [currentProductImage, setCurrentProductImage] = useState(
     currentVariant.image
   );
+
+  const productLink = useProductPath({
+    id: product.id,
+    variant: currentVariant,
+  });
 
   return (
     <div className="grid grid-cols-[34rem,auto] gap-4">
@@ -174,7 +180,7 @@ function ProductComponent({ product }: { product: ProductType }) {
           {product.name}
           <ShareDialog
             productName={product.name}
-            productLink={window.location.href}
+            productLink={window.location.origin + productLink}
           />
         </h1>
         <ProductPrice

@@ -25,9 +25,11 @@ import { queries } from "@/app/_data/queries";
 export function Category({
   value,
   setValue,
+  disabled,
 }: {
   value: string;
   setValue: (categoryId: string) => void;
+  disabled: boolean;
 }) {
   const { data: categories } = useQuery(queries.categories);
 
@@ -58,7 +60,7 @@ export function Category({
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
+      <PopoverTrigger disabled={disabled} asChild>
         <Button
           variant="outline"
           role="combobox"

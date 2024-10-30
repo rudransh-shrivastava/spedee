@@ -30,12 +30,14 @@ export function Variants({
   attributesServer,
   updateAttributes,
   productErrors,
+  disabled,
 }: {
   variants: (VariantType & { images: File[] })[];
   setVariants: (v: (VariantType & { images: File[] })[]) => void;
   attributesServer: AttributeType[];
   updateAttributes: (attributes: ProductType["attributes"]) => void;
   productErrors: productFormDataSchemaErrorType;
+  disabled: boolean;
 }) {
   const setVariant = useCallback(
     (
@@ -98,12 +100,14 @@ export function Variants({
           {attributes.map((attribute, index) => (
             <Button
               variant="secondary"
+              disabled={disabled}
               className="cursor-pointer select-none gap-1 px-2"
               key={index}
               asChild
             >
               <label htmlFor={`include-attribute-${index}`}>
                 <Checkbox
+                  disabled={disabled}
                   id={`include-attribute-${index}`}
                   checked={attribute.include}
                   onClick={() => {
@@ -121,6 +125,7 @@ export function Variants({
       <div className="grid gap-8">
         {variants.map((variant, variantIndex) => (
           <VariantCard
+            disabled={disabled}
             key={variantIndex}
             attributes={attributes}
             variant={variant}
@@ -131,6 +136,7 @@ export function Variants({
         ))}
         <Button
           variant="ghost"
+          disabled={disabled}
           className="flex h-auto min-h-[280px] min-w-[17rem] flex-col items-center justify-center gap-2 rounded-lg bg-card p-4 text-card-foreground"
           onClick={(e) => {
             e.preventDefault();
@@ -170,6 +176,7 @@ function VariantCard({
   setVariant,
   productErrors,
   variantIndex,
+  disabled,
 }: {
   attributes: (AttributeType & { include: boolean })[];
   variant: VariantType & { images: File[] };
@@ -180,6 +187,7 @@ function VariantCard({
   ) => void;
   productErrors: productFormDataSchemaErrorType;
   variantIndex: number;
+  disabled: boolean;
 }) {
   const updateImages = useCallback(
     (variantIndex: number, images: File[]) => {
@@ -200,6 +208,7 @@ function VariantCard({
             <VariantFormGroup key={attributeIndex}>
               <Label>{attribute.name}</Label>
               <Select
+                disabled={disabled}
                 value={variant.attributes[attribute.name]}
                 onValueChange={(e) => {
                   setVariant(variantIndex, {
@@ -211,7 +220,7 @@ function VariantCard({
                   });
                 }}
               >
-                <SelectTrigger>
+                <SelectTrigger disabled={disabled}>
                   <SelectValue placeholder={attribute.name} />
                 </SelectTrigger>
                 <SelectContent>
@@ -236,6 +245,7 @@ function VariantCard({
         <VariantFormGroup>
           <Label>Stock</Label>
           <Input
+            disabled={disabled}
             type="text"
             placeholder="0"
             value={variant.stock || ""}
@@ -265,6 +275,7 @@ function VariantCard({
         <VariantFormGroup>
           <Label>Price in Paise</Label>
           <Input
+            disabled={disabled}
             onChange={(e) => {
               setVariant(variantIndex, {
                 ...variant,
@@ -285,6 +296,7 @@ function VariantCard({
         <VariantFormGroup>
           <Label>Sale Price in Paise</Label>
           <Input
+            disabled={disabled}
             onChange={(e) => {
               setVariant(variantIndex, {
                 ...variant,
@@ -304,6 +316,7 @@ function VariantCard({
         </VariantFormGroup>
         <div className="mt-4 grid items-center gap-1">
           <Button
+            disabled={disabled}
             variant="outline"
             className="border-destructive text-destructive hover:text-destructive"
             onClick={(e) => {
@@ -316,6 +329,7 @@ function VariantCard({
         </div>
       </div>
       <DragAndDropImageUploader
+        disabled={disabled}
         key={variantIndex}
         images={variant.images}
         variantIndex={variantIndex}
@@ -347,10 +361,12 @@ function DragAndDropImageUploader({
   images,
   updateImages,
   variantIndex,
+  disabled,
 }: {
   images: File[];
   updateImages: (variantIndex: number, images: File[]) => void;
   variantIndex: number;
+  disabled: boolean;
 }) {
   const [isDragging, setIsDragging] = useState(false);
 
@@ -384,6 +400,7 @@ function DragAndDropImageUploader({
   return (
     <div className="">
       <input
+        disabled={disabled}
         type="file"
         multiple
         accept="image/*"
@@ -416,7 +433,7 @@ function DragAndDropImageUploader({
                 alt={`Selected ${imageIndex}`}
                 width={300}
                 height={300}
-                className={cn("h-full w-full object-contain object-top")}
+                className={cn("h-full w-full object-contain object-center")}
               />
             </div>
             <div className="absolute right-2 top-2 grid gap-2">

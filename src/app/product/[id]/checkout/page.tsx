@@ -91,7 +91,6 @@ function Checkout({ product }: { product: ProductType }) {
       });
     } else {
       setErrors(result.error.format());
-      console.log(result.error.format());
     }
   }, [buyProductMutation, orderData]);
 
