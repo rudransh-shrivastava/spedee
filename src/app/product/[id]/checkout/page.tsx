@@ -15,6 +15,7 @@ import { ProductType } from "@/models/Product";
 import { LoadingData } from "@/components/LoadingData";
 import { ProductVariants } from "../_components/ProductVariants";
 import { useSearchParams } from "next/navigation";
+import Loader from "@/components/Loader";
 
 const addressZodSchema = z.object({
   address: z
@@ -85,7 +86,14 @@ function Checkout({ product }: { product: ProductType }) {
     if (result.success) {
       setErrors({ _errors: [] });
       buyProductMutation.mutate(orderData, {
-        onSuccess: (data: unknown) => {
+        onSuccess: (data: {
+          message: string;
+          success: boolean;
+          url: string;
+        }) => {
+          if (data.success && data.url) {
+            window.location.href = data.url;
+          }
           console.log(data);
         },
       });
@@ -94,6 +102,13 @@ function Checkout({ product }: { product: ProductType }) {
     }
   }, [buyProductMutation, orderData]);
 
+  const updateVariant = useCallback((variantId: string) => {
+    setOrderData((prev) => ({
+      ...prev,
+      products: [{ ...prev.products[0], variantId }],
+    }));
+  }, []);
+
   return (
     <div className="grid h-full gap-4 lg:flex lg:flex-row-reverse">
       <LeftPan
@@ -101,16 +116,12 @@ function Checkout({ product }: { product: ProductType }) {
         setOrderData={setOrderData}
         errors={errors}
         placeOrder={placeOrder}
+        submitting={buyProductMutation.status === "pending"}
       />
       <RightPan
         orderData={orderData}
         product={product}
-        updateVariant={(variantId: string) => {
-          setOrderData((prev) => ({
-            ...prev,
-            products: [{ ...prev.products[0], variantId }],
-          }));
-        }}
+        updateVariant={updateVariant}
       />
     </div>
   );
@@ -121,11 +132,13 @@ function LeftPan({
   setOrderData,
   errors,
   placeOrder,
+  submitting,
 }: {
   orderData: OrderDataType;
   setOrderData: React.Dispatch<React.SetStateAction<OrderDataType>>;
   errors: OrderDataErrorType;
   placeOrder: () => void;
+  submitting: boolean;
 }) {
   return (
     <div className="grid w-full gap-4">
@@ -135,6 +148,7 @@ function LeftPan({
           <FormGroup>
             <Label>Name</Label>
             <Input
+              disabled={submitting}
               value={orderData.name}
               onChange={(e) => {
                 setOrderData((prev) => ({ ...prev, name: e.target.value }));
@@ -145,6 +159,7 @@ function LeftPan({
           <FormGroup>
             <Label>Phone</Label>
             <Input
+              disabled={submitting}
               value={orderData.phone}
               onChange={(e) => {
                 setOrderData((prev) => ({ ...prev, phone: e.target.value }));
@@ -155,6 +170,7 @@ function LeftPan({
           <FormGroup>
             <Label>Address</Label>
             <Input
+              disabled={submitting}
               value={orderData.shippingAddress.address}
               onChange={(e) => {
                 setOrderData((prev) => ({
@@ -173,6 +189,7 @@ function LeftPan({
           <FormGroup>
             <Label>Pincode</Label>
             <Input
+              disabled={submitting}
               value={orderData.shippingAddress.zip}
               onChange={(e) => {
                 setOrderData((prev) => ({
@@ -189,6 +206,7 @@ function LeftPan({
           <FormGroup>
             <Label>City</Label>
             <Input
+              disabled={submitting}
               value={orderData.shippingAddress.city}
               onChange={(e) => {
                 setOrderData((prev) => ({
@@ -205,6 +223,7 @@ function LeftPan({
           <FormGroup>
             <Label>State</Label>
             <Input
+              disabled={submitting}
               value={orderData.shippingAddress.state}
               onChange={(e) => {
                 setOrderData((prev) => ({
@@ -223,7 +242,7 @@ function LeftPan({
       <div className="w-full rounded-lg border p-4">
         <h2>Payment Options</h2>
         <div className="pt-4">
-          <RadioGroup defaultValue="option-phone-pe">
+          <RadioGroup defaultValue="option-phone-pe" disabled={submitting}>
             <Label
               htmlFor="option-phone-pe"
               className="flex cursor-pointer items-center space-x-2 rounded-lg border p-4"
@@ -236,7 +255,22 @@ function LeftPan({
           </RadioGroup>
         </div>
         <div className="flex justify-end pt-2">
-          <Button onClick={placeOrder}>Pay</Button>
+          <Button
+            onClick={placeOrder}
+            className={cn({
+              "disabled:opacity-100": submitting,
+            })}
+            disabled={submitting}
+          >
+            <span
+              className={cn({
+                "opacity-0": submitting,
+              })}
+            >
+              Pay
+            </span>
+            {submitting && <Loader className="absolute size-6" />}
+          </Button>
         </div>
       </div>
     </div>
