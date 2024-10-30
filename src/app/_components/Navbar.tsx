@@ -252,12 +252,20 @@ function LocationDialog() {
       }}
     >
       <DialogTrigger asChild>
-        <Button variant="ghost" className="text-sm hover:bg-transparent">
-          <div className="relative flex max-w-[15rem] items-center overflow-hidden">
-            {locationName ? locationName : "Location"}
-            <div className="to absolute right-0 h-full w-1 bg-gradient-to-tr from-transparent to-background"></div>
+        <Button
+          variant="ghost"
+          className="h-auto flex-col text-sm hover:bg-transparent"
+        >
+          <div className="flex items-center text-xs text-secondary-foreground">
+            <div className="relative flex max-w-[15rem] items-center overflow-hidden">
+              {locationName ? locationName : "Location"}
+              <div className="to absolute right-0 h-full w-1 bg-gradient-to-tr from-transparent to-background"></div>
+            </div>
+            <ChevronDown strokeWidth={1.5} />
           </div>
-          <ChevronDown strokeWidth={1.5} />
+          <span className="text-base font-semibold text-secondary-foreground">
+            Delivery in 15 - 45 minutes
+          </span>
         </Button>
       </DialogTrigger>
       <DialogContent>
