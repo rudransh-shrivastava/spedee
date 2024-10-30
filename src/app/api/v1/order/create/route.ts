@@ -166,32 +166,31 @@ export async function POST(req: NextRequest) {
     },
   };
   console.log("sent base64 payload: ", base64Payload);
-  axios
-    .request(requestData)
-    .then(async function (response) {
-      const phonePeTransactionId = response.data.transactionId;
-      console.log("Payment API Response:", response.data);
-      console.log(response.data.data.instrumentResponse);
-      return Response.json({
-        message: "Payment initiated",
-        success: true,
-        phonePeTransactionId,
-        url: response.data.data.instrumentResponse.url,
-      });
-    })
-    .catch(function (error) {
-      console.error("Payment API Error:", error.message);
-      return Response.json({
-        message: "Payment failed",
-        success: false,
-        error: error.message,
-      });
+  let url = "";
+  let txnId = "";
+  try {
+    const response = await axios.request(requestData);
+    const phonePeTransactionId = await response.data.transactionId;
+    console.log("Payment API Response:", response.data);
+    console.log(response.data.data.instrumentResponse);
+    url = await response.data.data.instrumentResponse.redirectInfo.url;
+    console.log("Payment URL:", url);
+    txnId = response.data.merchantTransactionId;
+    console.log("txn id:", txnId);
+    return Response.json({
+      message: "Payment initiated",
+      success: true,
+      phonePeTransactionId,
+      url,
     });
-  return Response.json({
-    message: "Payment initiated (?)",
-    url: null,
-    success: false,
-  });
+  } catch (error) {
+    console.error("Payment API Error:", error);
+    return Response.json({
+      message: "Payment failed",
+      success: false,
+      error: error,
+    });
+  }
 }
 function generatedTranscId() {
   return "T" + Date.now();
