@@ -61,18 +61,27 @@ function AddToCart({
   className?: string;
 }) {
   const queryClient = useQueryClient();
-  const productInCart = cartProducts?.find((p) => p.product.id === product.id);
-  const productQuantity =
-    productInCart && productInCart.variantId === variantId
-      ? productInCart.quantity
-      : 0;
+  const productInCart = cartProducts?.find((p) => {
+    console.log("name: ", p.product.name);
+    // console.log("product in cart: ", p.product.id, p.variantId);
+    console.log("product: ", product.id, variantId);
+    console.log(" ");
+    return p.product.id === product.id && p.variantId === variantId;
+  });
+  const productQuantity = productInCart ? productInCart.quantity : 0;
 
+  console.log(
+    "in btn productQuantity of product " + product.name,
+    productQuantity,
+    productInCart?.variantId,
+    variantId
+  );
   const updateCartMutation = useMutation(mutations.updateCart);
 
   const updateQuantity = useCallback(
     (cb: (q: number) => number) => {
       const productExistInCart = cartProducts?.find(
-        (p) => p.product.id === product.id
+        (p) => p.product.id === product.id && p.variantId === variantId
       );
       if (!productExistInCart && cb(0)) {
         queryClient.setQueryData(
@@ -85,17 +94,27 @@ function AddToCart({
       } else if (productExistInCart && cb(productExistInCart.quantity) <= 0) {
         queryClient.setQueryData(
           queries.cart.queryKey,
-          (data: { product: ProductType; quantity: number }[]) => {
-            return data.filter((p) => p.product.id !== product.id);
+          (
+            data: {
+              product: ProductType;
+              quantity: number;
+              variantId: string;
+            }[]
+          ) => {
+            return data.filter(
+              (p) => p.product.id !== product.id && p.variantId !== variantId
+            );
           }
         );
         return;
       }
       queryClient.setQueryData(
         queries.cart.queryKey,
-        (data: { product: ProductType; quantity: number }[]) => {
+        (
+          data: { product: ProductType; quantity: number; variantId: string }[]
+        ) => {
           return data.map((p) =>
-            p.product.id === product.id
+            p.product.id === product.id && p.variantId === variantId
               ? { ...p, quantity: cb(p.quantity), variantId }
               : p
           );

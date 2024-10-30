@@ -52,7 +52,7 @@ async function getReviews(
 async function getAllProducts(
   page?: number
 ): Promise<PaginatedData<ProductType>> {
-  const response = await getData(`/api/v1/products?page=${page}`);
+  const response = await getData(`/api/v1/products?page=${page}&limit=20`);
   return response.data;
 }
 
@@ -77,6 +77,7 @@ async function getBestSellerProducts(): Promise<ProductType[]> {
 
 async function getCart(): Promise<CartFrontendType[]> {
   const data = await getData("/api/v1/cart");
+  // console.log("Cart Items Api Response", JSON.stringify(data.items, null, 2));
   return data.items;
 }
 
