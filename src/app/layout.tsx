@@ -10,6 +10,7 @@ import SessionProvider from "@/app/_components/SessionProvider";
 import ReactQueryProvider from "@/app/_components/ReactQueryProvider";
 import { Toaster } from "@/components/ui/sonner";
 import LocationProvider from "@/app/_components/LocationProvider";
+import { ThemeProvider } from "@/components/theme-provider";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -34,7 +35,7 @@ export default async function RootLayout({
 }>) {
   const session = await getServerSession(authOptions);
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <SessionProvider session={session}>
         <body
           className={cn(
@@ -42,16 +43,18 @@ export default async function RootLayout({
             "min-h-svh"
           )}
         >
-          <ReactQueryProvider>
-            <LocationProvider>
-              <Navbar />
-              <div className="mx-auto max-w-[1600px] p-2 md:p-4">
-                {children}
-              </div>
-              <Footer />
-              <Toaster />
-            </LocationProvider>
-          </ReactQueryProvider>
+          <ThemeProvider attribute="class" defaultTheme="system">
+            <ReactQueryProvider>
+              <LocationProvider>
+                <Navbar />
+                <div className="mx-auto max-w-[1600px] p-2 md:p-4">
+                  {children}
+                </div>
+                <Footer />
+                <Toaster />
+              </LocationProvider>
+            </ReactQueryProvider>
+          </ThemeProvider>
         </body>
       </SessionProvider>
     </html>
