@@ -270,7 +270,7 @@ function RightPan({
 
   useEffect(() => {
     updateVariant(currentVariant.id);
-  }, [searchParams]);
+  }, [searchParams, currentVariant.id, updateVariant]);
 
   return product ? (
     <div className="shrink-0 rounded-lg border p-4">

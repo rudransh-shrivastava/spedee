@@ -81,11 +81,6 @@ function CartItemCard({ product, quantity, variantId }: CartFrontendType) {
   const updateCartMutation = useMutation(mutations.updateCart);
   const variant =
     product.variants.find((v) => v.id === variantId) || product.variants[0];
-  // console.log(
-  //   "variantId found of ",
-  //   product.name,
-  //   product.variants.find((v) => v.id === variantId)
-  // );
   const productPath = useProductPath({
     id: product.id,
     variant,

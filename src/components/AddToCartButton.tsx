@@ -62,20 +62,9 @@ function AddToCart({
 }) {
   const queryClient = useQueryClient();
   const productInCart = cartProducts?.find((p) => {
-    console.log("name: ", p.product.name);
-    // console.log("product in cart: ", p.product.id, p.variantId);
-    console.log("product: ", product.id, variantId);
-    console.log(" ");
     return p.product.id === product.id && p.variantId === variantId;
   });
   const productQuantity = productInCart ? productInCart.quantity : 0;
-
-  console.log(
-    "in btn productQuantity of product " + product.name,
-    productQuantity,
-    productInCart?.variantId,
-    variantId
-  );
   const updateCartMutation = useMutation(mutations.updateCart);
 
   const updateQuantity = useCallback(
